@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="GB2312"?>
+<settings>
+
+<!-- 
+<parameter id="master.servant.config" value="${master.home}/servant.config.xml"/>
+<parameter id="secondary.servant.config" value="${secondary.home}/servant.config.xml"/>
+ -->
+ 
+<!-- 
+<parameter id="master.timer.config" value="${master.home}/timer.xml"/>
+<parameter id="secondary.timer.config" value="${secondary.home}/timer.xml"/>
+ -->
+ 
+<parameter id="http.contenttype" value="text/xml;charset=utf-8"/>
+<parameter id="http.encoding" value="utf-8"/>
+<parameter id="service.maxcount" value="10"/>
+<!-- 
+<parameter id="service.monitor" value="none"/>
+-->
+ 
+<parameter id="module.accesscontroller" value="com.logicbus.backend.IpAndServiceAccessController"/>
+</settings>
