@@ -43,7 +43,7 @@ public class AclQuery extends Servant {
 		Element root = msg.getRoot();
 		
 		Settings settings = Settings.get();
-		AccessController ac = (AccessController) settings.get("AccessController");
+		AccessController ac = (AccessController) settings.get("accessController");
 		if (ac != null){
 			Element acls = doc.createElement("acls");
 			
