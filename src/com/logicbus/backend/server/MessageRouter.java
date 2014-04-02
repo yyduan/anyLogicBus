@@ -18,7 +18,10 @@ import com.logicbus.models.catalog.Path;
  * 消息路由器
  * 
  * @author duanyy
- *
+ * 
+ * @version 1.0.1 [20140402 duanyy] <br>
+ * - {@link com.logicbus.backend.AccessController AccessController}有更新
+ * 
  */
 public class MessageRouter {
 	
@@ -39,6 +42,7 @@ public class MessageRouter {
 		
 		ServantPool pool = null;
 		Servant servant = null;		
+		String sessionId = "";
 		try{
 			ServantFactory factory = ServantFactory.get();
 			pool = factory.getPool(id);		
@@ -50,7 +54,8 @@ public class MessageRouter {
 			int priority = 0;
 			
 			if (null != ac){
-				priority = ac.accessStart(id, pool.getDescription(), ctx);
+				sessionId = ac.createSessionId(id, pool.getDescription(), ctx);
+				priority = ac.accessStart(sessionId,id, pool.getDescription(), ctx);
 				if (priority < 0){
 					ctx.setReturnCode("client.permission_denied");
 					ctx.setReason("Permission denied！service id: "+ id);
@@ -96,7 +101,7 @@ public class MessageRouter {
 			if (servant != null)
 				servant.setState(Servant.STATE_IDLE);		
 			if (ac != null){
-				ac.accessEnd(id, servant.getDescription(), ctx);
+				ac.accessEnd(sessionId,id, servant.getDescription(), ctx);
 			}
 			ctx.setEndTime(System.currentTimeMillis());
 			if (pool != null){

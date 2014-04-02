@@ -15,7 +15,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * - 限定每个客户端对每个服务的在一分钟内的访问次数，通过client.maxTimesPerMin环境变量控制，缺省值为1000.<br>
  * 
  * @author duanyy
- *
+ * 
+ * @version 1.0.1 [20140402 duanyy] <br>
+ * - {@link com.logicbus.backend.AccessController AccessController}有更新
+ * 
  */
 public class IpAndServiceAccessController extends AbstractAccessController {
 	
@@ -36,7 +39,7 @@ public class IpAndServiceAccessController extends AbstractAccessController {
 	}
 
 	@Override
-	protected String getSessionId(Path serviceId, ServiceDescription servant,
+	public String createSessionId(Path serviceId, ServiceDescription servant,
 			Context ctx){
 		return ctx.getClientIp() + ":" + serviceId.getPath();
 	}

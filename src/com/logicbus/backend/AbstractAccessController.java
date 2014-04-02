@@ -19,7 +19,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * - 如何根据等待队列长度，最近一分钟之内的调用次数等变量判断访问权限<br>
  * 
  * @author duanyy
- *
+ * 
+ * @version 1.0.1 [20140402 duanyy] <br>
+ * - {@link com.logicbus.backend.AccessController AccessController}有更新
+ * 
  */
 abstract public class AbstractAccessController implements AccessController {
 	/**
@@ -33,11 +36,10 @@ abstract public class AbstractAccessController implements AccessController {
 	protected Object lock = new Object();
 
 	@Override
-	public int accessEnd(Path serviceId, ServiceDescription servant,
+	public int accessEnd(String sessionId,Path serviceId, ServiceDescription servant,
 			Context ctx) {
-		String sessionID = getSessionId(serviceId,servant,ctx);
 		synchronized(lock){
-			AccessStat current = acl.get(sessionID);
+			AccessStat current = acl.get(sessionId);
 			if (current != null){
 				current.thread --;
 			}
@@ -46,9 +48,8 @@ abstract public class AbstractAccessController implements AccessController {
 	}
 
 	@Override
-	public int accessStart(Path serviceId, ServiceDescription servant,
+	public int accessStart(String sessionId,Path serviceId, ServiceDescription servant,
 			Context ctx) {
-		String sessionId = getSessionId(serviceId,servant,ctx);
 		synchronized(lock){
 			AccessStat current = acl.get(sessionId);	
 			if (current == null){
@@ -72,17 +73,7 @@ abstract public class AbstractAccessController implements AccessController {
 			return getClientPriority(serviceId,servant,ctx,current);
 		}
 	}
-	
-	/**
-	 * 获取SessionID
-	 * @param serviceId 服务ID
-	 * @param servant 服务描述
-	 * @param ctx 上下文
-	 * @return SessionID
-	 */
-	abstract protected String getSessionId(Path serviceId, ServiceDescription servant,
-			Context ctx);
-	
+		
 	/**
 	 * 获取控制优先级
 	 * @param serviceId 服务ID
