@@ -25,3 +25,10 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  - 1.0.0 [20140327 duanyy]
      + 首次发布
      
+ - 1.0.1 [20140402 duanyy]
+     + 改进访问控制模型，以避免SessionID多次计算
+     
+ - 1.0.2 [20140407 duanyy]
+     + 修改{@link com.logicbus.backend.server.MessageRouter MessageRouter},
+     采用{@link java.util.concurrent.CountDownLatch CountDownLatch}来等待服务执行。
+     

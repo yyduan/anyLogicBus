@@ -1,5 +1,8 @@
 package com.logicbus.backend.server;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -20,8 +23,10 @@ import com.logicbus.models.catalog.Path;
  * @author duanyy
  * 
  * @version 1.0.1 [20140402 duanyy] <br>
- * - {@link com.logicbus.backend.AccessController AccessController}有更新
+ * - {@link com.logicbus.backend.AccessController AccessController}有更新<br>
  * 
+ * @version 1.0.2 [20140407 duanyy]<br>
+ * - 采用{@link java.util.concurrent.CountDownLatch CountDownLatch}来和工作进程通讯.<br>
  */
 public class MessageRouter {
 	
@@ -43,6 +48,7 @@ public class MessageRouter {
 		ServantPool pool = null;
 		Servant servant = null;		
 		String sessionId = "";
+		CountDownLatch latch = new CountDownLatch(1);
 		try{
 			ServantFactory factory = ServantFactory.get();
 			pool = factory.getPool(id);		
@@ -65,24 +71,14 @@ public class MessageRouter {
 
 			servant = pool.getServant(priority);
 
-			ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx);
-			long start_time = System.currentTimeMillis();
+			ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx,latch);
 			thread.start();
-			Thread.sleep(10);
-			while (!thread.isFinished()){
-				Thread.sleep(150);
-				if (servant.isTimeOut(start_time)){
-					break;
-				}
-			}
-			
-			if (!thread.isFinished()){
-				thread.interrupt();
+			if (!latch.await(servant.getTimeOutValue(), TimeUnit.MILLISECONDS)){
 				ctx.setReturnCode("core.time_out");
-				ctx.setReason("Time out.");
+				ctx.setReason("Time out or interrupted.");
 			}
-			
 			thread = null;
+			
 		}catch (ServantException ex){
 			ctx.setReturnCode(ex.getCode());
 			ctx.setReason(ex.getMessage());

@@ -1,12 +1,15 @@
 package com.logicbus.backend;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.logicbus.backend.message.MessageDoc;
 
 /**
  * 服务员工作线程
  * 
  * @author duanyy
- *
+ * @version 1.0.2 [20140407 duanyy]<br>
+ * - 采用{@link java.util.concurrent.CountDownLatch CountDownLatch}来和主进程通讯.<br>
  */
 public class ServantWorkerThread extends Thread {
 	/**
@@ -20,12 +23,17 @@ public class ServantWorkerThread extends Thread {
 	 * @param _doc 本次调用消息文档
 	 * @param _ctx 本次调用上下文
 	 */
-	public ServantWorkerThread(Servant _servant,MessageDoc _doc,Context _ctx){
+	public ServantWorkerThread(Servant _servant,MessageDoc _doc,Context _ctx,CountDownLatch _latch){
 		m_servant = _servant;
 		m_doc = _doc;
 		m_ctx = _ctx;
-		m_finished = false;
+		latch = _latch;
 	}
+	
+	/**
+	 * Count Down Latch
+	 */
+	protected CountDownLatch latch = null;
 	
 	/**
 	 * 本次调用的消息文档
@@ -37,16 +45,6 @@ public class ServantWorkerThread extends Thread {
 	 */
 	private Context m_ctx = null;
 	
-	/**
-	 * 线程是否完成
-	 */
-	private boolean m_finished = false;
-	
-	/**
-	 * 查询线程是否完成
-	 * @return 
-	 */
-	public boolean isFinished(){return m_finished;}
 	
 	/**
 	 * 线程运行主函数
@@ -69,7 +67,10 @@ public class ServantWorkerThread extends Thread {
 			m_servant.actionException(m_doc, m_ctx, 
 					new ServantException("core.fatalerror",t.getMessage()));
 		}finally{
-			m_finished = true;
+			if (latch != null){
+				//告知，事情已经做完
+				latch.countDown();
+			}
 		}
 	}
 }
