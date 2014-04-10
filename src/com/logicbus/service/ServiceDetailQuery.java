@@ -47,16 +47,14 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @author duanyy
  *
+ * @version 1.0.3 [20140410 duanyy]
+ * - 改用取参数机制来提取参数
+ * 
  */
 public class ServiceDetailQuery extends Servant {
 	@Override
-	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {		
-		String id = ctx.GetValue("service", "");
-		if (id == null || id.length() <= 0) {
-			throw new ServantException("client.args_not_found",
-					"Can not find parameter:service");
-		}		
-		
+	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {
+		String id = getArgument("service", msgDoc, ctx);		
 		Path path = new Path(id);
 		ServantManager sm = ServantManager.get();
 		ServiceDescription sd = sm.get(path);

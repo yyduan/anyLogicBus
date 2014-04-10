@@ -6,8 +6,13 @@
 			name="ServiceDetailQuery" 
 			note="查询指定的服务信息" 
 			visible="protected" 
-			module="com.logicbus.service.ServiceDetailQuery"
-		/>
+			module="com.logicbus.service.ServiceDetailQuery">
+			
+		    <arguments>
+		       	<argu id="service" isOption="false" getter="Default" parameters=""/> 
+		    </arguments>
+		    
+		</service>
 			
 		<service 
 			id="GC" 

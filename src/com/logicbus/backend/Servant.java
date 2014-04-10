@@ -2,6 +2,7 @@ package com.logicbus.backend;
 
 import com.anysoft.util.PropertiesConstants;
 import com.logicbus.backend.message.*;
+import com.logicbus.models.servant.Argument;
 import com.logicbus.models.servant.ServiceDescription;
 
 import org.apache.log4j.Logger;
@@ -11,7 +12,11 @@ import org.apache.log4j.LogManager;
  * 服务员(所有服务实现的基类)
  * 
  * @author duanyy
- *
+ * 
+ * @version 1.0.3 [20140410 duanyy] <br>
+ * - 增加调用参数读取的封装函数 <br>
+ *     + {@link com.logicbus.backend.Servant#getArgument(String, MessageDoc, Context) getArgument(String,MessageDoc,Context)} <br>
+ *     + {@link com.logicbus.backend.Servant#getArgument(String, String, MessageDoc, Context) getArgument(String,String,MessageDoc,Context)} <br>
  */
 abstract public class Servant {
 	/**
@@ -117,6 +122,55 @@ abstract public class Servant {
 	 * @return 服务描述
 	 */
 	public ServiceDescription getDescription(){return m_desc;}
+	
+	/**
+	 * 从接口文档和上下文中读取参数
+	 * @param id 参数ID
+	 * @param defaultValue 缺省值
+	 * @param msgDoc 接口文档
+	 * @param ctx 上下文
+	 * @return 参数值
+	 * 
+	 * @since 1.0.3
+	 */
+	public String getArgument(String id,String defaultValue,MessageDoc msgDoc, Context ctx) throws ServantException{
+		Argument argu = m_desc.getArgument(id);
+		if (argu == null){
+			//没有定义参数
+			return ctx.GetValue(id, defaultValue);
+		}
+		
+		String value = argu.getValue(msgDoc, ctx);
+		if (value == null || value.length() <= 0){
+			return defaultValue;
+		}
+		return value;
+	}
+
+	/**
+	 * 从接口文档和上下文中读取参数
+	 * @param id 参数ID
+	 * @param msgDoc 接口文档
+	 * @param ctx 上下文
+	 * @return 参数值
+	 * 
+	 * @since 1.0.3
+	 */
+	public String getArgument(String id,MessageDoc msgDoc, Context ctx) throws ServantException{
+		Argument argu = m_desc.getArgument(id);
+		String value = null;
+		if (argu == null){
+			//没有定义参数
+			value = ctx.GetValue(id, "");
+		}else{
+			value = argu.getValue(msgDoc, ctx);
+		}		
+		if (value == null || value.length() <= 0){
+			throw new ServantException("client.args_not_found",
+					"Can not find parameter:" + id);
+		}
+		return value;
+	}	
 	
 	/**
 	 * 服务处理过程

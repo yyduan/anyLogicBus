@@ -22,7 +22,9 @@ import java.util.List;
  * 服务描述
  * 
  * @author duanyy
- *
+ * @version 1.0.3 [20140410 duanyy]<br>
+ * + 增加调用参数列表<br>
+ * 
  */
 public class ServiceDescription implements XmlSerializer{
 	/**
@@ -150,7 +152,36 @@ public class ServiceDescription implements XmlSerializer{
 	 * 获取服务以来库文件列表
 	 * @return 
 	 */
-	public String [] getModules(){return modulesMaster == null ? null : modulesMaster.toArray(new String[0]);}
+	public String [] getModules(){return modulesMaster == null ? 
+			null : modulesMaster.toArray(new String[0]);}
+	
+	/**
+	 * 服务调用参数列表
+	 * 
+	 * @since 1.0.3
+	 */
+	protected HashMap<String,Argument> argumentList = null;
+	
+	/**
+	 * 获取服务调用参数列表
+	 * @return
+	 * @since 1.0.3
+	 */
+	public Argument [] getArgumentList(){
+		if (argumentList == null)
+			return null;
+		
+		return argumentList.values().toArray(new Argument[0]);
+	}
+	
+	/**
+	 * 获取指定ID的参数
+	 * @param id 参数Id
+	 * @return 
+	 */
+	public Argument getArgument(String id){
+		return argumentList.get(id);
+	}
 	
 	/**
 	 * 输出到打印流
@@ -216,6 +247,20 @@ public class ServiceDescription implements XmlSerializer{
 			root.appendChild(eModules);
 		}
 
+		if (argumentList != null && argumentList.size() > 0){
+			Element eArguments = doc.createElement("arguments");
+			Argument [] _argumentList = getArgumentList();
+			for (Argument argu:_argumentList){
+				Element eArgu = doc.createElement("argu");
+				
+				argu.toXML(eArgu);
+				
+				eArguments.appendChild(eArgu);
+			}
+			
+			root.appendChild(eArguments);
+		}
+		
 	}
 	
 	@Override
@@ -259,6 +304,29 @@ public class ServiceDescription implements XmlSerializer{
 				if (url != null && url.length() > 0){
 					modulesMaster.add(url);
 				}
+			}
+		}
+		
+		NodeList eArguments = XmlTools.getNodeListByPath(root, "arguments/argu");
+		if (eArguments != null){
+			if (argumentList == null){
+				argumentList = new HashMap<String,Argument>();
+			}else{
+				argumentList.clear();
+			}
+			
+			for (int i = 0 ; i < eArguments.getLength() ; i ++){
+				Node n = eArguments.item(i);
+				if (n.getNodeType() != Node.ELEMENT_NODE){
+					continue;
+				}
+				Element e = (Element) n;
+				Argument argu = new Argument();
+				argu.fromXML(e);
+				if (argu.getId().length() <= 0){
+					continue;
+				}
+				argumentList.put(argu.getId(),argu);
 			}
 		}
 	}
@@ -307,6 +375,23 @@ public class ServiceDescription implements XmlSerializer{
 				modulesMaster.add((String)module);
 			}
 		}
+		
+		Object argumentsObj = json.get("arguments");
+		if (argumentsObj != null && argumentsObj instanceof List){
+			List arguList = (List)argumentsObj;
+			for (Object argumentObj : arguList){
+				if (! (argumentObj instanceof Map)){
+					continue;
+				}
+				Map argumentMap = (Map) argumentObj;
+				Argument argu = new Argument();
+				argu.fromJson(argumentMap);
+				if (argu.getId().length() <= 0){
+					continue;
+				}
+				argumentList.put(argu.getId(),argu);
+			}
+		}
 	}
 	
 	/**
@@ -350,5 +435,18 @@ public class ServiceDescription implements XmlSerializer{
 			
 			json.put("modules", modulesList);
 		}		
+		if (argumentList != null && argumentList.size() > 0){
+			List arguList = new Vector();
+			Argument [] _argumentList = getArgumentList();
+			for (Argument argument:_argumentList){
+				Map argumentMap = new HashMap();
+				
+				argument.toJson(argumentMap);
+				
+				arguList.add(argumentMap);
+			}
+			
+			json.put("arguments", arguList);
+		}
 	}
 }
