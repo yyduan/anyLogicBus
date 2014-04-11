@@ -1,23 +1,24 @@
 package com.logicbus.backend.message;
 
 import java.io.OutputStream;
+
+import javax.servlet.http.HttpServletResponse;
+
 import com.anysoft.util.IOTools;
 
 /**
  * JSON消息
  * 
  * @author duanyy
- *
+ * @version 1.0.4 [20140410 duanyy]
+ * - 将encoding提升为父类的成员
+ * 
  */
 public class JSONMessage extends Message {
 	/**
 	 * 消息文本
 	 */
 	protected StringBuffer buf = null;
-	/**
-	 * 编码
-	 */
-	protected String encoding = "utf-8";
 	
 	/**
 	 * constructor 
@@ -25,14 +26,13 @@ public class JSONMessage extends Message {
 	 * @param _encoding 编码
 	 */
 	public JSONMessage(MessageDoc doc,StringBuffer _buf,String _encoding){
-		super(doc);
+		super(doc,_encoding);
 		buf = _buf;
-		encoding = _encoding;
 		setContentType("application/json;charset="+encoding);
 	}
 	
 	@Override
-	public void output(OutputStream out) {
+	public void output(OutputStream out,HttpServletResponse response) {
 		try {
 			String returnCode = msgDoc.getReturnCode();
 			if (returnCode.equals("core.ok")){

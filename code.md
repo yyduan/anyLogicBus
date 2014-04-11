@@ -19,4 +19,8 @@ code
  - client.permission_denied 无权访问本服务
  - client.args_not_found 缺省服务参数
  - user.data_not_found 没有找到相应的数据
- - 
+ 
+#### 客户端API的错误
+ - client.no_remote_home 没有设置远程服务根路径
+ - client.error_url 客户端生成的URL格式错误
+ - client.invoke_error 服务调用错误

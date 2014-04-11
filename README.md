@@ -34,5 +34,10 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
      
  - 1.0.3 [20140410 duanyy]
      + 在{@link com.logicbus.models.servant.ServiceDescription ServiceDescription}中增加调用参数列表
-     - 在{@link com.logicbus.backend.Servant Servant}增加调用参数读取的封装函数 
+     + 在{@link com.logicbus.backend.Servant Servant}增加调用参数读取的封装函数 
  
+ - 1.0.4 [20140410 duanyy]
+     + 增加Raw消息，见{@link com.logicbus.backend.message.RawMessage RawMessage}
+     + 增加客户端调用框架，见{@link com.logicbus.client Client}
+     
+     

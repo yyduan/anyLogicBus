@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * 消息文档
  * @author duanyy
- *
+ * 
+ * @version 1.0.4 [20140410 duanyy]
+ * - 增加对RawMessage的支持，见{@link com.logicbus.backend.message#
  */
 public class MessageDoc {	
 	/**
@@ -106,6 +108,19 @@ public class MessageDoc {
 	}
 	
 	/**
+	 * 作为RAW消息
+	 * @return
+	 * 
+	 * @since 1.0.4
+	 */
+	public RawMessage asRaw(){
+		if (msg == null){
+			msg = new RawMessage(this,doc,encoding);
+		}
+		return (RawMessage)msg;
+	}
+	
+	/**
 	 * 获取文档的content-type
 	 * @return content-type
 	 */
@@ -124,7 +139,7 @@ public class MessageDoc {
 	public void output(OutputStream out, HttpServletResponse response){
 		if (msg != null){
 			response.setCharacterEncoding(encoding);
-			msg.output(out);
+			msg.output(out,response);
 		}else{
 			if (!returnCode.equals("core.ok")){
 				try {
