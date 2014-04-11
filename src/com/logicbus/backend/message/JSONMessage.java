@@ -14,11 +14,7 @@ import com.anysoft.util.IOTools;
  * - 将encoding提升为父类的成员
  * 
  */
-public class JSONMessage extends Message {
-	/**
-	 * 消息文本
-	 */
-	protected StringBuffer buf = null;
+public class JSONMessage extends RawMessage {
 	
 	/**
 	 * constructor 
@@ -26,8 +22,7 @@ public class JSONMessage extends Message {
 	 * @param _encoding 编码
 	 */
 	public JSONMessage(MessageDoc doc,StringBuffer _buf,String _encoding){
-		super(doc,_encoding);
-		buf = _buf;
+		super(doc,_buf,_encoding);
 		setContentType("application/json;charset="+encoding);
 	}
 	
@@ -47,20 +42,5 @@ public class JSONMessage extends Message {
 		}finally {
 			IOTools.closeStream(out);
 		}
-	}
-	
-	/**
-	 * 获取消息文本
-	 * @return 消息文本
-	 */
-	public StringBuffer getBuffer(){
-		return buf;
-	}
-	
-	/**
-	 * to string
-	 */
-	public String toString(){
-		return buf.toString();
 	}
 }
