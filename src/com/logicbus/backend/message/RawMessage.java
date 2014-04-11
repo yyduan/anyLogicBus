@@ -44,7 +44,20 @@ public class RawMessage extends Message {
 		}finally {
 			IOTools.closeStream(out);
 		}
-
+	}
+	/**
+	 * 获取消息文本
+	 * @return 消息文本
+	 */
+	public StringBuffer getBuffer(){
+		return buf;
+	}
+	
+	/**
+	 * to string
+	 */
+	public String toString(){
+		return buf.toString();
 	}
 
 }
