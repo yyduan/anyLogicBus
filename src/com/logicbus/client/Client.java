@@ -16,7 +16,7 @@ abstract public class Client {
 	 * @throws ClientException
 	 */
 	public Response invoke(String id) throws ClientException{
-		Response result = new Response();
+		Response result = new Buffer();
 		return invoke(id,null,result);		
 	}
 	/**
@@ -37,7 +37,7 @@ abstract public class Client {
 	 * @throws ClientException
 	 */
 	public Response invoke(String id,Request para) throws ClientException{
-		Response result = new Response();
+		Response result = new Buffer();
 		return invoke(id,para,result);
 	}
 	/**

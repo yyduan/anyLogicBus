@@ -110,13 +110,13 @@ public class HttpClient extends Client {
 			String encoding = conn.getContentEncoding();
 			encoding = encoding == null ? "utf-8" : encoding;
 			
-			result.setContentType(contentType);
-			result.setEncoding(encoding);
+			result.setResponseAttribute("Content-Type",contentType);
+			result.setResponseAttribute("Encoding",encoding);
 			
 			in = conn.getInputStream();
 			reader = new BufferedReader(new InputStreamReader(in,encoding));
 			StringBuffer content = result.getBuffer();
-
+			content.setLength(0);
 			String line = null;
 			while ((line = reader.readLine()) != null){
 				content.append(line);
@@ -141,16 +141,19 @@ public class HttpClient extends Client {
 	private void output(HttpURLConnection conn, Request para) throws ClientException {
 		OutputStream out = null;
 		try {
-			String content = para.getContent();
+			StringBuffer content = para.getBuffer();
 			if (content == null || content.length() <= 0){
 				return ;
 			}
-			String encoding = para.getEncoding();
-			String contentType = para.getContentType() + ";charset=" + para.getEncoding();
-			conn.addRequestProperty("Content-Type", contentType);
+			String encoding = para.getRequestAttribute("Encoding", "utf-8");
+			String contentType = para.getRequestAttribute("Content-Type", 
+					"text/plain;charset=utf-8");
 			
+			conn.addRequestProperty("Content-Type", contentType);
 			out = conn.getOutputStream();
-			out.write(content.getBytes(encoding));
+			
+			String data = content.toString();
+			out.write(data.getBytes(encoding));
 		}catch (IOException ex){
 			throw new ClientException("client.io_error","Net io error.");
 		}finally {
@@ -169,9 +172,7 @@ public class HttpClient extends Client {
 		try {
 			Response response = client.invoke("/core/AclQuery?wsdl");
 			
-			System.out.println(response.getContent().toString());
-			System.out.println(response.getContentType());
-			System.out.println(response.getEncoding());
+			System.out.println(response.getBuffer().toString());
 		}catch (Exception ex){
 			ex.printStackTrace();
 		}

@@ -1,5 +1,7 @@
 package com.logicbus.client;
 
+import com.anysoft.util.DefaultProperties;
+
 /**
  * 服务调用缓冲区 
  * 
@@ -9,37 +11,18 @@ package com.logicbus.client;
  * @author duanyy
  * @since 1.0.4
  */
-public class Buffer {
+public class Buffer extends DefaultProperties implements Request,Response{
 	
 	/**
 	 * 构造函数
-	 * <br>
-	 * 仅提供给子类调用
 	 * @param bufSize 
 	 */
-	protected Buffer(int bufSize){
+	public Buffer(int bufSize){
 		content = new StringBuffer(bufSize);
 	}
 	
-	/**
-	 * Content Type
-	 */
-	protected String contentType;
-
-	/**
-	 * 设置Content Type
-	 * @param _contentType
-	 */
-	public void setContentType(String _contentType){
-		contentType = _contentType;
-	}
-	
-	/**
-	 * 获取content type
-	 * @return content type
-	 */
-	public String getContentType(){
-		return contentType;
+	public Buffer(){
+		this(2014);
 	}
 	
 	/**
@@ -48,33 +31,23 @@ public class Buffer {
 	protected StringBuffer content = null;
 	
 	/**
-	 * 获取content
-	 * @return
-	 */
-	public String getContent(){return content == null ? "":content.toString();}
-	
-	/**
 	 * 获取缓冲区对象
 	 * @return StringBuffer
 	 */
 	public StringBuffer getBuffer(){return content;}
-	
-	/**
-	 * Encoding
-	 */
-	protected String encoding = "utf-8";
-	
-	/**
-	 * 设置encoding
-	 * @param _encoding
-	 */
-	public void setEncoding(String _encoding){
-		encoding = _encoding;
+
+
+	@Override
+	public void setResponseAttribute(String name, String value) {
+		_SetValue(name, value);
 	}
-	
-	/**
-	 * 获取encoding
-	 * @return
-	 */
-	public String getEncoding(){return encoding;}
+
+	@Override
+	public String getRequestAttribute(String name,String defaultValue) {
+		String value = _GetValue(name);
+		if (value == null || value.length() <= 0){
+			value = defaultValue;
+		}
+		return value;
+	}
 }

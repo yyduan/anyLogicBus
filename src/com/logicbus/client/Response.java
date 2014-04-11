@@ -5,12 +5,18 @@ package com.logicbus.client;
  * @author duanyy
  * @since 1.0.4
  */
-public class Response extends Buffer {
-	public Response(int bufSize) {
-		super(bufSize);
-	}
+public interface Response {
 
-	public Response(){
-		this(2048);
-	}
+	/**
+	 * 设置服务器响应的属性
+	 * @param name 属性名
+	 * @param value 属性值
+	 */
+	public void setResponseAttribute(String name,String value);
+	
+	/**
+	 * 获取缓冲区对象
+	 * @return StringBuffer
+	 */
+	public StringBuffer getBuffer();	
 }
