@@ -14,6 +14,7 @@ code
  - core.error_module 无法实例化服务实现模块，通常是因为类名配置错误，或者无法找到类的实现
  - core.service_busy 预设线程数不够，服务队列中所有实例都忙
  - core.error_remote_module 远程的库文件无法加载，或者URL配置错误
+ - core.instance_create_error 无法创建类的实例
 
 #### 客户端的错误
  - client.permission_denied 无权访问本服务

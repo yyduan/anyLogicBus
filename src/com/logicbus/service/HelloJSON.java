@@ -2,8 +2,8 @@ package com.logicbus.service;
 
 import com.logicbus.backend.Context;
 import com.logicbus.backend.Servant;
-import com.logicbus.backend.message.JSONMessage;
 import com.logicbus.backend.message.MessageDoc;
+import com.logicbus.backend.message.RawMessage;
 
 /**
  * HelloJSON
@@ -32,7 +32,7 @@ import com.logicbus.backend.message.MessageDoc;
 public class HelloJSON extends Servant {
 	@Override
 	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {
-		JSONMessage msg = msgDoc.asJSON();
+		RawMessage msg = (RawMessage)msgDoc.asMessage(RawMessage.class);
 		StringBuffer buf = msg.getBuffer();
 		buf.setLength(0);
 		buf.append("{\"say\":\"hello world!\"}");

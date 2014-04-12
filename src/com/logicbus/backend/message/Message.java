@@ -4,6 +4,8 @@ import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.logicbus.backend.Context;
+
 
 /**
  * 消息
@@ -12,6 +14,9 @@ import javax.servlet.http.HttpServletResponse;
  * - 增加encoding成员
  * - {@link com.logicbus.backend.message.Message#output(OutputStream, HttpServletResponse) out}函数
  * 增加response参数，以便Message直接操作.
+ * 
+ * @version 1.0.5 [20140412 duanyy] <br>
+ * - 修改消息传递模型。<br>
  */
 abstract public class Message {
 
@@ -20,42 +25,16 @@ abstract public class Message {
 	 */
 	protected MessageDoc msgDoc = null;
 	
-	protected Message(MessageDoc _doc,String _encoding){
+	protected Message(MessageDoc _doc){
 		msgDoc = _doc;
-		encoding = _encoding;
-	}
-
-	/**
-	 * 编码
-	 * 
-	 * @since 1.0.4
-	 */
-	protected String encoding = "utf-8";
-	
-	/**
-	 * 设置encoding
-	 * @param _encoding
-	 * 
-	 * @since 1.0.4
-	 */
-	public void setEncoding(String _encoding){
-		encoding = _encoding;
 	}
 	
-	/**
-	 * 获取encoding
-	 * @return
-	 * 
-	 * @since 1.0.4
-	 */
-	public String getEncoding(){
-		return encoding;
-	}
 	/**
 	 * 输出消息到输出流
 	 * @param out 输出流
+	 * @param ctx 上下文
 	 */
-	abstract public void output(OutputStream out,HttpServletResponse response);
+	abstract public void output(OutputStream out,Context ctx);
 
 	/**
 	 * content-type
@@ -74,4 +53,13 @@ abstract public class Message {
 	 * @return content-type
 	 */
 	public String getContentType(){return contentType;}
+	
+	/**
+	 * 是否发生致命错误
+	 * @return 
+	 */
+	boolean hasFatalError(){
+		String returnCode = msgDoc.getReturnCode();
+		return !returnCode.equals("core.ok");
+	}
 }

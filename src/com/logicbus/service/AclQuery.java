@@ -37,7 +37,8 @@ public class AclQuery extends Servant {
 
 	@Override
 	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {
-		XMLMessage msg = msgDoc.asXML();
+		
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);
 		
 		Document doc = msg.getDocument();
 		Element root = msg.getRoot();

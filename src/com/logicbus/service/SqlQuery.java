@@ -24,7 +24,7 @@ public class SqlQuery extends Servant {
 	
 	@Override
 	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception{
-		XMLMessage msg = msgDoc.asXML();		
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);	
 		Element root = msg.getRoot();
 		Element query = XmlTools.getFirstElementByPath(root, "query");
 		if (query == null )	{

@@ -39,5 +39,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  - 1.0.4 [20140410 duanyy]
      + 增加Raw消息，见{@link com.logicbus.backend.message.RawMessage RawMessage}
      + 增加客户端调用框架，见{@link com.logicbus.client Client}
+ - 1.0.5 [20140412 duanyy]
+     + 改进消息传递模型。
      
      

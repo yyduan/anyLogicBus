@@ -1,16 +1,20 @@
 package com.logicbus.backend.message;
 
-import java.io.IOException;
 import java.io.OutputStream;
-
-import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import com.logicbus.backend.Context;
+import com.logicbus.backend.ServantException;
 
 /**
  * 消息文档
  * @author duanyy
  * 
- * @version 1.0.4 [20140410 duanyy]
- * - 增加对RawMessage的支持，见{@link com.logicbus.backend.message#
+ * @version 1.0.4 [20140410 duanyy] <br>
+ * - 增加对RawMessage的支持，见{@link com.logicbus.backend.message.MessageDoc#asRaw() asRaw} <br>
+ * 
+ * @version 1.0.5 [20140412 duanyy] <br>
+ * - 修改消息传递模型。<br>
  */
 public class MessageDoc {	
 	/**
@@ -29,22 +33,55 @@ public class MessageDoc {
 	protected long duration = 0;
 
 	/**
+	 * the start time
+	 */
+	private long m_start_time;
+	/**
+	 * the end time
+	 */
+	private long m_end_time;
+	
+	/**
+	 * to get the start time
+	 * @return start time
+	 */
+	public long getStartTime(){return m_start_time;}
+	
+	/**
+	 * to set the start time
+	 * @param start_time start time
+	 */
+	public void setStartTime(long start_time){m_start_time = start_time;}
+	
+	/**
+	 * to get the end time
+	 * @return end time
+	 */
+	public long getEndTime(){return m_end_time;}
+
+	/**
+	 * to set the end time
+	 * @param end_time end time
+	 */
+	public void setEndTime(long end_time){m_end_time = end_time;}	
+	
+	/**
 	 * 获取结果代码
 	 * @return 结果代码
 	 */
-	String getReturnCode(){return returnCode;}
+	public String getReturnCode(){return returnCode;}
 	
 	/**
 	 * 获取原因
 	 * @return
 	 */
-	String getReason(){return reason;}
+	public String getReason(){return reason;}
 	
 	/**
 	 * 获取时长
 	 * @return 时长
 	 */
-	long getDuration(){return duration;}
+	public long getDuration(){return m_end_time - m_start_time;}
 	
 	/**
 	 * 设置调用结果
@@ -53,10 +90,9 @@ public class MessageDoc {
 	 * @param _reason 原因
 	 * @param _duration 调用时间
 	 */	
-	public void setReturn(String _code,String _reason,long _duration){
+	public void setReturn(String _code,String _reason){
 		returnCode = _code;
 		reason = _reason;
-		duration = _duration;
 	}
 	
 	/**
@@ -67,6 +103,12 @@ public class MessageDoc {
 	 * 文档编码
 	 */
 	protected String encoding = "utf-8";
+	
+	/**
+	 * 获取文档编码
+	 * @return 编码
+	 */
+	public String getEncoding(){return encoding;}
 	
 	/**
 	 * constructor
@@ -85,39 +127,24 @@ public class MessageDoc {
 	protected Message msg = null;
 	
 	/**
-	 * 作为XML消息
-	 * 
-	 * @return XML消息
-	 */
-	public XMLMessage asXML(){
-		if (msg == null)
-			msg = new XMLMessage(this,doc,encoding);
-		return (XMLMessage)msg;
-	}
-	
-	/**
-	 * 作为JSON消息
-	 * 
-	 * @return JSON消息
-	 */
-	public JSONMessage asJSON(){
-		if (msg == null){
-			msg = new JSONMessage(this,doc,encoding);
-		}
-		return (JSONMessage)msg;
-	}
-	
-	/**
-	 * 作为RAW消息
+	 * 作为消息处理
+	 * @param clazz
 	 * @return
-	 * 
-	 * @since 1.0.4
 	 */
-	public RawMessage asRaw(){
-		if (msg == null){
-			msg = new RawMessage(this,doc,encoding);
+	public Message asMessage(Class<? extends Message> clazz) throws ServantException {
+		if (msg != null)
+			return msg;
+		try {
+			Constructor<? extends Message> constructor = 
+					clazz.getConstructor(new Class<?>[]{MessageDoc.class,StringBuffer.class});
+			msg = (Message)constructor.newInstance(new Object[]{this,doc});
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException 
+				| IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+			throw new ServantException("core.instance_create_error",
+					"Can not create instance of " + clazz.getName() + ":" + e.getMessage());
 		}
-		return (RawMessage)msg;
+		return msg;
 	}
 	
 	/**
@@ -136,20 +163,18 @@ public class MessageDoc {
 	 * @param out
 	 * @param response 
 	 */
-	public void output(OutputStream out, HttpServletResponse response){
+	public void output(OutputStream out, Context ctx){
 		if (msg != null){
-			response.setCharacterEncoding(encoding);
-			msg.output(out,response);
-		}else{
-			if (!returnCode.equals("core.ok")){
-				try {
-					response.setCharacterEncoding(encoding);
-					response.sendError(404,reason);
-				} catch (IOException e) {
-					
-				}
-			}
+			msg.output(out,ctx);
 		}
+	}
+	
+	/**
+	 * 是否存在致命错误
+	 * @return
+	 */
+	public boolean hasFatalError(){
+		return msg == null ? true : msg.hasFatalError();
 	}
 	
 	/**

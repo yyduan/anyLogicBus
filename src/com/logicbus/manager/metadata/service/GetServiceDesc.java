@@ -28,7 +28,7 @@ public class GetServiceDesc extends Servant {
 			throw new ServantException("user.data_not_found","Service does not exist:" + serviceId);
 		}
 		
-		XMLMessage msg = msgDoc.asXML();		
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);	
 		Element root = msg.getRoot();
 		Document doc = root.getOwnerDocument();
 		

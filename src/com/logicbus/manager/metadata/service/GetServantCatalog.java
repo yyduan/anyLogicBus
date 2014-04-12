@@ -42,7 +42,7 @@ import com.logicbus.models.servant.impl.ServantCatalogNodeImpl;
 public class GetServantCatalog extends Servant {
 
 	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {
-		XMLMessage msg = msgDoc.asXML();		
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);		
 		Element root = msg.getRoot();
 		Document doc = root.getOwnerDocument();
 		ServantManager sm = ServantManager.get();

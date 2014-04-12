@@ -31,7 +31,7 @@ public class AreYouAlive extends Servant {
 	
 	@Override
 	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception{
-		XMLMessage msg = msgDoc.asXML();
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);
 		Element root = msg.getRoot();
 		Document doc = root.getOwnerDocument();
 		root.appendChild(doc.createTextNode("Ok,i am alive."));

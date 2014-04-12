@@ -25,8 +25,11 @@ import com.logicbus.models.catalog.Path;
  * @version 1.0.1 [20140402 duanyy] <br>
  * - {@link com.logicbus.backend.AccessController AccessController}有更新<br>
  * 
- * @version 1.0.2 [20140407 duanyy]<br>
+ * @version 1.0.2 [20140407 duanyy] <br>
  * - 采用{@link java.util.concurrent.CountDownLatch CountDownLatch}来和工作进程通讯.<br>
+ * 
+ * @version 1.0.5 [20140412 duanyy] <br>
+ * - 改进消息传递模型 <br>
  */
 public class MessageRouter {
 	
@@ -34,6 +37,7 @@ public class MessageRouter {
 	 * a logger of log4j
 	 */
 	protected static Logger logger = LogManager.getLogger(MessageRouter.class);
+	
 	/**
 	 * 服务调用
 	 * @param id 服务id
@@ -43,7 +47,7 @@ public class MessageRouter {
 	 * @return 
 	 */
 	static public int action(Path id,MessageDoc mDoc,Context ctx,AccessController ac){
-		ctx.setStartTime(System.currentTimeMillis());
+		mDoc.setStartTime(System.currentTimeMillis());
 		
 		ServantPool pool = null;
 		Servant servant = null;		
@@ -63,8 +67,7 @@ public class MessageRouter {
 				sessionId = ac.createSessionId(id, pool.getDescription(), ctx);
 				priority = ac.accessStart(sessionId,id, pool.getDescription(), ctx);
 				if (priority < 0){
-					ctx.setReturnCode("client.permission_denied");
-					ctx.setReason("Permission denied！service id: "+ id);
+					mDoc.setReturn("client.permission_denied","Permission denied！service id: "+ id);
 					return 0;
 				}
 			}
@@ -74,23 +77,18 @@ public class MessageRouter {
 			ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx,latch);
 			thread.start();
 			if (!latch.await(servant.getTimeOutValue(), TimeUnit.MILLISECONDS)){
-				ctx.setReturnCode("core.time_out");
-				ctx.setReason("Time out or interrupted.");
+				mDoc.setReturn("core.time_out","Time out or interrupted.");
 			}
 			thread = null;
 			
 		}catch (ServantException ex){
-			ctx.setReturnCode(ex.getCode());
-			ctx.setReason(ex.getMessage());
+			mDoc.setReturn(ex.getCode(), ex.getMessage());
 			logger.error(ex.getCode() + ":" + ex.getMessage());
 		}catch (Exception ex){
-			ctx.setReturnCode("core.fatalerror");
-			ctx.setReason(ex.getMessage());
+			mDoc.setReturn("core.fatalerror",ex.getMessage());
 			logger.error("core.fatalerror:" + ex.getMessage());
-			ex.printStackTrace();
 		}catch (Throwable t){
-			ctx.setReturnCode("core.fatalerror");
-			ctx.setReason(t.getMessage());
+			mDoc.setReturn("core.fatalerror",t.getMessage());
 			logger.error("core.fatalerror:" + t.getMessage());			
 		}
 		finally {
@@ -99,9 +97,9 @@ public class MessageRouter {
 			if (ac != null){
 				ac.accessEnd(sessionId,id, servant.getDescription(), ctx);
 			}
-			ctx.setEndTime(System.currentTimeMillis());
+			mDoc.setEndTime(System.currentTimeMillis());
 			if (pool != null){
-				pool.visited(ctx.getEndTime() - ctx.getStartTime(),ctx.getReturnCode());
+				pool.visited(mDoc.getDuration(),mDoc.getReturnCode());
 			}
 		}
 		return 0;

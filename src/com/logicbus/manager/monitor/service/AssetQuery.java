@@ -27,7 +27,7 @@ public class AssetQuery extends Servant {
 			throw new ServantException("client.result_not_found",
 					"Can not find an asset named " + assetId);
 		}
-		XMLMessage msg = msgDoc.asXML();
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);
 		Element root = msg.getRoot();
 		Document doc = root.getOwnerDocument();
 

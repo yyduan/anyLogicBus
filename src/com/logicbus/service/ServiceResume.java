@@ -66,7 +66,7 @@ public class ServiceResume extends Servant {
 		if (sd == null){
 			throw new ServantException("user.data_not_found","Service does not exist:" + id);
 		}
-		XMLMessage msg = msgDoc.asXML();		
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);	
 		Element root = msg.getRoot();
 		Document doc = root.getOwnerDocument();
 		Element service = doc.createElement("service");			

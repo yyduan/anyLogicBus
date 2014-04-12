@@ -17,6 +17,9 @@ import org.apache.log4j.LogManager;
  * - 增加调用参数读取的封装函数 <br>
  *     + {@link com.logicbus.backend.Servant#getArgument(String, MessageDoc, Context) getArgument(String,MessageDoc,Context)} <br>
  *     + {@link com.logicbus.backend.Servant#getArgument(String, String, MessageDoc, Context) getArgument(String,String,MessageDoc,Context)} <br>
+ * @version 1.0.5 [20140412 duanyy] <br>
+ * - 修改消息传递模型。<br>
+ * 
  */
 abstract public class Servant {
 	/**
@@ -173,6 +176,14 @@ abstract public class Servant {
 	}	
 	
 	/**
+	 * 获取参数列表
+	 * @return
+	 * 
+	 * @since 1.0.5
+	 */
+	public Argument [] getArgumentList(){return m_desc.getArgumentList();}
+	
+	/**
 	 * 服务处理过程
 	 * @param msg 消息文档
 	 * @param ctx 上下文
@@ -214,11 +225,10 @@ abstract public class Servant {
 	 * @see #actionProcess(MessageDoc, Context)
 	 */
 	public void actionAfter(MessageDoc doc,Context ctx){
-		ctx.setReturnCode("core.ok");
-		ctx.setReason("It is successful");
-		ctx.setEndTime(System.currentTimeMillis());
+		doc.setReturn("core.ok","It is successful");
+		doc.setEndTime(System.currentTimeMillis());
 		logger.debug("Successful:" + m_desc.getName());
-		logger.debug("Duration(ms):" + (ctx.getEndTime() - ctx.getStartTime()));
+		logger.debug("Duration(ms):" + (doc.getDuration()));
 	}
 	
 	/**
@@ -231,12 +241,11 @@ abstract public class Servant {
 	 * @see #actionProcess(MessageDoc, Context)
 	 * @param ex 
 	 */
-	public void actionException(MessageDoc doc,Context ctx, ServantException ex){	
-		ctx.setReturnCode( ex.getCode());
-		ctx.setReason(ex.getMessage());
+	public void actionException(MessageDoc doc,Context ctx, ServantException ex){
+		doc.setReturn(ex.getCode(), ex.getMessage());
 		
-		ctx.setEndTime(System.currentTimeMillis());
+		doc.setEndTime(System.currentTimeMillis());
 		logger.debug("Failed:" + m_desc.getName());
-		logger.debug("Duration(ms):" + (ctx.getEndTime() - ctx.getStartTime()));		
+		logger.debug("Duration(ms):" + (doc.getDuration()));		
 	}
 }

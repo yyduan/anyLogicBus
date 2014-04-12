@@ -29,7 +29,10 @@ import com.logicbus.models.catalog.Path;
  * 基于anyWebLoader的ServletHandler
  * 
  * @author duanyy
- *
+ * 
+ * @version 1.0.5 [20140412 duanyy] <br>
+ * - 修改消息传递模型。<br>
+ * 
  */
 public class MessageRouterServletHandler implements ServletHandler {
 	/**
@@ -59,7 +62,6 @@ public class MessageRouterServletHandler implements ServletHandler {
 	
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
-		// TODO Auto-generated method stub
 		Settings settings = Settings.get();
 		encoding = settings.GetValue("http.encoding", encoding);
 		ac = (AccessController) settings.get("accessController");
@@ -107,7 +109,6 @@ public class MessageRouterServletHandler implements ServletHandler {
 
 			msgDoc = new MessageDoc(doc,encoding);
 			ctx = new HttpContext(request);	
-			ctx.setClientIp(request.getRemoteHost());
 			
 			//规范化ID
 			Path id = normalizer.normalize(ctx, request);
@@ -128,19 +129,23 @@ public class MessageRouterServletHandler implements ServletHandler {
 					logger.debug(msgDoc.toString());
 				}
 			}
-			
-			msgDoc.setReturn(ctx.getReturnCode(), ctx.getReason(), ctx.getEndTime() - ctx.getStartTime());
-			response.setContentType(msgDoc.getContentType());
-			msgDoc.output(response.getOutputStream(),response);
+
 		}catch (Exception ex){
 			if (msgDoc != null){
-				response.setContentType(msgDoc.getContentType());
-				msgDoc.setReturn(ctx.getReturnCode(), ctx.getReason(), ctx.getEndTime() - ctx.getStartTime());
-				msgDoc.output(response.getOutputStream(),response);
+				msgDoc.setReturn("core.fatalerror",ex.getMessage());
+				logger.error("core.fatalerror:" + ex.getMessage());
 			}
 		}	
 		finally {
-
+			if (msgDoc != null){
+				response.setContentType(msgDoc.getContentType());
+				response.setCharacterEncoding(encoding);
+				if (msgDoc.hasFatalError()){
+					response.sendError(404, msgDoc.getReason());
+				}else{
+					msgDoc.output(response.getOutputStream(),ctx);
+				}
+			}
 		}
 	}
 	

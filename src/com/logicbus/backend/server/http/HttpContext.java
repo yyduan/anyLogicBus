@@ -9,8 +9,10 @@ import com.logicbus.backend.Context;
  * Http请求的上下文
  * 
  * @author duanyy
- *
+ * @version 1.0.5 [20140412 duanyy]  <br>
+ * - 改进消息传递模型 <br>
  */
+
 public class HttpContext extends Context {
 	
 	/**
@@ -50,5 +52,20 @@ public class HttpContext extends Context {
 			}
 		}
 		return found;
+	}
+
+	@Override
+	public String getClientIp() {
+		return request.getRemoteHost();
+	}
+
+	@Override
+	public String getHost() {
+		return request.getLocalAddr() + ":" + request.getLocalPort();
+	}
+
+	@Override
+	public String getRequestURI() {
+		return request.getRequestURI();
 	}
 }

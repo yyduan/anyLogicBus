@@ -59,7 +59,7 @@ public class GetCatalogServices extends Servant {
 					"path does not exist:" + path);
 		}
 		
-		XMLMessage msg = msgDoc.asXML();
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);
 		
 		Element root = msg.getRoot();
 		Document doc = root.getOwnerDocument();

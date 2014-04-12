@@ -42,7 +42,7 @@ public class GC extends Servant {
 		System.gc();
 		SystemStatus after = new SystemStatus();
 		
-		XMLMessage msg = msgDoc.asXML();		
+		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);	
 		Element root = msg.getRoot();
 		Document doc = root.getOwnerDocument();
 		Element result = doc.createElement("gcResult");

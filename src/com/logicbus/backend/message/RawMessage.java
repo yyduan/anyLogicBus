@@ -1,11 +1,9 @@
 package com.logicbus.backend.message;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.anysoft.util.IOTools;
+import com.logicbus.backend.Context;
 
 /**
  * Raw消息
@@ -13,6 +11,9 @@ import com.anysoft.util.IOTools;
  * @author duanyy
  * 
  * @since 1.0.4
+ * @version 1.0.5 [20140412 duanyy] <br>
+ * - 修改消息传递模型。<br>
+ * 
  */
 public class RawMessage extends Message {
 	/**
@@ -20,31 +21,24 @@ public class RawMessage extends Message {
 	 */
 	protected StringBuffer buf = null;
 	
-	protected RawMessage(MessageDoc _doc,StringBuffer _buf,String _encoding) {
-		super(_doc,_encoding);
+	public RawMessage(MessageDoc _doc,StringBuffer _buf) {
+		super(_doc);
 		buf = _buf;
+		setContentType("text/plain;charset=" + msgDoc.getEncoding());
 	}
 
 	@Override
-	public void output(OutputStream out,HttpServletResponse response) {
+	public void output(OutputStream out,Context ctx) {
+		String encoding = msgDoc.getEncoding();
 		try {
-			String returnCode = msgDoc.getReturnCode();
-			if (returnCode.equals("core.ok")){
-				out.write(buf.toString().getBytes(encoding));
-			}else{
-				try {
-					response.setCharacterEncoding(encoding);
-					response.sendError(404,msgDoc.getReason());
-				} catch (IOException e) {
-					
-				}
-			}
+			out.write(buf.toString().getBytes(encoding));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}finally {
 			IOTools.closeStream(out);
 		}
 	}
+	
 	/**
 	 * 获取消息文本
 	 * @return 消息文本
