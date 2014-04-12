@@ -77,7 +77,7 @@ public class XMLMessage extends Message {
 	}
 	
 	@Override
-	boolean hasFatalError(){
+	public boolean hasFatalError(){
 		return false;
 	}	
 }

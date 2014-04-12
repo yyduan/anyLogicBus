@@ -58,7 +58,7 @@ abstract public class Message {
 	 * 是否发生致命错误
 	 * @return 
 	 */
-	boolean hasFatalError(){
+	public boolean hasFatalError(){
 		String returnCode = msgDoc.getReturnCode();
 		return !returnCode.equals("core.ok");
 	}
