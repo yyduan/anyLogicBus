@@ -4,6 +4,10 @@
 		xrc="/com/logicbus/service/servant.xml"
 		class="com.logicbus.models.servant.impl.XMLResourceServantCatalog"
 		name="inner"/>
+	<catalog module="com.logicbus.models.servant.impl.XMLResourceServantCatalog" 
+		xrc="/com/logicbus/examples/examples.xml"
+		class="com.logicbus.examples.Helloworld"
+		name="inner"/>	
 	<!-- 
 	<catalog module="com.logicbus.models.servant.impl.XMLDocumentServantCatalog" 
 		xrc.master="${master.home}/servant.xml"
