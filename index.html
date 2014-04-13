@@ -1,0 +1,139 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Anylogicbus</title>
+  <meta name="description" content="一个高效的轻量级服务框架">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Anylogicbus</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">一个高效的轻量级服务框架</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/yyduan/anyLogicBus/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/yyduan/anyLogicBus/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/yyduan/anyLogicBus" class="code">View Anylogicbus on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h1>
+<a name="anylogicbus-readme" class="anchor" href="#anylogicbus-readme"><span class="octicon octicon-link"></span></a>anyLogicBus readme</h1>
+
+<p>一个高效的轻量级服务框架</p>
+
+<h3>
+<a name="%E7%89%B9%E5%BE%81" class="anchor" href="#%E7%89%B9%E5%BE%81"><span class="octicon octicon-link"></span></a>特征</h3>
+
+<p>anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特征:</p>
+
+<ul>
+<li><p>服务路由，将HTTP请求分发给具体服务模块；</p></li>
+<li><p>访问控制，支持多种访问控制策略，并且可定制；</p></li>
+<li><p>插件式服务模块，提供服务规范，支持定制开发</p></li>
+<li><p>可定制的服务目录，支持多种形式的服务目录</p></li>
+<li><p>内置多种管理服务</p></li>
+<li><p>可部署成集群管理模式，分为元数据服务器，监控服务器，服务节点进行部署</p></li>
+<li><p>基于anyWebLoader自动更新框架</p></li>
+</ul><h3>
+<a name="%E7%89%88%E6%9C%AC" class="anchor" href="#%E7%89%88%E6%9C%AC"><span class="octicon octicon-link"></span></a>版本</h3>
+
+<ul>
+<li>
+<p>1.0.0 [20140327 duanyy]</p>
+
+<ul>
+<li>首次发布</li>
+</ul>
+</li>
+<li>
+<p>1.0.1 [20140402 duanyy]</p>
+
+<ul>
+<li>改进访问控制模型，以避免SessionID多次计算</li>
+</ul>
+</li>
+<li>
+<p>1.0.2 [20140407 duanyy]</p>
+
+<ul>
+<li>修改{<a href="https://github.com/link" class="user-mention">@link</a> com.logicbus.backend.server.MessageRouter MessageRouter},
+采用{<a href="https://github.com/link" class="user-mention">@link</a> java.util.concurrent.CountDownLatch CountDownLatch}来等待服务执行。</li>
+</ul>
+</li>
+<li>
+<p>1.0.3 [20140410 duanyy]</p>
+
+<ul>
+<li>在{<a href="https://github.com/link" class="user-mention">@link</a> com.logicbus.models.servant.ServiceDescription ServiceDescription}中增加调用参数列表</li>
+<li>在{<a href="https://github.com/link" class="user-mention">@link</a> com.logicbus.backend.Servant Servant}增加调用参数读取的封装函数 </li>
+</ul>
+</li>
+<li>
+<p>1.0.4 [20140410 duanyy]</p>
+
+<ul>
+<li>增加Raw消息，见{<a href="https://github.com/link" class="user-mention">@link</a> com.logicbus.backend.message.RawMessage RawMessage}</li>
+<li>增加客户端调用框架，见{<a href="https://github.com/link" class="user-mention">@link</a> com.logicbus.client Client}</li>
+</ul>
+</li>
+<li>1.0.5 [20140412 duanyy]
+
+<ul>
+<li>改进消息传递模型</li>
+<li>增加开发文档(development.md)，并增加一些案例(com.logicbus.examples)</li>
+</ul>
+</li>
+</ul>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/yyduan" class="avatar"><img src="https://avatars3.githubusercontent.com/u/4083014?s=60" width="48" height="48"/></a> <a href="https://github.com/yyduan">yyduan</a> maintains <a href="https://github.com/yyduan/anyLogicBus">Anylogicbus</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="http://pages.github.com/">GitHub Pages</a><br/>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/yyduan/anyLogicBus/tarball/master" class="tar">tar</a><a href="https://github.com/yyduan/anyLogicBus/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("anyLogicBus");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+</body>
+</html>
