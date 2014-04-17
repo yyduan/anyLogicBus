@@ -1,4 +1,4 @@
-package com.logicbus.backend.datasource;
+package com.logicbus.datasource;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -9,36 +9,14 @@ import java.sql.Statement;
 
 import com.logicbus.backend.ServantException;
 
+
 /**
- * SQL工具类
- * @author hmyyduan
- *
+ * SQL语句相关的工具
+ * 
+ * @author duanyy
+ * @since 1.0.6
  */
-public class SQLUtil {
-	public static PoolConn poolConn = null;
-	
-	/**
-	 * 从数据库连接池获取指定数据源的数据库连接
-	 * @param datasource 数据源Id
-	 * @return 数据库连接
-	 * @throws ServantException 当无法找到连接的时候抛出此异常
-	 */
-	public static Connection getConnection(String datasource) throws ServantException{
-		Connection conn =  poolConn.getConnection(datasource);
-		if (conn == null){
-			throw new ServantException("core.sql_error","Can not get a db connection:" + datasource);
-		}
-		return conn;
-	}
-	
-	/**
-	 * 请求数据库连接池回收数据库连接
-	 * @param conn 数据库连接
-	 */
-	public static void recycleConnection(Connection conn){
-		poolConn.Recycle(conn);
-	}
-	
+public class SQLTools {
 	/**
 	 * 批量执行DML语句
 	 * @param conn 数据库连接
@@ -59,7 +37,7 @@ public class SQLUtil {
 		}catch (SQLException ex){
 			throw new ServantException("core.sql_error","SQL batch execute error:" + ex.getMessage());
 		}finally {
-			closeStatement(stmt);
+			close(stmt);
 		}
 	}
 
@@ -78,7 +56,7 @@ public class SQLUtil {
 		}catch (SQLException ex){
 			throw new ServantException("core.sql_error","SQL batch execute error:" + ex.getMessage());
 		}finally {
-			closeStatement(stmt);
+			close(stmt);
 		}
 	}
 	
@@ -125,31 +103,28 @@ public class SQLUtil {
 					"SQL execute error:" + ex.getMessage());
 		}
 	}
-	
+
 	/**
-	 * 关闭Statement
-	 * @param stmt Statement
+	 * 关闭所有句柄
+	 * @param autoCloseables 句柄列表
 	 */
-	public static void closeStatement(Statement stmt){
-		try {
-			if (stmt != null)
-				stmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
+	public static void close(AutoCloseable... autoCloseables){
+		for (AutoCloseable c:autoCloseables){
+			if (null != c){
+				try{
+					c.close();
+				}catch (Exception ex){
+					
+				}
+			}
 		}
 	}
+	
 	/**
-	 * 关闭ResultSet
-	 * @param rs ResultSet
+	 * 提交事务
+	 * @param conn 连接
+	 * @throws ServantException
 	 */
-	public static void closeResultSet(ResultSet rs){
-		try {
-			if (rs != null)
-				rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}	
 	public static void commit(Connection conn) throws ServantException{
 		try {
 			conn.commit();
@@ -157,6 +132,12 @@ public class SQLUtil {
 			throw new ServantException("core.sql_error",ex.getMessage());
 		}
 	}
+	
+	/**
+	 * 回滚事务
+	 * @param conn
+	 * @throws ServantException
+	 */
 	public static void rollback(Connection conn) throws ServantException{
 		try {
 			conn.rollback();
@@ -164,7 +145,5 @@ public class SQLUtil {
 			throw new ServantException("core.sql_error",ex.getMessage());
 		}
 	}	
-	static {
-		poolConn = PoolConn.getInstance();
-	}
+
 }

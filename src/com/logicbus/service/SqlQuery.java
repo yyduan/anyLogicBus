@@ -3,7 +3,6 @@ package com.logicbus.service;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.w3c.dom.Document;
@@ -13,9 +12,11 @@ import com.anysoft.util.XmlTools;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
-import com.logicbus.backend.datasource.PoolConn;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
+import com.logicbus.datasource.ConnectionPool;
+import com.logicbus.datasource.ConnectionPoolFactory;
+import com.logicbus.datasource.SQLTools;
 import com.logicbus.models.servant.ServiceDescription;
 
 public class SqlQuery extends Servant {
@@ -56,8 +57,8 @@ public class SqlQuery extends Servant {
 				max_count  = m_max_count;
 			}
 		}
-		
-		Connection conn = PoolConn.getInstance().getConnection(datasource);
+		ConnectionPool pool = ConnectionPoolFactory.getPool();
+		Connection conn = pool.getConnection(datasource,3000);
 		if (conn == null){
 			throw new ServantException("core.sql_error","Can not get a db connection:" + datasource);
 		}
@@ -121,14 +122,7 @@ public class SqlQuery extends Servant {
 			throw new ServantException("core.sql_error","在执行SQL语句过程中发生错误:" + ex.getMessage());
 		}
 		finally{
-			if (stmt != null){
-				try{
-					stmt.close();
-				}catch (SQLException ex){
-					throw new ServantException("core.sql_error","在执行SQL语句过程中发生错误:" + ex.getMessage());					
-				}
-			}
-			PoolConn.getInstance().Recycle(conn);
+			SQLTools.close(stmt,conn);
 		}
 		return 0;
 	}

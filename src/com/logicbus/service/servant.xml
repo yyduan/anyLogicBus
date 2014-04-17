@@ -65,6 +65,13 @@
 				module="com.logicbus.manager.monitor.service.AssetQuery"
 			/>
 			<service 
+				id="DataSourceQuery" 
+				name="DataSourceQuery" 
+				note="查询数据源信息"
+				visible="protected"
+				module="com.logicbus.service.DataSourceQuery"
+			/>			
+			<service 
 				id="CellQuery" 
 				name="CellQuery" 
 				note="查询节点信息"
