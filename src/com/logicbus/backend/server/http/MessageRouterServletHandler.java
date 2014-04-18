@@ -134,6 +134,7 @@ public class MessageRouterServletHandler implements ServletHandler {
 			}
 
 		}catch (Exception ex){
+			ex.printStackTrace();
 			if (msgDoc != null){
 				msgDoc.setReturn("core.fatalerror",ex.getMessage());
 				logger.error("core.fatalerror:" + ex.getMessage());
@@ -144,7 +145,7 @@ public class MessageRouterServletHandler implements ServletHandler {
 				response.setContentType(msgDoc.getContentType());
 				response.setCharacterEncoding(encoding);
 				if (msgDoc.hasFatalError()){
-					response.sendError(404, msgDoc.getReason());
+					response.sendError(404, msgDoc.getReturnCode() + "(" + msgDoc.getReason() + ")");
 				}else{
 					msgDoc.output(response.getOutputStream(),ctx);
 				}

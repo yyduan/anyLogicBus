@@ -92,14 +92,15 @@ public class MessageRouter {
 			logger.error("core.fatalerror:" + t.getMessage());			
 		}
 		finally {
-			if (servant != null)
+			if (servant != null){
 				servant.setState(Servant.STATE_IDLE);		
-			if (ac != null){
-				ac.accessEnd(sessionId,id, servant.getDescription(), ctx);
 			}
 			mDoc.setEndTime(System.currentTimeMillis());
 			if (pool != null){
 				pool.visited(mDoc.getDuration(),mDoc.getReturnCode());
+				if (ac != null){
+					ac.accessEnd(sessionId,id, pool.getDescription(), ctx);
+				}				
 			}
 		}
 		return 0;
