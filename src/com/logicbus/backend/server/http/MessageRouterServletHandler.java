@@ -33,6 +33,8 @@ import com.logicbus.models.catalog.Path;
  * @version 1.0.5 [20140412 duanyy] <br>
  * - 修改消息传递模型。<br>
  * 
+ * @version 1.0.7 [20140418 duanyy] <br>
+ * - 增加全局序列号功能,从Http头的GlobalSerial变量获取前端传入的全局序列号
  */
 public class MessageRouterServletHandler implements ServletHandler {
 	/**
@@ -106,9 +108,10 @@ public class MessageRouterServletHandler implements ServletHandler {
 					// 没有输入XML文档
 				}
 			}
-
+			String serial = request.getHeader("GlobalSerial");
+			
 			msgDoc = new MessageDoc(doc,encoding);
-			ctx = new HttpContext(request);	
+			ctx = new HttpContext(request,serial);	
 			
 			//规范化ID
 			Path id = normalizer.normalize(ctx, request);

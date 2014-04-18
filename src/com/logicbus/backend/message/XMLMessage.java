@@ -58,6 +58,7 @@ public class XMLMessage extends Message {
 		root.setAttribute("reason", msgDoc.getReason());
 		root.setAttribute("duration", String.valueOf(msgDoc.getDuration()));
 		root.setAttribute("host", ctx.getHost());
+		root.setAttribute("serial", ctx.getGlobalSerial());
 		
 		try {
 			XmlTools.saveToOutputStream(doc, out);

@@ -20,6 +20,8 @@ import com.anysoft.util.Settings;
  * @author duanyy
  * @since 1.0.4
  * 
+ * @version 1.0.7 [20140418 duanyy]
+ * - 优化Http头的读写机制
  */
 public class HttpClient extends Client {
 	/**
@@ -39,8 +41,22 @@ public class HttpClient extends Client {
 	 */
 	protected String home;
 	
+	/**
+	 * 缺省的encoding
+	 * @since 1.0.7
+	 */
+	protected String defaultEncoding = "utf-8";
+	
+	/**
+	 * 缺省的content-type
+	 * @since 1.0.7
+	 */
+	protected String defaultContentType = "text/plain;charset=utf-8";
+	
 	public HttpClient(Properties props){	
 		home = props.GetValue("client.remote.home", "");
+		defaultEncoding = props.GetValue("http.encoding", defaultEncoding);
+		defaultContentType = props.GetValue("http.contentType", defaultContentType);
 	}
 	
 	@Override
@@ -73,7 +89,6 @@ public class HttpClient extends Client {
 			if (cookies != null && cookies.length() > 0){
 				conn.addRequestProperty("Cookie", cookies);
 			}
-			
 			if (para != null)
 				output(conn,para);
 			
@@ -90,7 +105,7 @@ public class HttpClient extends Client {
 			}
 			return input(conn,result);
 		}catch (IOException ex){
-			throw new ClientException("client.io_error","Net io error.");
+			throw new ClientException("client.io_error","Can not connect to remote host : " + url);
 		}
 	}
 
@@ -106,12 +121,22 @@ public class HttpClient extends Client {
 		BufferedReader reader = null;
 		
 		try {
-			String contentType = conn.getContentType();
-			String encoding = conn.getContentEncoding();
-			encoding = encoding == null ? "utf-8" : encoding;
-			
+			String contentType = conn.getHeaderField("Content-Type");
+			String encoding = conn.getHeaderField("Content-Encoding");
+			encoding = encoding == null ? defaultEncoding : encoding;
+			contentType = contentType == null ? defaultContentType : contentType;			
 			result.setResponseAttribute("Content-Type",contentType);
-			result.setResponseAttribute("Encoding",encoding);
+			result.setResponseAttribute("Content-Encoding",encoding);
+			
+			String [] names = result.getResponseAttributeNames();
+			if (names != null){
+				for (String name:names){
+					String value = conn.getHeaderField(name);
+					if (value != null && value.length() > 0){
+						result.setResponseAttribute(name, value);
+					}
+				}
+			}
 			
 			in = conn.getInputStream();
 			reader = new BufferedReader(new InputStreamReader(in,encoding));
@@ -125,7 +150,7 @@ public class HttpClient extends Client {
 			
 			return result;
 		}catch (IOException ex){
-			throw new ClientException("client.io_error","Net io error.");
+			throw new ClientException("client.io_error","Can not read data from network.");
 		}
 		finally {
 			IOTools.closeStream(in);
@@ -141,21 +166,33 @@ public class HttpClient extends Client {
 	private void output(HttpURLConnection conn, Request para) throws ClientException {
 		OutputStream out = null;
 		try {
-			StringBuffer content = para.getBuffer();
-			if (content == null || content.length() <= 0){
-				return ;
-			}
-			String encoding = para.getRequestAttribute("Encoding", "utf-8");
-			String contentType = para.getRequestAttribute("Content-Type", 
-					"text/plain;charset=utf-8");
+			
+			String encoding = para.getRequestAttribute("Content-Encoding", defaultEncoding);
+			String contentType = para.getRequestAttribute("Content-Type",defaultContentType);
 			
 			conn.addRequestProperty("Content-Type", contentType);
-			out = conn.getOutputStream();
+			conn.addRequestProperty("Content-Encoding", encoding);
 			
-			String data = content.toString();
-			out.write(data.getBytes(encoding));
+			String [] names = para.getRequestAttributeNames();
+			if (names != null){
+				for (String name:names){
+					String value = para.getRequestAttribute(name, "");
+					if (value != null && value.length() > 0){
+						conn.addRequestProperty(name, value);
+					}
+				}
+			}
+			
+			out = conn.getOutputStream();
+			StringBuffer content = para.getBuffer();
+			
+			if (content != null && content.length() > 0){
+				String data = content.toString();
+				out.write(data.getBytes(encoding));
+			}			
+
 		}catch (IOException ex){
-			throw new ClientException("client.io_error","Net io error.");
+			throw new ClientException("client.io_error","Can not write data to network.");
 		}finally {
 			IOTools.closeStream(out);
 		}

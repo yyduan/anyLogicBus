@@ -2,6 +2,7 @@ package com.logicbus.backend;
 
 import java.sql.Connection;
 import com.anysoft.util.DefaultProperties;
+import com.anysoft.util.KeyGen;
 
 /**
  * 服务访问的上下文
@@ -13,9 +14,22 @@ import com.anysoft.util.DefaultProperties;
  * 
  * @version 1.0.5 [20140412 duanyy]
  * - 改进消息传递模型
- *
+ * 
+ * @version 1.0.7 [20140418 duanyy]
+ * - 增加生成全局序列号功能
+ * 
  */
 abstract public class Context extends DefaultProperties{
+	
+	/**
+	 * 按照全局序列号构造上下文
+	 * 
+	 * @param _globalSerial
+	 * @since 1.0.7
+	 */
+	protected Context(String _globalSerial){
+		globalSerial = _globalSerial;
+	}
 	
 	/**
 	 * a db connection
@@ -53,4 +67,35 @@ abstract public class Context extends DefaultProperties{
 	 * @param conn connection
 	 */
 	public void setConnection(Connection conn){m_conn = conn;}
+	
+	/**
+	 * 全局序列号
+	 * 
+	 * @since 1.0.7
+	 */
+	private String globalSerial = null;
+	
+	/**
+	 * 获取全局序列号
+	 * @return
+	 * 
+	 * @since 1.0.7
+	 */
+	public String getGlobalSerial(){
+		if (globalSerial == null || globalSerial.length() <= 0){
+			globalSerial = createGlobalSerial();
+		}
+		return globalSerial;
+	}
+	
+	/**
+	 * 生成全局序列号
+	 * @return
+	 * 
+	 * @since 1.0.7
+	 * 
+	 */
+	protected String createGlobalSerial(){
+		return KeyGen.getKey(10) + String.valueOf(System.currentTimeMillis());
+	}
 }

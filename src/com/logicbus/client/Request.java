@@ -4,6 +4,10 @@ package com.logicbus.client;
  * 客户端请求
  * @author duanyy
  * @since 1.0.4
+ * 
+ * @version 1.0.7 [20140418 duanyy]<br>
+ * - 增加{@link com.logicbus.client.Request#getRequestAttributeNames() getRequestAttributeNames()}
+ * 
  */
 public interface Request{
 	/**
@@ -13,6 +17,14 @@ public interface Request{
 	 * @return 属性值
 	 */
 	public String getRequestAttribute(String name,String defaultValue);
+	
+	/**
+	 * 获取需要请求的属性名列表
+	 * @return
+	 * 
+	 * @since 1.0.7
+	 */
+	public String [] getRequestAttributeNames();
 	
 	/**
 	 * 获取缓冲区对象

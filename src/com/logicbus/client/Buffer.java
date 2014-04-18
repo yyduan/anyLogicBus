@@ -10,6 +10,9 @@ import com.anysoft.util.DefaultProperties;
  * 
  * @author duanyy
  * @since 1.0.4
+ * 
+ * @version 1.0.7 [20140418 duanyy]
+ * - Request和Response更新
  */
 public class Buffer extends DefaultProperties implements Request,Response{
 	
@@ -49,5 +52,15 @@ public class Buffer extends DefaultProperties implements Request,Response{
 			value = defaultValue;
 		}
 		return value;
+	}
+
+	@Override
+	public String[] getResponseAttributeNames() {
+		return null;
+	}
+
+	@Override
+	public String[] getRequestAttributeNames() {
+		return null;
 	}
 }

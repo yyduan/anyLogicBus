@@ -30,7 +30,8 @@ public class HttpContext extends Context {
 	 * constructor
 	 * @param _request HttpServletRequest
 	 */
-	public HttpContext(HttpServletRequest _request){
+	public HttpContext(HttpServletRequest _request,String serial){
+		super(serial);
 		request = _request;
 	}
 	

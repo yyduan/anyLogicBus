@@ -47,3 +47,6 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  - 1.0.6 [20140417 duanyy]
      + 增加数据库连接池(com.logicbus.datasource)
      
+ - 1.0.7 [20140418 duanyy]
+     + 增加全局序列号生成及传递机制
+     + 修改HttpClient的对Http头的输入输出机制
