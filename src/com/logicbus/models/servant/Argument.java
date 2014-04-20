@@ -16,6 +16,7 @@ import com.anysoft.util.XmlElementProperties;
 import com.anysoft.util.XmlSerializer;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.ServantException;
+import com.logicbus.backend.message.Message;
 import com.logicbus.backend.message.MessageDoc;
 
 /**
@@ -23,6 +24,10 @@ import com.logicbus.backend.message.MessageDoc;
  * @author duanyy
  *
  * @since 1.0.3
+ * 
+ * @version 1.0.8 [20140420 duanyy]<br>
+ * - 增加从Message中获取参数功能，见{@link com.logicbus.models.servant.Argument#getValue(Message, Context) getValue(Message, Context)} <br>
+ * - 增加cached属性
  */
 public class Argument implements XmlSerializer,JsonSerializer{
 	/**
@@ -57,6 +62,21 @@ public class Argument implements XmlSerializer,JsonSerializer{
 	 * @return
 	 */
 	public boolean isOption(){return isOption;}
+	
+	/**
+	 * 是否需要缓存
+	 * @since 1.0.8
+	 * 
+	 */
+	protected boolean isCached = false;
+	
+	/**
+	 * 是否需要缓存
+	 * @return 
+	 * 
+	 * @since 1.0.8
+	 */
+	public boolean isCached(){return isCached;}
 	
 	/**
 	 * 参数getter
@@ -122,6 +142,24 @@ public class Argument implements XmlSerializer,JsonSerializer{
 		return theGetter.getValue(this, msg, ctx);
 	}
 	
+	/**
+	 * 获取参数值
+	 * @param msg 服务消息
+	 * @param ctx 上下文
+	 * @return 参数值
+	 * 
+	 * @since 1.0.8
+	 */
+	public String getValue(Message msg,Context ctx)throws ServantException{
+		if (theGetter == null){
+			Settings settings = Settings.get();
+			ClassLoader cl = (ClassLoader)settings.get("classLoader");
+			TheFactory factory = new TheFactory(cl);
+			theGetter = factory.newInstance(getter);
+		}
+		return theGetter.getValue(this, msg, ctx);
+	}	
+	
 	@Override
 	public void toXML(Element e) {
 		e.setAttribute("id", id);
@@ -129,6 +167,8 @@ public class Argument implements XmlSerializer,JsonSerializer{
 		e.setAttribute("isOption", isOption?"true":"false");
 		e.setAttribute("getter", getter);
 		e.setAttribute("parameters", getterParameters);
+		// since 1.0.8
+		e.setAttribute("isCached", isCached ? "true" : "false");
 	}
 
 	@Override
@@ -140,6 +180,9 @@ public class Argument implements XmlSerializer,JsonSerializer{
 		isOption = PropertiesConstants.getBoolean(props, "isOption", true);
 		getter = PropertiesConstants.getString(props,"getter","Default");
 		getterParameters = PropertiesConstants.getString(props,"paramters","");
+		
+		// since 1.0.8
+		isCached = PropertiesConstants.getBoolean(props, "isCached", false);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -150,6 +193,8 @@ public class Argument implements XmlSerializer,JsonSerializer{
 		JsonTools.setBoolean(json, "isOption",isOption);
 		JsonTools.setString(json, "getter",getter);
 		JsonTools.setString(json, "parameters",getterParameters);
+		// since 1.0.8
+		JsonTools.setBoolean(json, "isCached", isCached);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -160,6 +205,8 @@ public class Argument implements XmlSerializer,JsonSerializer{
 		isOption = JsonTools.getBoolean(json, "isOption",true);
 		getter = JsonTools.getString(json, "getter","Default");
 		getterParameters = JsonTools.getString(json, "parameters","");
+		// since 1.0.8
+		isCached = JsonTools.getBoolean(json, "isCached", false);
 	}
 
 	/**

@@ -20,6 +20,9 @@ import org.apache.log4j.LogManager;
  * @version 1.0.5 [20140412 duanyy] <br>
  * - 修改消息传递模型。<br>
  * 
+ * @version 1.0.8 [20140412 duanyy] <br>
+ * - 增加从Message获取参数功能，见{@link com.logicbus.backend.Servant#getArgument(String, Message, Context) getArgument(String, Message, Context)}
+ * 和{@link com.logicbus.backend.Servant#getArgument(String, String, Message, Context) getArgument(String, String, Message, Context)}
  */
 abstract public class Servant {
 	/**
@@ -151,6 +154,30 @@ abstract public class Servant {
 	}
 
 	/**
+	 * 从Message和上下文中读取参数
+	 * @param id 参数ID
+	 * @param defaultValue 缺省值
+	 * @param msg Message
+	 * @param ctx 上下文
+	 * @return 参数值
+	 * 
+	 * @since 1.0.8
+	 */
+	public String getArgument(String id,String defaultValue,Message msg, Context ctx) throws ServantException{
+		Argument argu = m_desc.getArgument(id);
+		if (argu == null){
+			//没有定义参数
+			return ctx.GetValue(id, defaultValue);
+		}
+		
+		String value = argu.getValue(msg, ctx);
+		if (value == null || value.length() <= 0){
+			return defaultValue;
+		}
+		return value;
+	}	
+	
+	/**
 	 * 从接口文档和上下文中读取参数
 	 * @param id 参数ID
 	 * @param msgDoc 接口文档
@@ -174,6 +201,31 @@ abstract public class Servant {
 		}
 		return value;
 	}	
+
+	/**
+	 * 从Message和上下文中读取参数
+	 * @param id 参数ID
+	 * @param msg Message
+	 * @param ctx 上下文
+	 * @return 参数值
+	 * 
+	 * @since 1.0.8
+	 */
+	public String getArgument(String id,Message msg, Context ctx) throws ServantException{
+		Argument argu = m_desc.getArgument(id);
+		String value = null;
+		if (argu == null){
+			//没有定义参数
+			value = ctx.GetValue(id, "");
+		}else{
+			value = argu.getValue(msg, ctx);
+		}		
+		if (value == null || value.length() <= 0){
+			throw new ServantException("client.args_not_found",
+					"Can not find parameter:" + id);
+		}
+		return value;
+	}		
 	
 	/**
 	 * 获取参数列表
