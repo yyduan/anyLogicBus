@@ -25,6 +25,9 @@ import java.util.List;
  * @version 1.0.3 [20140410 duanyy]<br>
  * + 增加调用参数列表<br>
  * 
+ * @version 1.0.8 [20140421 duanyy]<br>
+ * - 修正{@link com.logicbus.models.servant.ServiceDescription#getArgument(String) getArgument(String)}空指针错误. <br>
+ * 
  */
 public class ServiceDescription implements XmlSerializer{
 	/**
@@ -180,6 +183,8 @@ public class ServiceDescription implements XmlSerializer{
 	 * @return 
 	 */
 	public Argument getArgument(String id){
+		if (argumentList == null)
+			return null;		
 		return argumentList.get(id);
 	}
 	
