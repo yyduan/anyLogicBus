@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logiclet module="Segment" async="true" timeout="5000">
+	<content>
+		<note>这是一个测试模板</note>
+		<note>1.下面是Helloworld的测试</note>
+		<note><logiclet module="Helloworld" welcome="Hello everyone."/></note>
+		<note>2.下面是Simulator的测试</note>
+		<note><logiclet module="Simulator" avg="100"/></note>
+		<note>3.下面是并行测试，segment的async为true，所有logiclet并行处理</note>
+		<note><logiclet module="Segment" async="true">
+			    <content>
+			        <text id="1"><logiclet module="Simulator" avg="10"/></text>
+			        <text id="2"><logiclet module="Simulator" avg="10"/></text>
+			        <text id="3"><logiclet module="Simulator" avg="10"/></text>
+			    </content>
+			</logiclet>
+		</note>		
+		<note>4.下面是串行测试，segment的async为false，所有logiclet串行处理</note>
+		<note>
+			<logiclet module="Segment" async="false">
+			    <content>
+			        <note id="1"><logiclet module="Simulator" avg="10"/></note>
+			        <note id="2"><logiclet module="Simulator" avg="10"/></note>
+			        <note id="3"><logiclet module="Simulator" avg="10"/></note>
+			    </content>
+			</logiclet>
+		</note>
+		<node>5.下面测试Repeator功能,对node下的所有a节点循环作Helloworld</node>
+		<node>
+		    <a welcome="hello 1"/>
+		    <a welcome="hello 2"/>
+		    <a welcome="hello 3"/>
+		    <a welcome="hello 4"/>
+		    <a welcome="hello 5"/>
+		    <logiclet module="Repeator" target="a"><logiclet module="Helloworld"/></logiclet>		    
+		</node>
+		<node>6.下面测试Selector功能，对node的sex属性进行测试，进行相应的处理</node>
+		<node sex="female">
+		    <logiclet module="Selector" condition="sex">
+		        <logiclet option="male" module="Segment">
+		            <content>
+			            <note>male</note>
+						<logiclet option="true" module="Helloworld" welcome="Hello male."/>
+					</content>		            
+		        </logiclet>
+		        <logiclet option="female" module="Segment">
+		            <content>		            
+			            <note>female</note>
+						<logiclet option="true" module="Helloworld" welcome="Hello female."/>
+					</content>		            
+		        </logiclet>
+		    </logiclet>
+		</node>
+	</content>
+</logiclet>

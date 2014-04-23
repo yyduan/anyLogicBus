@@ -24,6 +24,9 @@ import com.anysoft.util.XmlSerializer;
  * 
  * @author duanyy
  * @since 1.0.6
+ * 
+ * @version 1.1.0 [20140422 duanyy] <br>
+ * - 改用Class.forName装入jdbc驱动,避免无法注册的问题
  */
 public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 	/**
@@ -149,7 +152,7 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		Connection conn = null;
 		try {
 			ClassLoader cl = getClassLoader();
-			cl.loadClass(driver);
+			Class.forName(driver, true, cl);
 			conn = DriverManager.getConnection(url, username, password);
 		}catch (Exception ex){
 			logger.error("Can not create a connection to " + url,ex);

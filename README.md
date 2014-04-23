@@ -20,6 +20,8 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  
  - 基于anyWebLoader自动更新框架
  
+ - 面向协议的服务组装和并发调度框架,从1.0.0起提供
+ 
 ### 版本
  
  - 1.0.0 [20140327 duanyy]
@@ -53,3 +55,8 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  
  - 1.0.8 [20140420 duanyy]
      + {@link com.logicbus.models.servant.Getter Getter}增加从Message中获取参数的接口。
+     
+ - 1.1.0 [20140422 duanyy]
+     + 首次发布面向协议的服务组装和并发调度框架(together)
+     + 增加内置服务Simulator,模拟服务执行,用于框架的并发测试
+     + 修正数据源中jdbc驱动注册问题

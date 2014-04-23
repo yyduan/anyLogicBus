@@ -116,7 +116,50 @@
 		</catalog>
 	</catalog>
 	<catalog name="demo">
+	    <catalog name="together">
+	        <service 
+				id="Demo" 
+				name="Demo" 
+				note="together框架演示"
+				visible="protected"
+				module="com.logicbus.together.service.LogicBusAgent"
+			>
+				<properties>
+					<!--
+					是否需要数据库支持，缺省为false
+					-->
+					<parameter id="dbSupport" value="false"/>
+					
+					<!--
+					数据源，缺省为Default
+					-->
+					<parameter id="datasource" value="Default"/>
+					
+					<!--
+					是否需要事务支持，缺省为false
+					-->
+					<parameter id="transactionSupport" value="false"/>
+					
+					<!--
+					协议内容文档URI，缺省为${master.home}/servants/<服务路径>.xrc
+					-->
+					<parameter id="xrc.master" value="java:///com/logicbus/together/Demo.xml"/>
+			
+					<!--
+					协议内容文档URI(备用)，缺省为${secondary.home}/servants/<服务路径>.xrc
+					-->
+					<parameter id="xrc.secondary" value="java:///com/logicbus/together/Demo.xml"/>
+				</properties>
+			</service>
+	    </catalog>
 		<catalog name="logicbus">
+			<service 
+				id="Simulator" 
+				name="Simulator" 
+				note="模拟服务调用过程,耗时按正态进行分布,用于系统框架的并发测试" 
+				visible="public"
+				module="com.logicbus.service.Simulator"
+			/>		    
 			<service 
 				id="AreYouAlive" 
 				name="AreYouAlive" 
