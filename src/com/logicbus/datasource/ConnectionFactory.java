@@ -8,6 +8,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
+import com.anysoft.util.Confirmer;
 import com.anysoft.util.JsonSerializer;
 import com.anysoft.util.JsonTools;
 import com.anysoft.util.PropertiesConstants;
@@ -27,6 +28,10 @@ import com.anysoft.util.XmlSerializer;
  * 
  * @version 1.1.0 [20140422 duanyy] <br>
  * - 改用Class.forName装入jdbc驱动,避免无法注册的问题
+ * 
+ * @version 1.1.1 [20140423 duanyy] <br>
+ * - 在创建数据库连接前,进行各项参数的确认,通常用于将数据库密码分开保存.
+ * 
  */
 public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 	/**
@@ -145,6 +150,21 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 	}
 	
 	/**
+	 * 数据确认ID
+	 * @since 1.1.1
+	 */
+	protected String callbackId = "";
+	
+	/**
+	 * 数据确认类的类名
+	 * @since 1.1.1
+	 */
+	protected String callback = "";
+	
+	
+	protected Confirmer confirmer = null;
+	
+	/**
 	 * 按照当前的连接属性创建数据库连接
 	 * @return
 	 */
@@ -152,8 +172,32 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		Connection conn = null;
 		try {
 			ClassLoader cl = getClassLoader();
-			Class.forName(driver, true, cl);
-			conn = DriverManager.getConnection(url, username, password);
+			
+			if (confirmer == null){
+				//初始化confirmer
+				if (callbackId != null && callbackId.length() > 0 
+						&& callback != null && callback.length() > 0){
+					try {
+						confirmer = (Confirmer)cl.loadClass(callback).newInstance();
+						confirmer.prepare(callbackId);
+					}catch (Exception ex){
+						
+					}
+				}
+			}
+			
+			if (confirmer == null){
+				Class.forName(driver, true, cl);
+				conn = DriverManager.getConnection(url, username, password);
+			}else{
+				String _driver = confirmer.confirm("driver", driver);
+				String _url = confirmer.confirm("url", url);
+				String _username = confirmer.confirm("username", username);
+				String _password = confirmer.confirm("password", password);
+				
+				Class.forName(_driver,true,cl);
+				conn = DriverManager.getConnection(_url, _username,_password);
+			}
 		}catch (Exception ex){
 			logger.error("Can not create a connection to " + url,ex);
 		}
@@ -186,7 +230,9 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		e.setAttribute("maxActive", String.valueOf(maxActive));
 		e.setAttribute("maxIdle", String.valueOf(maxIdle));
 		e.setAttribute("maxWait", String.valueOf(maxWait));
-		e.setAttribute("monitor", monitor);		
+		e.setAttribute("monitor", monitor);	
+		e.setAttribute("callbackId", callbackId);
+		e.setAttribute("callback", callback);
 	}
 	
 	@Override
@@ -200,6 +246,8 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		e.setAttribute("maxIdle", String.valueOf(maxIdle));
 		e.setAttribute("maxWait", String.valueOf(maxWait));
 		e.setAttribute("monitor", monitor);
+		e.setAttribute("callbackId", callbackId);
+		e.setAttribute("callback", callback);
 	}
 
 	@Override
@@ -215,6 +263,8 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		maxIdle = PropertiesConstants.getInt(props, "maxIdle",1);
 		maxWait = PropertiesConstants.getInt(props, "maxWait",5000);
 		monitor = PropertiesConstants.getString(props, "monitor", "");
+		callbackId = PropertiesConstants.getString(props, "callbackId", "");
+		callback = PropertiesConstants.getString(props, "callback", "");
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -229,6 +279,8 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		JsonTools.setInt(json, "maxIdle", maxIdle);
 		JsonTools.setInt(json, "maxWait", maxWait);
 		JsonTools.setString(json, "monitor", monitor);
+		JsonTools.setString(json, "callbackId", callbackId);
+		JsonTools.setString(json, "callback", callback);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -243,5 +295,7 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		maxIdle = JsonTools.getInt(json, "maxIdle",1);
 		maxWait = JsonTools.getInt(json, "maxWait",5000);
 		monitor = JsonTools.getString(json, "monitor", "");
+		callbackId = JsonTools.getString(json, "callbackId", callbackId);
+		callback = JsonTools.getString(json, "callback", callback);
 	}
 }
