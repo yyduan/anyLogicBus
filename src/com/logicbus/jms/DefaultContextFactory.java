@@ -35,6 +35,7 @@ public class DefaultContextFactory implements JmsContextFactory {
 	public JmsContext getContext(String id)  throws JMSException {
 		if (!loaded){
 			loadResource();
+			loaded = true;
 		}
 		
 		JmsModel model = models.get(id);
