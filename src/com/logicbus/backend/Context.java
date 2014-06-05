@@ -96,6 +96,6 @@ abstract public class Context extends DefaultProperties{
 	 * 
 	 */
 	protected String createGlobalSerial(){
-		return KeyGen.getKey(10) + String.valueOf(System.currentTimeMillis());
+		return String.valueOf(System.currentTimeMillis()) + KeyGen.getKey(7);
 	}
 }
