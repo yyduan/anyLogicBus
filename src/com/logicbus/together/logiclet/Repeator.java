@@ -1,5 +1,8 @@
 package com.logicbus.together.logiclet;
 
+import java.util.List;
+import java.util.Map;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -24,6 +27,8 @@ import com.logicbus.together.LogicletFactory;
  * 
  * @author duanyy
  * @since 1.1.0
+ * 
+ * @version 1.2.0 增加对JSON支持
  */
 public class Repeator extends AbstractLogiclet {
 
@@ -65,10 +70,10 @@ public class Repeator extends AbstractLogiclet {
 				if (n.getNodeType() != Node.ELEMENT_NODE){
 					continue;
 				}				
-				child.excute((Element)n,msg,ctx,watcher);
+				child.execute((Element)n,msg,ctx,watcher);
 			}
 		}else{
-			child.excute(target, msg, ctx,watcher);
+			child.execute(target, msg, ctx,watcher);
 		}
 	}
 	
@@ -81,4 +86,27 @@ public class Repeator extends AbstractLogiclet {
 	 * 子logiclet
 	 */
 	protected Logiclet child = null;
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected void onExecute(Map target, Message msg, Context ctx,
+			ExecuteWatcher watcher) throws ServantException {
+		if (child == null){
+			//no child ,do nothing
+			return ;
+		}
+		
+		Object obj = target.get(targetPath);
+		if (obj != null && obj instanceof List){
+			List list = (List)obj;
+			for (int i = 0 ; i < list.size() ; i ++){
+				Object _child = list.get(i);
+				if (_child instanceof Map){
+					child.execute((Map)_child,msg,ctx,watcher);
+				}
+			}
+		}else{
+			child.execute(target, msg, ctx,watcher);
+		}
+	}
 }

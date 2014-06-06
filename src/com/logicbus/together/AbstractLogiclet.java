@@ -1,6 +1,7 @@
 package com.logicbus.together;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.LogManager;
@@ -32,7 +33,7 @@ import com.logicbus.models.servant.Argument;
  * @author duanyy
  * 
  * @since 1.1.0
- *
+ * @version 1.2.0 增加对JSON支持
  */
 abstract public class AbstractLogiclet implements Logiclet {
 
@@ -126,7 +127,7 @@ abstract public class AbstractLogiclet implements Logiclet {
 	abstract protected void onCompile(Element config, Properties myProps,LogicletFactory factory) throws ServantException;
 	
 	@Override
-	public void excute(Element target, Message msg, Context ctx,ExecuteWatcher watcher){
+	public void execute(Element target, Message msg, Context ctx,ExecuteWatcher watcher){
 		//在一次执行之后，缓存参数需要清掉
 		if (parameterCache != null)
 			parameterCache.clear();
@@ -150,6 +151,33 @@ abstract public class AbstractLogiclet implements Logiclet {
 			}
 		}
 	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void execute(Map target, Message msg, Context ctx,ExecuteWatcher watcher){
+		//在一次执行之后，缓存参数需要清掉
+		if (parameterCache != null)
+			parameterCache.clear();
+		
+		long start = System.currentTimeMillis();
+		try {
+			// 1.1.3 修正bug
+			setResult("core.ok","It is ok");
+			onExecute(target,msg,ctx,watcher);
+		}catch (ServantException ex){
+			if (!ignoreException){
+				setResult(ex.getCode(),ex.getMessage());
+			}
+		}finally{
+			long end = System.currentTimeMillis();
+			if (outputDuration)
+				target.put("duration", String.valueOf(end - start));
+			
+			if (watcher != null){
+				watcher.executed(this, end - start,TimeUnit.MILLISECONDS);
+			}
+		}
+	}	
 	
 	/**
 	 * 执行
@@ -162,7 +190,18 @@ abstract public class AbstractLogiclet implements Logiclet {
 	 * @throws ServantException
 	 */
 	abstract protected void onExecute(Element target,Message msg,Context ctx,ExecuteWatcher watcher) throws ServantException;
-
+	/**
+	 * 执行
+	 * 
+	 * <br>
+	 * 留给子类实现
+	 * @param target 输出的JSON节点
+	 * @param msg 消息
+	 * @param ctx 上下文
+	 * @throws ServantException
+	 */
+	@SuppressWarnings("rawtypes")
+	abstract protected void onExecute(Map target,Message msg,Context ctx,ExecuteWatcher watcher) throws ServantException;
 	@Override
 	public String getArgument(String id, String defaultValue, Element target,Message msg,
 			Context ctx) throws ServantException {
@@ -200,7 +239,58 @@ abstract public class AbstractLogiclet implements Logiclet {
 				//没有取到，从父节点提取
 				if (theParent != null){
 					//父节点不取target
-					value = theParent.getArgument(id, defaultValue, null, msg, ctx);
+					value = theParent.getArgument(id, defaultValue, (Element)null, msg, ctx);
+				}
+			}			
+		}
+		if (value == null || value.length() <= 0){
+			value = defaultValue;
+		}
+		
+		return value;
+	}	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String getArgument(String id, String defaultValue, Map target,Message msg,
+			Context ctx) throws ServantException {
+		
+		if (parameterCache != null){
+			//看看是否有缓存参数
+			String value = parameterCache.get(id);
+			if (value != null && value.length() > 0){
+				return value;
+			}
+		}
+		
+		String value = null;
+		
+		Argument argument = getArgument(id);
+		
+		if (argument != null){
+			//已经配置了参数
+			value = argument.getValue(msg, ctx);	
+			if (argument.isCached()){
+				//参数可以缓存起来供下一次使用
+				if (parameterCache == null){
+					parameterCache = new HashMap<String,String>();
+				}
+				
+				parameterCache.put(id, value);
+			}			
+		}else{
+			//如果没有定义
+			//从target的属性中提取
+			if (target != null){
+				Object found = target.get(id);
+				if (found instanceof String){
+					value = (String)found;
+				}
+			}
+			if (value == null || value.length() <= 0){
+				//没有取到，从父节点提取
+				if (theParent != null){
+					//父节点不取target
+					value = theParent.getArgument(id, defaultValue, (Element)null, msg, ctx);
 				}
 			}			
 		}

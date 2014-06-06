@@ -1,6 +1,7 @@
 package com.logicbus.together.logiclet;
 
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Vector;
 
 import org.w3c.dom.Element;
@@ -23,7 +24,7 @@ import com.logicbus.together.LogicletFactory;
  * 
  * @author duanyy
  * @since 1.1.0
- * 
+ * @version 1.2.0 增加对JSON支持
  */
 public class SQLUpdate extends AbstractLogiclet {
 
@@ -69,4 +70,23 @@ public class SQLUpdate extends AbstractLogiclet {
 	}
 
 	protected Vector<String> sqls = new Vector<String>();
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected void onExecute(Map target, Message msg, Context ctx,
+			ExecuteWatcher watcher) throws ServantException {
+		int count = sqls.size(); 
+		if (count > 0){
+			Connection conn = ctx.getConnection();
+			String [] _sqls = new String[sqls.size()];
+			
+			for (int i = 0 ; i < count ; i ++){
+				_sqls[i] = ctx.transform(sqls.get(i));
+				
+				logger.info("Execute SQL : " + _sqls[i]);
+			}
+			
+			SQLTools.executeBatch(conn, _sqls);
+		}
+	}
 }

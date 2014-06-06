@@ -1,5 +1,7 @@
 package com.logicbus.together;
 
+import java.util.Map;
+
 import org.w3c.dom.Element;
 
 import com.anysoft.util.Properties;
@@ -17,7 +19,7 @@ import com.logicbus.backend.message.Message;
  * @author duanyy
  * 
  * @since 1.1.0
- * 
+ * @version 1.2.0 增加对JSON支持
  */
 public interface Logiclet {
 
@@ -42,21 +44,49 @@ public interface Logiclet {
 	 * @return
 	 * @throws ServantException
 	 */
-	public void excute(Element target,Message msg,Context ctx,ExecuteWatcher watcher);
+	public void execute(Element target,Message msg,Context ctx,ExecuteWatcher watcher);
 	
+	
+	/**
+	 * 执行
+	 * 
+	 * @param target 输出的JSON节点
+	 * @param msg 服务消息
+	 * @param ctx 服务调用上下文
+	 * @param watcher 执行监视器
+	 * @return
+	 * @throws ServantException
+	 * @since 1.2.0
+	 */
+	@SuppressWarnings("rawtypes")
+	public void execute(Map target,Message msg,Context ctx,ExecuteWatcher watcher);	
 	
 	/**
 	 * 获取logiclet的参数
 	 * 
 	 * @param id 参数ID
 	 * @param defaultValue 缺省值
-	 * @param 目标节点
+	 * @param target 目标节点
 	 * @param msg 服务消息
 	 * @param ctx 服务调用上下文
 	 * @return
 	 * @throws ServantException
 	 */
 	public String getArgument(String id,String defaultValue,Element target,Message msg, Context ctx) throws ServantException;
+
+	/**
+	 * 获取logiclet的参数
+	 * 
+	 * @param id 参数ID
+	 * @param defaultValue 缺省值
+	 * @param target 目标节点
+	 * @param msg 服务消息
+	 * @param ctx 服务调用上下文
+	 * @return
+	 * @throws ServantException
+	 */
+	@SuppressWarnings("rawtypes")
+	public String getArgument(String id,String defaultValue,Map target,Message msg, Context ctx) throws ServantException;	
 	
 	/**
 	 * 获取结果代码

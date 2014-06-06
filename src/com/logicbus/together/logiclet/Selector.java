@@ -1,6 +1,7 @@
 package com.logicbus.together.logiclet;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,6 +29,8 @@ import com.logicbus.together.LogicletFactory;
  * 
  * @author duanyy
  * @since 1.1.0
+ * 
+ * @version 1.2.0 增加对JSON支持
  */
 public class Selector extends AbstractLogiclet{
 
@@ -113,7 +116,7 @@ public class Selector extends AbstractLogiclet{
 			logger.warn("Can not find a logiclet to match the value:" + value);
 			return ;
 		}
-		logiclet.excute(target, _msg, _ctx,watcher);
+		logiclet.execute(target, _msg, _ctx,watcher);
 	}
 
 	/**
@@ -130,4 +133,44 @@ public class Selector extends AbstractLogiclet{
 	 * 子logiclet
 	 */
 	protected HashMap<String,Logiclet> children = new HashMap<String,Logiclet>();
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected void onExecute(Map target, Message msg, Context ctx,
+			ExecuteWatcher watcher) throws ServantException {
+		if (conditionExpression == null){
+			//no condition , do nothing
+			return ;
+		}
+		
+		final Message _msg = msg;
+		final Context _ctx = ctx;
+		final Map _target = target;
+		
+		String value = conditionExpression.getValue(new DataProvider(){
+
+			@Override
+			public String getValue(String varName, Object context,
+					String defaultValue) {
+				try {
+					return getArgument(varName,defaultValue,_target,_msg,_ctx);
+				}catch (ServantException ex){
+					return "";
+				}
+			}
+
+			@Override
+			public Object getContext(String varName) {
+				return null;
+			}
+			
+		}).toString();
+		
+		Logiclet logiclet = children.get(value);
+		if (logiclet == null){
+			logger.warn("Can not find a logiclet to match the value:" + value);
+			return ;
+		}
+		logiclet.execute(target, _msg, _ctx,watcher);
+	}
 }

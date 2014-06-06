@@ -2,6 +2,7 @@ package com.logicbus.together.logiclet;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,8 @@ import com.logicbus.together.LogicletFactory;
  * @author duanyy
  * 
  * @since 1.1.0
+ * 
+ * @version 1.2.0 增加对JSON支持
  */
 public class Segment extends AbstractLogiclet {
 	
@@ -260,7 +263,7 @@ public class Segment extends AbstractLogiclet {
 						}
 						
 						//target节点是其目标节点
-						logiclet.excute(target, msg, ctx,watcher);
+						logiclet.execute(target, msg, ctx,watcher);
 						
 						if (logiclet.hasError()){
 							throw new ServantException(logiclet.getCode(),logiclet.getReason());
@@ -322,7 +325,7 @@ public class Segment extends AbstractLogiclet {
 				//在这里不对target进行并发控制，留给logiclet实现中对target进行控制
 				//synchronized (target){
 				if (logiclet != null)
-					logiclet.excute(target, msg, ctx,watcher);
+					logiclet.execute(target, msg, ctx,watcher);
 				//}
 			}finally{
 				if (latch != null)
@@ -330,4 +333,184 @@ public class Segment extends AbstractLogiclet {
 			}
 		}
 	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected void onExecute(Map target, Message msg, Context ctx,
+			ExecuteWatcher watcher) throws ServantException {
+		if (content == null){
+			return ;
+		}
+		if (isAsync()){
+			//如果异步模式开启,通过门闩来协调进程，子进程数为logiclet数
+			int thread = logiclets.size();
+			CountDownLatch latch = new CountDownLatch(thread);
+			
+			executeAsync(content,target,msg,ctx,latch,watcher);
+			
+			try {
+				if (!latch.await(timeout, TimeUnit.MILLISECONDS)){
+					throw new ServantException("core.time_out","Time is out or be interrupted.");
+				}
+				
+				//检测错误
+				Collection<Logiclet> _logiclets = logiclets.values();
+				for (Logiclet logiclet:_logiclets){
+					if (logiclet.hasError()){
+						throw new ServantException(logiclet.getCode(),logiclet.getReason());
+					}
+				}
+			}catch (ServantException ex){
+				throw ex;
+			}catch (Exception ex){
+				throw new ServantException("core.fatalerror",ex.getMessage());
+			}
+			
+		}else{
+			execute(content,target,msg,ctx,watcher);
+		}
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void executeAsync(Element _content, Map target, Message msg,
+			Context ctx, CountDownLatch latch,ExecuteWatcher watcher) throws ServantException {
+		NodeList children = _content.getChildNodes();
+		
+		for (int i = 0 ,length = children.getLength();i < length ; i ++){
+			Node n = children.item(i);
+			int nodeType = n.getNodeType();
+			
+			switch (nodeType){
+				case Node.TEXT_NODE:
+					//JSON模式下放弃Text节点
+					break;
+				case Node.ELEMENT_NODE:
+					Element e = (Element)n;
+					if (e.getNodeName().equals("logiclet")){
+						String id = e.getAttribute("___uniqueId");
+						if (id == null || id.length() <= 0){
+							//无法找到___uniqueId,我们认为在编译节点就不成功，忽略
+							continue;
+						}
+						Logiclet logiclet = logiclets.get(id);
+						if (logiclet == null){
+							//找不到logiclet实例，不知道怎么回事，忽略
+							continue;
+						}
+						
+						//target节点是其目标节点
+						JsonWorkThread thread = new JsonWorkThread(logiclet,latch,target,msg,ctx,watcher);
+						thread.start();
+					}else{
+						//非logiclet节点，直接clone
+						Map map = new HashMap();
+						//clone attribute
+						{
+							NamedNodeMap attrs = e.getAttributes();
+							for (int j = 0 ; j < attrs.getLength() ; j ++){
+								Node attr = attrs.item(j);
+								map.put(attr.getNodeName(), attr.getNodeValue());
+							}
+						}
+						
+						//process children
+						executeAsync(e,map,msg,ctx,latch,watcher);
+						
+						synchronized (target){
+							target.put(e.getNodeName(), map);
+						}
+					}
+					break;
+			}
+		}		
+	}	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void execute(Element _content,Map target, Message msg, Context ctx,ExecuteWatcher watcher) 
+			throws ServantException {
+		
+		NodeList children = _content.getChildNodes();
+		
+		for (int i = 0 ,length = children.getLength();i < length ; i ++){
+			Node n = children.item(i);
+			int nodeType = n.getNodeType();
+			
+			switch (nodeType){
+				case Node.TEXT_NODE:
+					//JSON模式下放弃Text节点
+					break;
+				case Node.ELEMENT_NODE:
+					Element e = (Element)n;
+					if (e.getNodeName().equals("logiclet")){
+						String id = e.getAttribute("___uniqueId");
+						if (id == null || id.length() <= 0){
+							//无法找到___uniqueId,我们认为在编译节点就不成功，忽略
+							continue;
+						}
+						Logiclet logiclet = logiclets.get(id);
+						if (logiclet == null){
+							//找不到logiclet实例，不知道怎么回事，忽略
+							continue;
+						}
+						
+						//target节点是其目标节点
+						logiclet.execute(target, msg, ctx,watcher);
+						
+						if (logiclet.hasError()){
+							throw new ServantException(logiclet.getCode(),logiclet.getReason());
+						}
+					}else{
+						//非logiclet节点，直接clone
+						Map map = new HashMap();
+						//clone attribute
+						{
+							NamedNodeMap attrs = e.getAttributes();
+							for (int j = 0 ; j < attrs.getLength() ; j ++){
+								Node attr = attrs.item(j);
+								map.put(attr.getNodeName(), attr.getNodeValue());
+							}
+						}
+						
+						//process children
+						execute(e,map,msg,ctx,watcher);
+						
+						target.put(e.getNodeName(), map);
+					}
+					break;
+			}
+		}		
+	}	
+	/**
+	 * 异步模式下执行logiclet的工作线程
+	 * @author duanyy
+	 *
+	 */
+	protected static class JsonWorkThread extends Thread{
+		protected Logiclet logiclet = null;
+		protected CountDownLatch latch = null;
+		@SuppressWarnings("rawtypes")
+		protected Map target = null;
+		protected Message msg = null;
+		protected Context ctx = null;
+		protected ExecuteWatcher watcher = null;
+		@SuppressWarnings("rawtypes")
+		public JsonWorkThread(Logiclet _logiclet,CountDownLatch _latch,Map _target,Message _msg,Context _ctx,ExecuteWatcher _watcher){
+			logiclet = _logiclet;
+			latch = _latch;
+			target = _target;
+			msg = _msg;
+			ctx = _ctx;
+			watcher = _watcher;
+		}
+		public void run(){
+			try {
+				//在这里不对target进行并发控制，留给logiclet实现中对target进行控制
+				//synchronized (target){
+				if (logiclet != null)
+					logiclet.execute(target, msg, ctx,watcher);
+				//}
+			}finally{
+				if (latch != null)
+					latch.countDown();
+			}
+		}
+	}	
 }

@@ -1,5 +1,6 @@
 package com.logicbus.together.logiclet;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,8 @@ import com.logicbus.together.LogicletFactory;
  * 
  * @author duanyy
  * @since 1.1.0
+ * 
+ * @version 1.2.0 增加对JSON支持
  */
 public class Simulator extends AbstractLogiclet {
 
@@ -73,8 +76,40 @@ public class Simulator extends AbstractLogiclet {
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
+	protected int getArgument(String id,int defaultValue,Map target,Message msg,Context ctx)
+			throws ServantException{
+		String value = getArgument(id, "", target,msg, ctx);
+		if (value == null || value.length() <= 0){
+			return defaultValue;
+		}
+		
+		try {
+			return Integer.parseInt(value);
+		}catch (Exception ex){
+			return defaultValue;
+		}
+	}	
+	
 	/**
 	 * 平均值,缺省10ms
 	 */
 	protected int avg = 10;
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected void onExecute(Map target, Message msg, Context ctx,
+			ExecuteWatcher watcher) throws ServantException {
+		int _avg = getArgument("avg",avg,target,msg,ctx);
+		
+		Random r = new Random();	
+		int duration = (int)((r.nextGaussian()/4 + 1) * _avg);
+		try {
+			TimeUnit.MILLISECONDS.sleep(duration);
+		}catch (Exception ex){
+			
+		}
+
+		target.put("msg", "I have sleep " + duration + " ms.");
+	}
 }

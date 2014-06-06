@@ -1,5 +1,7 @@
 package com.logicbus.together.logiclet;
 
+import java.util.Map;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -20,7 +22,7 @@ import com.logicbus.together.LogicletFactory;
  * @author duanyy
  *
  * @since 1.1.0
- * 
+ * @version 1.2.0 增加对JSON支持
  */
 public class Helloworld extends AbstractLogiclet {
 
@@ -49,4 +51,14 @@ public class Helloworld extends AbstractLogiclet {
 	 * 欢迎语
 	 */
 	protected String welcome = "Hello world";
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	protected void onExecute(Map target, Message msg, Context ctx,
+			ExecuteWatcher watcher) throws ServantException {
+		String _welcome = this.getArgument("welcome", welcome, target, msg, ctx);
+		synchronized (target){
+			target.put("say", _welcome);
+		}
+	}
 }

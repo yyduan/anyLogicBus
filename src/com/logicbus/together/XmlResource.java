@@ -155,7 +155,7 @@ public class XmlResource implements Cachable{
 			
 			Element target = result.getDocumentElement();
 			
-			logiclet.excute(target, null, null,null);
+			logiclet.execute(target, null, null,null);
 			
 			XmlTools.saveToOutputStream(result, System.out);
 		}catch (Exception ex){

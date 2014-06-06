@@ -62,7 +62,7 @@ public class LogicBusAgent extends Servant {
 			try {
 				Element root = msg.getRoot();
 				if (logiclet != null){
-					logiclet.excute(root, msg, ctx,null);
+					logiclet.execute(root, msg, ctx,null);
 					if (logiclet.hasError()){
 						throw new ServantException(logiclet.getCode(),logiclet.getReason());
 					}
@@ -82,7 +82,7 @@ public class LogicBusAgent extends Servant {
 		}else{
 			Element root = msg.getRoot();
 			if (logiclet != null){
-				logiclet.excute(root, msg, ctx,null);
+				logiclet.execute(root, msg, ctx,null);
 				if (logiclet.hasError()){
 					throw new ServantException(logiclet.getCode(),logiclet.getReason());
 				}
