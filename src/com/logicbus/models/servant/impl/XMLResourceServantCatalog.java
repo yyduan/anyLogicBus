@@ -46,7 +46,13 @@ public class XMLResourceServantCatalog extends XMLDocumentServantCatalog {
 		String fileName = _properties.GetValue("xrc", "/com/logicbus/service/servant.xml");
 		
 		try {
-			Class<?> clazz = Class.forName(className);
+			//采用当前的classLoader来装入类
+			//@since 1.1.3
+			Settings settings = Settings.get();
+			ClassLoader cl = (ClassLoader)settings.get("classLoader");
+			cl = cl != null ? cl : Thread.currentThread().getContextClassLoader();
+			
+			Class<?> clazz = cl.loadClass(className);
 			doc = XmlTools.loadFromInputStream(clazz.getResourceAsStream(fileName));
 		} catch (Exception ex){
 			logger.fatal("Can not load xml config file:" + fileName, ex);
