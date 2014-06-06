@@ -133,6 +133,8 @@ abstract public class AbstractLogiclet implements Logiclet {
 		
 		long start = System.currentTimeMillis();
 		try {
+			// 1.1.3 修正bug
+			setResult("core.ok","It is ok");
 			onExecute(target,msg,ctx,watcher);
 		}catch (ServantException ex){
 			if (!ignoreException){
