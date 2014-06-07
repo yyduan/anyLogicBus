@@ -136,6 +136,7 @@ public class ServantPool {
 					if (s != null){
 						s.destroy();
 					}
+					m_highpriority_servants[i] = null;
 				}
 			}
 		}

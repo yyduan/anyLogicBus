@@ -15,7 +15,7 @@ import com.logicbus.models.servant.ServiceDescriptionWatcher;
 /**
  * 服务员工厂
  * @author duanyy
- *
+ * @version 1.2.0 [20140607 duanyy]修正无法reload的bug
  */
 public class ServantFactory implements ServiceDescriptionWatcher{
 	/**
@@ -70,7 +70,7 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 	 */
 	public synchronized ServantPool reloadPool(Path _id) throws ServantException{
 		synchronized (m_pools){
-			ServantPool temp = m_pools.get(_id);
+			ServantPool temp = m_pools.get(_id.getPath());
 			if (temp != null){
 				//重新装入的目的是因为更新了服务描述信息			
 				ServantManager sm = ServantManager.get();
