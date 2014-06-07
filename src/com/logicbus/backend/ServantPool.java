@@ -7,6 +7,8 @@ import java.net.URLClassLoader;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.anysoft.util.IOTools;
+import com.anysoft.util.Settings;
 import com.logicbus.models.servant.ServiceDescription;
 
 
@@ -226,6 +228,16 @@ public class ServantPool {
 		String class_name = desc.getModule();
 		Servant temp = null;
 		try {
+			
+			//ClassLoader采用当前ClassLoader
+			//1.2.0
+			ClassLoader cl = null;
+			{
+				Settings settings = Settings.get();
+				cl = (ClassLoader)settings.get("classLoader");
+			}
+			cl = cl == null ? Thread.currentThread().getContextClassLoader() : cl;
+			
 			String [] modules = desc.getModules();
 			if (modules != null && modules.length > 0){
 				logger.info("Load class from remote..");
@@ -237,10 +249,16 @@ public class ServantPool {
 					logger.info("url=" + url);
 					i++;
 				}
-				URLClassLoader classLoader = new URLClassLoader(urls,getClass().getClassLoader());
-				temp = (Servant)classLoader.loadClass(class_name).newInstance();
+				URLClassLoader classLoader = new URLClassLoader(urls,cl);
+				try {
+					temp = (Servant)classLoader.loadClass(class_name).newInstance();
+				}finally{
+					if (classLoader != null){
+						IOTools.closeStream(classLoader);
+					}
+				}
 			}else{
-				temp = (Servant)(Class.forName(class_name).newInstance());
+				temp = (Servant)(cl.loadClass(class_name).newInstance());
 			}
 			temp.create(desc);			
 			return temp;
