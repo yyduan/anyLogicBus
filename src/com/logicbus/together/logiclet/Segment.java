@@ -1,7 +1,9 @@
 package com.logicbus.together.logiclet;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -402,6 +404,24 @@ public class Segment extends AbstractLogiclet {
 						thread.start();
 					}else{
 						//非logiclet节点，直接clone
+						//Element影射为array
+						List array = null;
+						String key = e.getNodeName();
+						synchronized(target){
+							Object found = target.get(key);
+							if (found != null){
+								if (found instanceof List){
+									array = (List)found;
+								}else{
+									array = new ArrayList();
+									Object removed = target.remove(key);
+									if (removed != null)
+									array.add(removed);
+									target.put(key, array);
+								}
+							}
+						}
+						
 						Map map = new HashMap();
 						//clone attribute
 						{
@@ -415,8 +435,14 @@ public class Segment extends AbstractLogiclet {
 						//process children
 						executeAsync(e,map,msg,ctx,latch,watcher);
 						
-						synchronized (target){
-							target.put(e.getNodeName(), map);
+						if (array != null){
+							synchronized(array){
+								array.add(map);		
+							}
+						}else{
+							synchronized(target){
+								target.put(key, map);		
+							}
 						}
 					}
 					break;
@@ -459,6 +485,22 @@ public class Segment extends AbstractLogiclet {
 						}
 					}else{
 						//非logiclet节点，直接clone
+						//Element影射为array
+						List array = null;
+						String key = e.getNodeName();
+						Object found = target.get(key);
+						if (found != null){
+							if (found instanceof List){
+								array = (List)found;
+							}else{
+								array = new ArrayList();
+								Object removed = target.remove(key);
+								if (removed != null)
+								array.add(removed);
+								target.put(key, array);
+							}
+						}
+						
 						Map map = new HashMap();
 						//clone attribute
 						{
@@ -472,7 +514,11 @@ public class Segment extends AbstractLogiclet {
 						//process children
 						execute(e,map,msg,ctx,watcher);
 						
-						target.put(e.getNodeName(), map);
+						if (array == null){
+							target.put(key, map);
+						}else{
+							array.add(map);
+						}
 					}
 					break;
 			}
