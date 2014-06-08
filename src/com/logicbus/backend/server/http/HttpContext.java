@@ -3,6 +3,7 @@ package com.logicbus.backend.server.http;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.anysoft.util.Settings;
 import com.logicbus.backend.Context;
 
 /**
@@ -57,7 +58,11 @@ public class HttpContext extends Context {
 
 	@Override
 	public String getClientIp() {
-		return request.getRemoteHost();
+		/**
+		 * 支持负载均衡器的X-Forwarded-For
+		 */
+		String ip = request.getHeader(ForwardedHeader);
+		return (ip == null || ip.length() <= 0) ? request.getRemoteHost() : ip;
 	}
 
 	@Override
@@ -68,5 +73,11 @@ public class HttpContext extends Context {
 	@Override
 	public String getRequestURI() {
 		return request.getRequestURI();
+	}
+	
+	public static String ForwardedHeader = "X-Forwarded-For";
+	static{
+		Settings settings = Settings.get();
+		ForwardedHeader = settings.GetValue("http.forwardedheader", ForwardedHeader);
 	}
 }
