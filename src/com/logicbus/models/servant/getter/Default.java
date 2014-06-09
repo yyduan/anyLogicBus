@@ -1,5 +1,6 @@
 package com.logicbus.models.servant.getter;
 
+import com.anysoft.util.Properties;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.Message;
@@ -17,10 +18,14 @@ import com.logicbus.models.servant.Getter;
  * 
  * @version 1.0.8 [20140420 duanyy] <br>
  * - 接口{@link com.logicbus.models.servant.Getter Getter}有更新。<br>
- * 
+ * @version 1.2.0 [20140609 duanyy]<br>
+ * - 优化getter的初始化
  */
 public class Default implements Getter {
-
+	
+	public Default(Properties props){
+		
+	}
 	@Override
 	public String getValue(Argument argu, MessageDoc msg, Context ctx) throws ServantException {
 		String id = argu.getId();

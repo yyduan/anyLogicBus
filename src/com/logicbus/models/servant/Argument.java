@@ -28,6 +28,9 @@ import com.logicbus.backend.message.MessageDoc;
  * @version 1.0.8 [20140420 duanyy]<br>
  * - 增加从Message中获取参数功能，见{@link com.logicbus.models.servant.Argument#getValue(Message, Context) getValue(Message, Context)} <br>
  * - 增加cached属性
+ * 
+ * @version 1.2.0 [20140609 duanyy]<br>
+ * - 优化getter的初始化
  */
 public class Argument implements XmlSerializer,JsonSerializer{
 	/**
@@ -137,7 +140,7 @@ public class Argument implements XmlSerializer,JsonSerializer{
 			Settings settings = Settings.get();
 			ClassLoader cl = (ClassLoader)settings.get("classLoader");
 			TheFactory factory = new TheFactory(cl);
-			theGetter = factory.newInstance(getter);
+			theGetter = factory.newInstance(getter,getParameter());
 		}
 		return theGetter.getValue(this, msg, ctx);
 	}
@@ -155,7 +158,7 @@ public class Argument implements XmlSerializer,JsonSerializer{
 			Settings settings = Settings.get();
 			ClassLoader cl = (ClassLoader)settings.get("classLoader");
 			TheFactory factory = new TheFactory(cl);
-			theGetter = factory.newInstance(getter);
+			theGetter = factory.newInstance(getter,getParameter());
 		}
 		return theGetter.getValue(this, msg, ctx);
 	}	
