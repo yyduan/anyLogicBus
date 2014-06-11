@@ -80,18 +80,37 @@ public class Select extends DBOperation {
 	 * @return
 	 * @throws SQLException
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes"})
 	public Map singleRow()throws ServantException{
+		return singleRow(null);
+	}	
+
+	/**
+	 * 获取查询结果(单行返回值)
+	 * 
+	 * @param result
+	 * @return
+	 * @throws SQLException
+	 * @since 1.2.0
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Map singleRow(Map result)throws ServantException{
 		try {
 			if (rs != null && rs.next()){
-				Map result = new HashMap();
+				if (result == null)
+				result = new HashMap();
 				
 				ResultSetMetaData metadata = rs.getMetaData();
 				int columnCount = metadata.getColumnCount();
 				for (int i = 0 ; i < columnCount ; i++){
 					Object value = rs.getObject(i+1);
-					if (value == null)continue;				
-					result.put(metadata.getColumnName(i+1).toLowerCase(), value);
+					if (value == null)continue;
+					//1.2.0 支持列的别名
+					String name = metadata.getColumnLabel(i+1);
+					if (name == null){
+						name = metadata.getColumnName(i+1);
+					}
+					result.put(name.toLowerCase(), value);
 				}
 				
 				return result;
@@ -101,7 +120,7 @@ public class Select extends DBOperation {
 		catch (SQLException ex){
 			throw new ServantException("core.sql_error","Error occurs when executing sql:" + ex.getMessage());
 		}
-	}	
+	}		
 	
 	/**
 	 * 获取查询结果
@@ -122,10 +141,15 @@ public class Select extends DBOperation {
 				Object cookies = rowListener.rowStart(columnCount);
 				
 				for (int i = 0 ; i < columnCount ; i++){
+					//1.2.0 支持列的别名
+					String name = metadata.getColumnLabel(i+1);
+					if (name == null){
+						name = metadata.getColumnName(i+1);
+					}					
 					rowListener.columnFound(
 							cookies,
 							i, 
-							metadata.getColumnName(i+1).toLowerCase(), 
+							name.toLowerCase(), 
 							rs.getObject(i+1)
 							);
 				}

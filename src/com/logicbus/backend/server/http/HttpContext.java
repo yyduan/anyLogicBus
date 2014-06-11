@@ -72,7 +72,13 @@ public class HttpContext extends Context {
 
 	@Override
 	public String getRequestURI() {
-		return request.getRequestURI();
+		// since 1.2.0 返回整个URL
+		String queryString = request.getQueryString();
+		if (queryString != null && queryString.length() > 0){
+			return request.getRequestURL().toString() + "?" + queryString;
+		}else{
+			return request.getRequestURL().toString();
+		}
 	}
 	
 	public static String ForwardedHeader = "X-Forwarded-For";

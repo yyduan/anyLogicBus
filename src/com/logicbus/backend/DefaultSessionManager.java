@@ -3,6 +3,7 @@ package com.logicbus.backend;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.anysoft.util.Properties;
 import com.logicbus.backend.server.http.HttpContext;
 
 /**
@@ -15,7 +16,16 @@ import com.logicbus.backend.server.http.HttpContext;
  * @since 1.1.3
  */
 public class DefaultSessionManager extends SessionManager {
-
+	
+	/**
+	 * 构造函数
+	 * @param props 参数配置
+	 * @since 1.2.0 修正无法创建的bug
+	 */
+	public DefaultSessionManager(Properties props){
+		
+	}
+	
 	@Override
 	public HttpSession getSession(Context ctx, boolean create) throws ServantException{
 		if (!(ctx instanceof HttpContext)){

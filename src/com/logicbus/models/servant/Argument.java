@@ -182,7 +182,8 @@ public class Argument implements XmlSerializer,JsonSerializer{
 		defaultValue = PropertiesConstants.getString(props, "defaultValue", "");
 		isOption = PropertiesConstants.getBoolean(props, "isOption", true);
 		getter = PropertiesConstants.getString(props,"getter","Default");
-		getterParameters = PropertiesConstants.getString(props,"paramters","");
+		// 1.2.0 修正笔误
+		getterParameters = PropertiesConstants.getString(props,"parameters","");
 		
 		// since 1.0.8
 		isCached = PropertiesConstants.getBoolean(props, "isCached", false);

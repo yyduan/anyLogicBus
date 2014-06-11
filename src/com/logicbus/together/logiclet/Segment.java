@@ -115,6 +115,8 @@ public class Segment extends AbstractLogiclet {
 					if (!ignoreException()){
 						throw ex;
 					}else{
+						// 1.2.0 当忽略异常的时候 ，在log中打印
+						logger.error("Exception occurs.",ex);
 						continue;
 					}
 				}

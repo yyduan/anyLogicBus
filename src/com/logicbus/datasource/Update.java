@@ -13,10 +13,13 @@ import com.logicbus.backend.ServantException;
  * Update操作
  * @author duanyy
  * @since 1.1.3
+ * 
+ * @version 1.2.0 [20140609 duanyy]
+ * - 修复构造函数可见性问题
  */
 public class Update extends DBOperation {
 
-	protected Update(Connection _conn) {
+	public Update(Connection _conn) {
 		super(_conn);
 	}
 

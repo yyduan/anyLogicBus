@@ -1,5 +1,6 @@
 package com.logicbus.together;
 
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -110,6 +111,9 @@ abstract public class AbstractLogiclet implements Logiclet {
 		}catch (ServantException ex){
 			if (!ignoreException){
 				setResult(ex.getCode(),ex.getMessage());
+			}else{
+				// 1.2.0 当忽略异常的时候 ，在log中打印
+				logger.error("Exception occurs.",ex);
 			}
 		}
 		
@@ -140,6 +144,9 @@ abstract public class AbstractLogiclet implements Logiclet {
 		}catch (ServantException ex){
 			if (!ignoreException){
 				setResult(ex.getCode(),ex.getMessage());
+			}else{
+				// 1.2.0 当忽略异常的时候 ，在log中打印
+				logger.error("Exception occurs.",ex);
 			}
 		}finally{
 			long end = System.currentTimeMillis();
@@ -167,6 +174,9 @@ abstract public class AbstractLogiclet implements Logiclet {
 		}catch (ServantException ex){
 			if (!ignoreException){
 				setResult(ex.getCode(),ex.getMessage());
+			}else{
+				// 1.2.0 当忽略异常的时候 ，在log中打印
+				logger.error("Exception occurs.",ex);
 			}
 		}finally{
 			long end = System.currentTimeMillis();
@@ -310,6 +320,23 @@ abstract public class AbstractLogiclet implements Logiclet {
 			return null;
 		
 		return argumentList.values().toArray(new Argument[0]);
+	}
+	
+	/**
+	 * 获取数据库连接
+	 * 
+	 * @param ctx 上下文
+	 * @return
+	 * @throws ServantException
+	 * 
+	 * @since 1.2.0
+	 */
+	public Connection getConnection(Context ctx)throws ServantException{
+		Connection conn = ctx.getConnection();
+		if (conn == null){
+			throw new ServantException("core.noconnection","Can not get a connection from context.");
+		}
+		return conn;
 	}
 	
 	/**
