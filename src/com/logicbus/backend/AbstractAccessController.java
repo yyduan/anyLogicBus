@@ -2,6 +2,7 @@ package com.logicbus.backend;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,6 +24,8 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.0.1 [20140402 duanyy] <br>
  * - {@link com.logicbus.backend.AccessController AccessController}有更新
  * 
+ * @version 1.2.1 [20140613 duanyy] <br>
+ * - 共享锁由synchronized改为ReentrantLock
  */
 abstract public class AbstractAccessController implements AccessController {
 	/**
@@ -33,16 +36,19 @@ abstract public class AbstractAccessController implements AccessController {
 	/**
 	 * 锁
 	 */
-	protected Object lock = new Object();
+	protected ReentrantLock lock = new ReentrantLock();
 
 	@Override
 	public int accessEnd(String sessionId,Path serviceId, ServiceDescription servant,
 			Context ctx) {
-		synchronized(lock){
+		lock.lock();
+		try {
 			AccessStat current = acl.get(sessionId);
 			if (current != null){
 				current.thread --;
 			}
+		}finally{
+			lock.unlock();
 		}
 		return 0;
 	}
@@ -50,7 +56,8 @@ abstract public class AbstractAccessController implements AccessController {
 	@Override
 	public int accessStart(String sessionId,Path serviceId, ServiceDescription servant,
 			Context ctx) {
-		synchronized(lock){
+		lock.lock();
+		try {
 			AccessStat current = acl.get(sessionId);	
 			if (current == null){
 				current = new AccessStat();
@@ -59,6 +66,7 @@ abstract public class AbstractAccessController implements AccessController {
 			
 			current.timesTotal ++;
 			current.thread ++;
+			current.waitCnt = lock.getQueueLength();
 			
 			long timestamp = System.currentTimeMillis();
 			timestamp = (timestamp / 60000)*60000;
@@ -71,6 +79,8 @@ abstract public class AbstractAccessController implements AccessController {
 			}
 			
 			return getClientPriority(serviceId,servant,ctx,current);
+		}finally{
+			lock.unlock();
 		}
 	}
 		
@@ -99,6 +109,7 @@ abstract public class AbstractAccessController implements AccessController {
 			eAcl.setAttribute("currentThread", String.valueOf(value.thread));
 			eAcl.setAttribute("timesTotal", String.valueOf(value.timesTotal));
 			eAcl.setAttribute("timesOneMin",String.valueOf(value.timesOneMin));
+			eAcl.setAttribute("waitCnt", String.valueOf(value.waitCnt));
 			
 			root.appendChild(eAcl);
 		}
@@ -126,5 +137,11 @@ abstract public class AbstractAccessController implements AccessController {
 		 * 时间戳(用于定义最近一分钟)
 		 */
 		protected long timestamp = 0;
+		
+		/**
+		 * 等待进程数
+		 * @since 1.2.1
+		 */
+		protected int waitCnt = 0;
 	}
 }
