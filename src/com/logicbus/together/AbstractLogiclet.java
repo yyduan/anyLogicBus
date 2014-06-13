@@ -35,6 +35,8 @@ import com.logicbus.models.servant.Argument;
  * 
  * @since 1.1.0
  * @version 1.2.0 增加对JSON支持
+ * 
+ * @version 1.2.1 ExecuteWatcher修改了方法
  */
 abstract public class AbstractLogiclet implements Logiclet {
 
@@ -154,7 +156,7 @@ abstract public class AbstractLogiclet implements Logiclet {
 				target.setAttribute("duration", String.valueOf(end - start));
 			
 			if (watcher != null){
-				watcher.executed(this, end - start,TimeUnit.MILLISECONDS);
+				watcher.executed(this, ctx,end - start,TimeUnit.MILLISECONDS);
 			}
 		}
 	}
@@ -184,7 +186,7 @@ abstract public class AbstractLogiclet implements Logiclet {
 				target.put("duration", String.valueOf(end - start));
 			
 			if (watcher != null){
-				watcher.executed(this, end - start,TimeUnit.MILLISECONDS);
+				watcher.executed(this, ctx,end - start,TimeUnit.MILLISECONDS);
 			}
 		}
 	}	

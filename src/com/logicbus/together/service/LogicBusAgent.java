@@ -2,6 +2,7 @@ package com.logicbus.together.service;
 
 import java.io.InputStream;
 import java.sql.Connection;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -15,6 +16,7 @@ import com.anysoft.util.resource.ResourceFactory;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
+import com.logicbus.backend.message.JsonMessage;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
 import com.logicbus.datasource.ConnectionPool;
@@ -22,6 +24,7 @@ import com.logicbus.datasource.ConnectionPoolFactory;
 import com.logicbus.datasource.SQLTools;
 import com.logicbus.models.servant.ServiceDescription;
 import com.logicbus.together.Compiler;
+import com.logicbus.together.ExecuteWatcher;
 import com.logicbus.together.Logiclet;
 
 
@@ -31,11 +34,22 @@ import com.logicbus.together.Logiclet;
  * @author duanyy
  * @since 1.1.0
  * 
+ * @version 1.2.1 [20140613 duanyy]
+ * - 增加对JSON的支持
+ * - 增加执行Watcher
  */
 public class LogicBusAgent extends Servant {
-
 	@Override
 	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {
+		String json = getArgument("json","false",msgDoc,ctx);
+		if (json != null && json.equals("true")){
+			return actionProcessJson(msgDoc,ctx);
+		}else{
+			return actionProcessXml(msgDoc,ctx);
+		}
+	}
+
+	private int actionProcessXml(MessageDoc msgDoc, Context ctx)throws Exception {
 		XMLMessage msg = (XMLMessage) msgDoc.asMessage(XMLMessage.class);
 		
 		String reload = getArgument("reload","false",msgDoc,ctx);
@@ -62,7 +76,7 @@ public class LogicBusAgent extends Servant {
 			try {
 				Element root = msg.getRoot();
 				if (logiclet != null){
-					logiclet.execute(root, msg, ctx,null);
+					logiclet.execute(root, msg, ctx,watcher);
 					if (logiclet.hasError()){
 						throw new ServantException(logiclet.getCode(),logiclet.getReason());
 					}
@@ -82,13 +96,70 @@ public class LogicBusAgent extends Servant {
 		}else{
 			Element root = msg.getRoot();
 			if (logiclet != null){
-				logiclet.execute(root, msg, ctx,null);
+				logiclet.execute(root, msg, ctx,watcher);
 				if (logiclet.hasError()){
 					throw new ServantException(logiclet.getCode(),logiclet.getReason());
 				}
 			}
 		}
-		return 0;
+		return 0;		
+	}
+
+	@SuppressWarnings("rawtypes")
+	private int actionProcessJson(MessageDoc msgDoc, Context ctx) throws Exception{
+		JsonMessage msg = (JsonMessage) msgDoc.asMessage(JsonMessage.class);
+		
+		String reload = getArgument("reload","false",msgDoc,ctx);
+		
+		if (reload.equals("true")){
+			reloadProtocol();
+		}
+		
+		if (dbSupport){
+			ConnectionPool pool = ConnectionPoolFactory.getPool();
+			Connection conn = pool.getConnection(dsName, 3000);
+			
+			if (conn == null) 
+					throw new ServantException("core.sqlerror","Can not get a db connection : " + dsName);
+			
+			if (transactionSupport){
+				conn.setAutoCommit(false);
+			}else{
+				conn.setAutoCommit(true);
+			}
+			
+			ctx.setConnection(conn);
+			
+			try {
+				Map root = msg.getRoot();
+				if (logiclet != null){
+					logiclet.execute(root, msg, ctx,watcher);
+					if (logiclet.hasError()){
+						throw new ServantException(logiclet.getCode(),logiclet.getReason());
+					}
+				}
+				if (transactionSupport){
+					conn.commit();
+				}
+			}catch (Exception ex){
+				if (transactionSupport){
+					conn.rollback();
+				}
+				throw ex;
+			}finally{
+				ctx.setConnection(null);
+				SQLTools.close(conn);
+			}
+		}else{
+			Map root = msg.getRoot();
+			if (logiclet != null){
+				logiclet.execute(root, msg, ctx,watcher);
+				if (logiclet.hasError()){
+					throw new ServantException(logiclet.getCode(),logiclet.getReason());
+				}
+			}
+		}
+		return 0;	
 	}
 
 	@Override
@@ -102,6 +173,20 @@ public class LogicBusAgent extends Servant {
 		
 		xrcMaster = PropertiesConstants.getString(props, "xrc.master", "${master.home}/servants/" + sd.getPath() + ".xrc");
 		xrcSecondary = PropertiesConstants.getString(props, "xrc.secondary", "${secondary.home}/servants/" + sd.getPath() + ".xrc");
+		
+		watcherClassName = PropertiesConstants.getString(props, "together.watcher","");
+		
+		if (watcherClassName != null && watcherClassName.length() > 0){
+			Settings settings = Settings.get();
+			ClassLoader cl = (ClassLoader) settings.get("classLoader");
+			
+			ExecuteWatcher.TheFactory factory = new ExecuteWatcher.TheFactory(cl);
+			try {
+				watcher = factory.newInstance(watcherClassName, settings);
+			}catch (Exception ex){
+				logger.error("Can not create watcher " + watcherClassName + ",ignored.");
+			}
+		}
 		
 		reloadProtocol();
 	}	
@@ -159,4 +244,16 @@ public class LogicBusAgent extends Servant {
 	 * 数据库数据源名称,缺省为Default
 	 */
 	protected String dsName = "Default";
+	
+	/**
+	 * watcher类名
+	 */
+	protected String watcherClassName = "";
+	
+	/**
+	 * 执行监视器
+	 * 
+	 * @since 1.2.1
+	 */
+	protected ExecuteWatcher watcher = null;
 }

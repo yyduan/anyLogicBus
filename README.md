@@ -73,3 +73,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 
  - 1.2.0 [20140606 duanyy]
  	 + together增加对JSON的支持
+ 	 
+ - 1.2.1 [20140613 duanyy]
+ 	 + 增加JsonMessage来支持JSON协议
+ 	 - 优化logiclet执行监控器的接口
