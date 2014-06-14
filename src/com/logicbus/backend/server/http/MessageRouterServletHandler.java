@@ -35,6 +35,9 @@ import com.logicbus.models.catalog.Path;
  * 
  * @version 1.0.7 [20140418 duanyy] <br>
  * - 增加全局序列号功能,从Http头的GlobalSerial变量获取前端传入的全局序列号
+ * 
+ * @version 1.2.1 [20140614 duanyy] <br>
+ * - 支持跨域服务调用
  */
 public class MessageRouterServletHandler implements ServletHandler {
 	/**
@@ -62,10 +65,16 @@ public class MessageRouterServletHandler implements ServletHandler {
 	 */
 	protected static String encoding = "utf-8";
 	
+	/**
+	 * Access-Control-Allow-Origin
+	 */
+	protected static String defaultAllowOrigin = "*";
+	
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
 		Settings settings = Settings.get();
 		encoding = settings.GetValue("http.encoding", encoding);
+		defaultAllowOrigin = settings.GetValue("http.alloworigin", defaultAllowOrigin);
 		ac = (AccessController) settings.get("accessController");
 		
 		normalizer = (Normalizer) settings.get("normalizer");
@@ -90,6 +99,11 @@ public class MessageRouterServletHandler implements ServletHandler {
 		response.setHeader("Last-Modified", "Mon, 26 Jul 1970 05:00:00 GMT");
 		response.setHeader("Cache-Control", "no-cache, must-revalidate");
 		response.setHeader("Pragma", "no-cache");
+		
+		// 1.2.1 duanyy
+		// to support CORS
+		String origin = request.getHeader("Origin");
+		response.setHeader("Access-Control-Allow-Origin", origin == null || origin.length() <= 0 ? defaultAllowOrigin : origin);
 		
 		StringBuffer doc = new StringBuffer();
 		MessageDoc msgDoc = null;
