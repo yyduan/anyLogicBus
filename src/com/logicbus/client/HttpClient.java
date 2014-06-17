@@ -78,8 +78,10 @@ public class HttpClient extends Client {
 	 * @param url URL
 	 * @param para request
 	 * @return response
+	 * 
+	 * @version 1.2.2 修改为public
 	 */
-	private Response invoke(URL url, Request para, Response result)throws ClientException {
+	public Response invoke(URL url, Request para, Response result)throws ClientException {
 		try {
 			String method = para == null ? "GET":"POST";
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -201,13 +203,13 @@ public class HttpClient extends Client {
 	public static void main(String [] args){
 		CommandLine cmd = new CommandLine(args);
 		Settings settings = Settings.get();
-		settings.SetValue("client.remote.home", "http://localhost/services");
+		settings.SetValue("client.remote.home", "http://localhost:8090/services");
 		settings.addSettings(cmd);
 		
 		HttpClient client = new HttpClient(settings);
 		
 		try {
-			Response response = client.invoke("/core/AclQuery?wsdl");
+			Response response = client.invoke("/core/AclQuery1?wsdl");
 			
 			System.out.println(response.getBuffer().toString());
 		}catch (Exception ex){
