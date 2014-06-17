@@ -2,6 +2,7 @@ package com.logicbus.backend;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -16,6 +17,8 @@ import com.logicbus.models.servant.ServiceDescriptionWatcher;
  * 服务员工厂
  * @author duanyy
  * @version 1.2.0 [20140607 duanyy]修正无法reload的bug
+ * @version 1.2.2 [20140617 duanyy]
+ * - 改进同步模型
  */
 public class ServantFactory implements ServiceDescriptionWatcher{
 	/**
@@ -68,8 +71,9 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 	 * @return 服务资源池
 	 * @throws ServantException
 	 */
-	public synchronized ServantPool reloadPool(Path _id) throws ServantException{
-		synchronized (m_pools){
+	public ServantPool reloadPool(Path _id) throws ServantException{
+		lockPools.lock();
+		try {
 			ServantPool temp = m_pools.get(_id.getPath());
 			if (temp != null){
 				//重新装入的目的是因为更新了服务描述信息			
@@ -78,6 +82,8 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 				temp.reload(sd);
 			}
 			return temp;
+		}finally{
+			lockPools.unlock();
 		}
 	}
 	
@@ -89,7 +95,8 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 	 * @see {@link #getServantPool(String)}
 	 */
 	public ServantPool getPool(Path _id) throws ServantException{
-		synchronized (m_pools){
+		lockPools.lock();
+		try {
 			Object temp = m_pools.get(_id.getPath());
 			if (temp != null){		
 				ServantPool pool = (ServantPool)temp;
@@ -103,14 +110,22 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 				return newPool;
 			}
 			return null;
+		}finally{
+			lockPools.unlock();
 		}
 	}
+	
+	/**
+	 * m_pools对象锁
+	 */
+	protected ReentrantLock lockPools = new ReentrantLock();
 	
 	/**
 	 * 关闭
 	 */
 	public void close(){
-		synchronized (m_pools){
+		lockPools.lock();
+		try {
 			Enumeration<ServantPool> pools = m_pools.elements();
 			
 			while (pools.hasMoreElements()){
@@ -119,6 +134,8 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 					sp.close();
 				}
 			}
+		}finally{
+			lockPools.unlock();
 		}
 	}
 	
@@ -127,21 +144,22 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 	 */
 	protected static ServantFactory instance = null;
 	
+	static {
+		instance = new ServantFactory();
+	}
+	
 	/**
 	 * 获取唯一实例
 	 * @return 唯一实例
 	 */
-	synchronized static public ServantFactory get(){
-		if (instance != null){
-			return instance;
-		}
-		instance = new ServantFactory();
+	public static ServantFactory get(){
 		return instance;
 	}
 
 	@Override
 	public void changed(Path id, ServiceDescription desc) {
-		synchronized (m_pools){
+		lockPools.lock();
+		try {
 			logger.info("changed" + id);
 			ServantPool temp = m_pools.get(id);
 			if (temp != null){
@@ -149,12 +167,15 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 				logger.info("Service has been changed,reload it:" + id);
 				temp.reload(desc);
 			}
+		}finally{
+			lockPools.unlock();
 		}
 	}
 	
 	@Override
 	public void removed(Path id){
-		synchronized (m_pools){
+		lockPools.lock();
+		try {
 			logger.info("removed:" + id);
 			ServantPool temp = m_pools.get(id);
 			if (temp != null){
@@ -163,6 +184,8 @@ public class ServantFactory implements ServiceDescriptionWatcher{
 				temp.close();
 				m_pools.remove(id);
 			}
+		}finally{
+			lockPools.unlock();
 		}		
 	}
 }

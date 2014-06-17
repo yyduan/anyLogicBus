@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.anysoft.util.PropertiesConstants;
+import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.Servant;
@@ -13,7 +15,6 @@ import com.logicbus.backend.ServantException;
 import com.logicbus.backend.ServantFactory;
 import com.logicbus.backend.ServantPool;
 import com.logicbus.backend.ServantWorkerThread;
-
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.models.catalog.Path;
 
@@ -30,6 +31,9 @@ import com.logicbus.models.catalog.Path;
  * 
  * @version 1.0.5 [20140412 duanyy] <br>
  * - 改进消息传递模型 <br>
+ * 
+ * @version 1.2.2 [20140417 duanyy] <br>
+ * - 增加非线程调度模式
  */
 public class MessageRouter {
 	
@@ -52,7 +56,7 @@ public class MessageRouter {
 		ServantPool pool = null;
 		Servant servant = null;		
 		String sessionId = "";
-		CountDownLatch latch = new CountDownLatch(1);
+		
 		try{
 			ServantFactory factory = ServantFactory.get();
 			pool = factory.getPool(id);		
@@ -74,13 +78,18 @@ public class MessageRouter {
 
 			servant = pool.getServant(priority);
 
-			ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx,latch);
-			thread.start();
-			if (!latch.await(servant.getTimeOutValue(), TimeUnit.MILLISECONDS)){
-				mDoc.setReturn("core.time_out","Time out or interrupted.");
-			}
-			thread = null;
-			
+			if (!threadMode){
+				//在非线程模式下,不支持服务超时
+				execute(servant,mDoc,ctx);
+			}else{
+				CountDownLatch latch = new CountDownLatch(1);
+				ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx,latch);
+				thread.start();
+				if (!latch.await(servant.getTimeOutValue(), TimeUnit.MILLISECONDS)){
+					mDoc.setReturn("core.time_out","Time out or interrupted.");
+				}
+				thread = null;
+			}			
 		}catch (ServantException ex){
 			mDoc.setReturn(ex.getCode(), ex.getMessage());
 			logger.error(ex.getCode() + ":" + ex.getMessage());
@@ -92,17 +101,31 @@ public class MessageRouter {
 			logger.error("core.fatalerror:" + t.getMessage());			
 		}
 		finally {
-			if (servant != null){
-				servant.setState(Servant.STATE_IDLE);		
-			}
-			mDoc.setEndTime(System.currentTimeMillis());
 			if (pool != null){
+				if (servant != null){
+					pool.recycleServant(servant);		
+				}				
 				pool.visited(mDoc.getDuration(),mDoc.getReturnCode());
 				if (ac != null){
 					ac.accessEnd(sessionId,id, pool.getDescription(), ctx);
 				}				
 			}
+			mDoc.setEndTime(System.currentTimeMillis());
 		}
 		return 0;
+	}
+	
+	protected static int execute(Servant servant,MessageDoc mDoc,Context ctx) throws Exception {
+		servant.actionBefore(mDoc, ctx);
+		servant.actionProcess(mDoc, ctx);
+		servant.actionAfter(mDoc, ctx);
+		return 0;
+	}
+	
+	protected static boolean threadMode = true;
+	
+	static {
+		Settings settings = Settings.get();
+		threadMode = PropertiesConstants.getBoolean(settings, "service.threadMode", true);
 	}
 }

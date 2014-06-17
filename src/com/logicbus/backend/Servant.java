@@ -253,7 +253,7 @@ abstract public class Servant {
 	 * @see #actionProcess(MessageDoc, Context)
 	 */
 	public void actionBefore(MessageDoc doc,Context ctx){
-		logger.debug("Begin:" + m_desc.getName());
+		//logger.debug("Begin:" + m_desc.getName());
 	}
 	
 	/**
@@ -263,7 +263,7 @@ abstract public class Servant {
 	 * @return 
 	 */
 	public int actionTesting(MessageDoc msg,Context ctx){
-		logger.debug("Testing the service,I am ok!!!");	
+		//logger.debug("Testing the service,I am ok!!!");	
 		return 0;
 	}
 	
@@ -279,8 +279,8 @@ abstract public class Servant {
 	public void actionAfter(MessageDoc doc,Context ctx){
 		doc.setReturn("core.ok","It is successful");
 		doc.setEndTime(System.currentTimeMillis());
-		logger.debug("Successful:" + m_desc.getName());
-		logger.debug("Duration(ms):" + (doc.getDuration()));
+		//logger.debug("Successful:" + m_desc.getName());
+		//logger.debug("Duration(ms):" + (doc.getDuration()));
 	}
 	
 	/**
@@ -297,7 +297,7 @@ abstract public class Servant {
 		doc.setReturn(ex.getCode(), ex.getMessage());
 		
 		doc.setEndTime(System.currentTimeMillis());
-		logger.debug("Failed:" + m_desc.getName());
-		logger.debug("Duration(ms):" + (doc.getDuration()));		
+		//logger.debug("Failed:" + m_desc.getName());
+		//logger.debug("Duration(ms):" + (doc.getDuration()));		
 	}
 }

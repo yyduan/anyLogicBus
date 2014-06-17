@@ -3,6 +3,7 @@ package com.logicbus.backend;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -16,7 +17,8 @@ import com.logicbus.models.servant.ServiceDescription;
  * 服务资源池
  * 
  * @author duanyy
- *
+ * @version 1.2.2 [20140617 duanyy]
+ * - 改进同步模型
  */
 public class ServantPool {
 	
@@ -118,7 +120,8 @@ public class ServantPool {
 	 */
 	public void close(){
 		if (m_servants != null){
-			synchronized (m_servants){
+			lockNormal.lock();
+			try{
 				for (int i = 0 ; i < m_servants.length ; i ++){
 					Servant s = m_servants[i];
 					if (s != null){
@@ -126,11 +129,14 @@ public class ServantPool {
 					}
 					m_servants[i] = null;
 				}
+			}finally{
+				lockNormal.unlock();
 			}
 		}
 		
 		if (m_highpriority_servants != null){
-			synchronized(m_highpriority_servants){
+			lockHigh.lock();
+			try {
 				for (int i = 0 ; i < m_highpriority_servants.length ; i ++){
 					Servant s = m_highpriority_servants[i];
 					if (s != null){
@@ -138,6 +144,8 @@ public class ServantPool {
 					}
 					m_highpriority_servants[i] = null;
 				}
+			}finally{
+				lockHigh.lock();
 			}
 		}
 	}
@@ -147,9 +155,16 @@ public class ServantPool {
 	 * @param duration 本次访问的时长
 	 * @param code 本次访问的错误代码
 	 */
-	synchronized public void visited(long duration,String code){
-		m_stat.visited(duration,code);
+	public void visited(long duration,String code){
+		lockStat.lock();
+		try{
+			m_stat.visited(duration,code);
+		}finally{
+			lockStat.unlock();
+		}
 	}
+	
+	protected ReentrantLock lockStat = new ReentrantLock();
 	
 	/**
 	 * 低优先级服务资源池
@@ -193,32 +208,51 @@ public class ServantPool {
 		return null;
 	}
 	
+	public void recycleServant(Servant servant){
+		servant.setState(Servant.STATE_IDLE);
+	}
+	/**
+	 * m_servants对象锁
+	 */
+	protected ReentrantLock lockQueue = new ReentrantLock();
 	/**
 	 * 按照优先级获取空闲的服务员
 	 * @param priority 优先级
 	 * @return 满足条件的服务员
 	 * @throws ServantException
 	 */
-	public synchronized Servant getServant(int priority) throws ServantException{
-		
-		Servant found = null; 
-		synchronized (m_servants){
+	public Servant getServant(int priority) throws ServantException{
+		Servant found = null;
+		lockNormal.lock();
+		try{
 			found = getServant(m_servants);
+		}finally{
+			lockNormal.unlock();
 		}
-		if (found == null){
-			if (priority > 1){
+		if (found != null) return found;
+		if (priority > 1){
+			lockHigh.lock();
+			try {
 				if (m_highpriority_servants == null){
 					m_highpriority_servants = new Servant[m_servant_count];
 				}
-				synchronized (m_highpriority_servants){
-					found = getServant(m_highpriority_servants);
-				}
+				found = getServant(m_highpriority_servants);
+			}finally{
+				lockHigh.unlock();
 			}
 		}
-		if (found != null) return found;
+		
 		throw new ServantException("core.service_busy","The service is so busy,another time please!");
 	}
 	
+	/**
+	 * m_servants对象锁
+	 */
+	protected ReentrantLock lockNormal = new ReentrantLock();
+	/**
+	 * m_highpriority_servants对象锁
+	 */
+	protected ReentrantLock lockHigh = new ReentrantLock();	
 	/**
 	 * 根据服务描述创建服务员
 	 * @param desc 服务描述
