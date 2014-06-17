@@ -9,10 +9,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.w3c.dom.Document;
+
 import com.anysoft.util.CommandLine;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.Properties;
 import com.anysoft.util.Settings;
+import com.anysoft.util.XmlTools;
 
 /**
  * 基于Http请求的Client
@@ -149,7 +152,8 @@ public class HttpClient extends Client {
 				content.append(line);
 				content.append('\n');
 			}
-			
+			//since 1.2.2 通知result准备Buffer
+			result.prepareBuffer(false);
 			return result;
 		}catch (IOException ex){
 			throw new ClientException("client.io_error","Can not read data from network.");
@@ -168,7 +172,7 @@ public class HttpClient extends Client {
 	private void output(HttpURLConnection conn, Request para) throws ClientException {
 		OutputStream out = null;
 		try {
-			
+
 			String encoding = para.getRequestAttribute("Content-Encoding", defaultEncoding);
 			String contentType = para.getRequestAttribute("Content-Type",defaultContentType);
 			
@@ -186,6 +190,9 @@ public class HttpClient extends Client {
 			}
 			
 			out = conn.getOutputStream();
+			
+			//since 1.2.2 通知Request准备Buffer
+			para.prepareBuffer(true);
 			StringBuffer content = para.getBuffer();
 			
 			if (content != null && content.length() > 0){
@@ -209,9 +216,10 @@ public class HttpClient extends Client {
 		HttpClient client = new HttpClient(settings);
 		
 		try {
-			Response response = client.invoke("/core/AclQuery1?wsdl");
-			
-			System.out.println(response.getBuffer().toString());
+			XMLBuffer response = new XMLBuffer();
+			client.invoke("/core/AclQuery?wsdl",(Response)response);
+			Document doc = response.getDocument();
+			XmlTools.saveToOutputStream(doc, System.out);
 		}catch (Exception ex){
 			ex.printStackTrace();
 		}

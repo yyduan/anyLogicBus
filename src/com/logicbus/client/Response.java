@@ -32,4 +32,12 @@ public interface Response {
 	 * @return StringBuffer
 	 */
 	public StringBuffer getBuffer();	
+	
+	/**
+	 * 准备Buffer
+	 * 
+	 * @param flag
+	 * @since 1.2.2
+	 */
+	public void prepareBuffer(boolean flag);	
 }

@@ -13,6 +13,8 @@ import com.anysoft.util.DefaultProperties;
  * 
  * @version 1.0.7 [20140418 duanyy]
  * - Request和Response更新
+ * 
+ * 
  */
 public class Buffer extends DefaultProperties implements Request,Response{
 	
@@ -25,7 +27,7 @@ public class Buffer extends DefaultProperties implements Request,Response{
 	}
 	
 	public Buffer(){
-		this(2014);
+		this(2048);
 	}
 	
 	/**
@@ -39,6 +41,15 @@ public class Buffer extends DefaultProperties implements Request,Response{
 	 */
 	public StringBuffer getBuffer(){return content;}
 
+	/**
+	 * 准备Buffer
+	 * 
+	 * @param flag
+	 * @since 1.2.2
+	 */
+	public void prepareBuffer(boolean flag){
+		
+	}
 
 	@Override
 	public void setResponseAttribute(String name, String value) {
