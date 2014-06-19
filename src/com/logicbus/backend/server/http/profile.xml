@@ -2,8 +2,8 @@
 <settings>
 
 <!-- 
-<parameter id="master.servant.config" value="${master.home}/servant.config.xml"/>
-<parameter id="secondary.servant.config" value="${secondary.home}/servant.config.xml"/>
+<parameter id="servant.config.master" value="${master.home}/servant.config.xml"/>
+<parameter id="servant.config.secondary" value="${secondary.home}/servant.config.xml"/>
  -->
  
 <!-- 
@@ -13,9 +13,9 @@
  
 <parameter id="http.contenttype" value="text/xml;charset=utf-8"/>
 <parameter id="http.encoding" value="utf-8"/>
-<parameter id="core.maxcount" value="10"/>
+<parameter id="servant.maxcount" value="10"/>
 <!-- 
-<parameter id="core.monitor" value="none"/>
+<parameter id="servant.monitor" value="none"/>
 -->
  
 <parameter id="acm.module" value="com.logicbus.backend.IpAndServiceAccessController"/>

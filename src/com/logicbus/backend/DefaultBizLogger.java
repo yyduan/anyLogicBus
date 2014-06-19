@@ -2,6 +2,7 @@ package com.logicbus.backend;
 
 import com.anysoft.util.Properties;
 import com.logicbus.backend.message.MessageDoc;
+import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
 /**
@@ -16,7 +17,7 @@ public class DefaultBizLogger implements BizLogger {
 	}
 	
 	@Override
-	public void log(ServiceDescription description, MessageDoc mDoc, Context ctx) {
+	public void log(Path id,ServiceDescription description, MessageDoc mDoc, Context ctx) {
 		
 	}
 }

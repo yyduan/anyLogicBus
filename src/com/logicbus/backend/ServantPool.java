@@ -83,10 +83,10 @@ public class ServantPool {
 		m_stat = new ServantStat();
 		{
 			String value;
-			value = m_desc.getProperties().GetValue("core.maxcount","5");
+			value = m_desc.getProperties().GetValue("servant.maxcount","5");
 			m_servant_count = Integer.parseInt(value);
 			
-			value = m_desc.getProperties().GetValue("core.monitor", 
+			value = m_desc.getProperties().GetValue("servant.monitor", 
 					"step=60;times_rras=SUM:60:720,SUM:3600:720;duration_rras=SUM:60:720,SUM:3600:720;error_rras=SUM:60:720,SUM:3600:720");
 			if (value != null && value.length() > 0){
 				m_stat.setMonitor(value);

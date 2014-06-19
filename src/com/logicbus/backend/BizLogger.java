@@ -2,6 +2,7 @@ package com.logicbus.backend;
 
 import com.anysoft.util.Factory;
 import com.logicbus.backend.message.MessageDoc;
+import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
 /**
@@ -18,7 +19,7 @@ public interface BizLogger {
 	 * @param mDoc 文档
 	 * @param ctx 上下文
 	 */
-	void log(ServiceDescription description, MessageDoc mDoc, Context ctx);
+	public void log(Path id,ServiceDescription description, MessageDoc mDoc, Context ctx);
 	
 	public static class TheFactory extends Factory<BizLogger>{
 		public TheFactory(ClassLoader cl){

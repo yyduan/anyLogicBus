@@ -121,9 +121,9 @@ public class MessageRouter {
 				//需要记录日志
 				
 				if (pool == null){
-					bizLogger.log(null,mDoc,ctx);
+					bizLogger.log(id,null,mDoc,ctx);
 				}else{
-					bizLogger.log(pool.getDescription(),mDoc,ctx);
+					bizLogger.log(id,pool.getDescription(),mDoc,ctx);
 				}
 			}
 		}
