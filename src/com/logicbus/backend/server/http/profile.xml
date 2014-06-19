@@ -7,16 +7,16 @@
  -->
  
 <!-- 
-<parameter id="master.timer.config" value="${master.home}/timer.xml"/>
-<parameter id="secondary.timer.config" value="${secondary.home}/timer.xml"/>
+<parameter id="timer.config.master" value="${master.home}/timer.xml"/>
+<parameter id="timer.config.secondary" value="${secondary.home}/timer.xml"/>
  -->
  
 <parameter id="http.contenttype" value="text/xml;charset=utf-8"/>
 <parameter id="http.encoding" value="utf-8"/>
-<parameter id="service.maxcount" value="10"/>
+<parameter id="core.maxcount" value="10"/>
 <!-- 
-<parameter id="service.monitor" value="none"/>
+<parameter id="core.monitor" value="none"/>
 -->
  
-<parameter id="module.accesscontroller" value="com.logicbus.backend.IpAndServiceAccessController"/>
+<parameter id="acm.module" value="com.logicbus.backend.IpAndServiceAccessController"/>
 </settings>

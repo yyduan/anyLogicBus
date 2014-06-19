@@ -41,15 +41,15 @@ public class LogicBusApp implements WebApp {
 	 */
 	private void startTimer(Properties settings,
 			ResourceFactory resourceFactory,ClassLoader classLoader) {
-		String __tmClass = settings.GetValue("module.timermanager",
+		String __tmClass = settings.GetValue("timer.manager",
 				"com.logicbus.backend.timer.TimerManager");
 		
-		String __timerConfig = settings.GetValue("master.timer.config", 
+		String __timerConfig = settings.GetValue("timer.config.master", 
 				"java:///com/logicbus/backend/timer/timer.xml#com.logicbus.backend.server.LogicBusApp");
 		if (__timerConfig == null || __timerConfig.length() <= 0)
 			return;
 
-		String __timerSecondaryConfig = settings.GetValue("secondary.timer.config", 
+		String __timerSecondaryConfig = settings.GetValue("timer.config.secondary", 
 				"java:///com/logicbus/backend/timer/timer.xml#com.logicbus.backend.server.LogicBusApp");
 		
 		logger.info("Start timer..");
@@ -85,15 +85,15 @@ public class LogicBusApp implements WebApp {
 		settings.registerObject("classLoader", classLoader);
 		
 		//resourceFactory
-		String rf = settings.GetValue("module.resourcefactory","com.anysoft.util.resource.ResourceFactory");
+		String rf = settings.GetValue("resource.factory","com.anysoft.util.resource.ResourceFactory");
 		settings.registerObject("ResourceFactory", rf);
 		ResourceFactory resourceFactory = (ResourceFactory) settings
 				.get("ResourceFactory");
 				
 		// 装入配置文件
-		String profile = settings.GetValue("master.config",
+		String profile = settings.GetValue("core.profile.master",
 				"java:///com/logicbus/backend/server/http/profile.xml#com.logicbus.backend.server.LogicBusApp");	
-		String secondary_profile = settings.GetValue("secondary.config",
+		String secondary_profile = settings.GetValue("core.profile.secondary",
 				"java:///com/logicbus/backend/server/http/profile.xml#com.logicbus.backend.server.LogicBusApp");
 		
 		logger.info("Load xml settings..");
@@ -104,13 +104,13 @@ public class LogicBusApp implements WebApp {
 		String encoding = settings.GetValue("http.encoding","utf-8");
 		XmlTools.setDefaultEncoding(encoding);
 		
-		String acClass = settings.GetValue("module.accesscontroller", 
+		String acClass = settings.GetValue("acm.module", 
 				"com.logicbus.backend.IpAndServiceAccessController");
 		AccessController.TheFactory acf = new AccessController.TheFactory(classLoader);
 		AccessController ac = acf.newInstance(acClass,settings);
 		settings.registerObject("accessController", ac);
 	
-		String normalizerClass = settings.GetValue("module.normalizer", 
+		String normalizerClass = settings.GetValue("normalizer.module", 
 				"com.logicbus.backend.DefaultNormalizer");
 		Normalizer.TheFactory ncf = new Normalizer.TheFactory(classLoader);
 		Normalizer normalizer = ncf.newInstance(normalizerClass);

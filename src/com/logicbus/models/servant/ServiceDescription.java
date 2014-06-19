@@ -28,6 +28,9 @@ import java.util.List;
  * @version 1.0.8 [20140421 duanyy]<br>
  * - 修正{@link com.logicbus.models.servant.ServiceDescription#getArgument(String) getArgument(String)}空指针错误. <br>
  * 
+ * @version 1.2.3 [20140617 duanyy]<br>
+ * - 增加日志的相关属性
+ * 
  */
 public class ServiceDescription implements XmlSerializer{
 	/**
@@ -58,6 +61,32 @@ public class ServiceDescription implements XmlSerializer{
 	 * 服务的可见性(public,login,limited)
 	 */
 	private String visible = "public";
+
+	/**
+	 * 业务日志的类型
+	 * 
+	 * <br>
+	 * 分为三种类型:<br>
+	 * - none <br>
+	 * - brief <br>
+	 * - detail <br>
+	 * 
+	 * @author duanyy
+	 * @since 1.2.3
+	 * 
+	 */
+	public enum LogType {none,brief,detail};
+	
+	/**
+	 * 日志类型
+	 */
+	private LogType logType = LogType.none;
+	
+	/**
+	 * 获取日志类型
+	 * @return
+	 */
+	public LogType getLogType(){return logType;}
 	
 	/**
 	 * constructor
@@ -221,6 +250,7 @@ public class ServiceDescription implements XmlSerializer{
 		//path
 		root.setAttribute("path",getPath());
 		//Properties
+		root.setAttribute("log", logType.toString());
 		
 		{
 			DefaultProperties properties = (DefaultProperties) getProperties();
@@ -268,6 +298,28 @@ public class ServiceDescription implements XmlSerializer{
 		
 	}
 	
+	private LogType parseLogType(String type){
+		LogType ret = LogType.none;
+		
+		if (type != null){
+			if (type.equals("none")){
+				ret = LogType.none;
+			}else{
+				if (type.equals("brief")){
+					ret = LogType.brief;
+				}else{
+					if (type.equals("detail")){
+						ret = LogType.detail;
+					}else{
+						ret = LogType.none;
+					}
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
 	@Override
 	public void fromXML(Element root){
 		setServiceID(root.getAttribute("id"));
@@ -276,7 +328,8 @@ public class ServiceDescription implements XmlSerializer{
 		setNote(root.getAttribute("note"));
 		setVisible(root.getAttribute("visible"));
 		setPath(root.getAttribute("path"));
-		
+		logType = parseLogType(root.getAttribute("log"));
+				
 		NodeList eProperties = XmlTools.getNodeListByPath(root, "properties/parameter");
 		if (eProperties != null){
 			for (int i = 0 ; i < eProperties.getLength() ; i ++){
@@ -348,6 +401,7 @@ public class ServiceDescription implements XmlSerializer{
 		setNote((String)json.get("note"));
 		setVisible((String)json.get("visible"));
 		setPath((String)json.get("path"));
+		logType = parseLogType((String)json.get("log"));
 		
 		Object propertiesObj = json.get("properties");
 		if (propertiesObj != null && propertiesObj instanceof List){
@@ -412,7 +466,7 @@ public class ServiceDescription implements XmlSerializer{
 		json.put("note", getNote());
 		json.put("visible", getVisible());
 		json.put("path",getPath());
-		
+		json.put("log", logType.toString());
 		{
 			DefaultProperties properties = (DefaultProperties) getProperties();
 			Enumeration<?> __keys = properties.keys();

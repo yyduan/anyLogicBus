@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
+import com.logicbus.backend.BizLogger;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
@@ -17,6 +18,7 @@ import com.logicbus.backend.ServantPool;
 import com.logicbus.backend.ServantWorkerThread;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.models.catalog.Path;
+import com.logicbus.models.servant.ServiceDescription;
 
 /**
  * 消息路由器
@@ -34,6 +36,9 @@ import com.logicbus.models.catalog.Path;
  * 
  * @version 1.2.2 [20140417 duanyy] <br>
  * - 增加非线程调度模式
+ * 
+ * @version 1.2.3 [20140617 duanyy] <br>
+ * - 增加业务日志的采集功能
  */
 public class MessageRouter {
 	
@@ -110,8 +115,17 @@ public class MessageRouter {
 				if (ac != null){
 					ac.accessEnd(sessionId,id, pool.getDescription(), ctx);
 				}				
-			}
+			}			
 			mDoc.setEndTime(System.currentTimeMillis());
+			if (bizLogger != null){				
+				//需要记录日志
+				
+				if (pool == null){
+					bizLogger.log(null,mDoc,ctx);
+				}else{
+					bizLogger.log(pool.getDescription(),mDoc,ctx);
+				}
+			}
 		}
 		return 0;
 	}
@@ -124,9 +138,17 @@ public class MessageRouter {
 	}
 	
 	protected static boolean threadMode = true;
-	
+	public static BizLogger bizLogger = null;
 	static {
 		Settings settings = Settings.get();
-		threadMode = PropertiesConstants.getBoolean(settings, "service.threadMode", true);
+		
+		//初始化threadMode
+		threadMode = PropertiesConstants.getBoolean(settings, "core.threadMode", true);
+		
+		//初始化BizLogger
+		String bizLoggerClass = PropertiesConstants.getString(settings, "bizlog.logger", "com.logicbus.backend.DefaultBizLogger");
+		ClassLoader cl = (ClassLoader) settings.get("classLoader");		
+		BizLogger.TheFactory factory = new BizLogger.TheFactory(cl);		
+		bizLogger = factory.newInstance(bizLoggerClass, settings);
 	}
 }

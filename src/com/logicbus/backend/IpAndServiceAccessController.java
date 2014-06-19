@@ -33,8 +33,8 @@ public class IpAndServiceAccessController extends AbstractAccessController {
 	
 	public IpAndServiceAccessController(Properties props){
 		super(props);
-		maxThread = PropertiesConstants.getInt(props, "client.maxThead", maxThread);
-		maxtimesPerMin = PropertiesConstants.getInt(props, "client.maxTimesPerMin", maxtimesPerMin);
+		maxThread = PropertiesConstants.getInt(props, "acm.maxThead", maxThread);
+		maxtimesPerMin = PropertiesConstants.getInt(props, "acm.maxTimesPerMin", maxtimesPerMin);
 	}
 
 	@Override

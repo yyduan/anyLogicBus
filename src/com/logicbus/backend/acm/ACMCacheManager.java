@@ -21,7 +21,7 @@ public class ACMCacheManager extends CacheManager<AccessControlModel> {
 		if (instance == null){
 			Settings settings = Settings.get();
 			
-			String className = settings.GetValue("module.acmProvider", "com.logicbus.backend.acm.XMLResourceACMProvider");
+			String className = settings.GetValue("acm.provider", "com.logicbus.backend.acm.XMLResourceACMProvider");
 			
 			ClassLoader cl = (ClassLoader)settings.get("classLoader");
 			

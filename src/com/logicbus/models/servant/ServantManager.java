@@ -120,10 +120,10 @@ public class ServantManager {
 		Document doc = null;
 		
 		Settings profile = Settings.get();
-		String configFile = profile.GetValue("master.servant.config", 
+		String configFile = profile.GetValue("servant.config.master", 
 				"java:///com/logicbus/models/servant/default.xml#com.logicbus.backend.server.LogicBusApp");
 
-		String secondaryFile = profile.GetValue("secondary.servant.config", 
+		String secondaryFile = profile.GetValue("servant.config.secondary", 
 				"java:///com/logicbus/models/servant/default.xml#com.logicbus.backend.server.LogicBusApp");
 		
 		ResourceFactory rm = (ResourceFactory) profile.get("ResourceFactory");

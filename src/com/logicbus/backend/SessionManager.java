@@ -36,7 +36,7 @@ abstract public class SessionManager{
 	synchronized static public SessionManager get(){
 		if (instance == null){
 			Settings settings = Settings.get();
-			String module = settings.GetValue("module.sessionmanager", 
+			String module = settings.GetValue("session.manager", 
 					"com.logicbus.backend.DefaultSessionManager");
 			
 			ClassLoader cl = (ClassLoader)settings.get("classLoader");

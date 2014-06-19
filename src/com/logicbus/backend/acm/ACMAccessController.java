@@ -60,7 +60,7 @@ abstract public class ACMAccessController implements AccessController {
 		if (tcMode){
 			tokenHolder = new TokenHolder(props);
 		}
-		appField = props.GetValue("acm.app", appField);		
+		appField = props.GetValue("acm.appArguName", appField);		
 	}
 	
 	public TokenHolder getTokenHolder(){
