@@ -7,46 +7,37 @@ package com.logicbus.client;
  * @author duanyy
  * @since 1.0.4
  * 
+ * @version 1.2.3 [20140619 duanyy]
+ * - 修改Client
  */
 abstract public class Client {
 	/**
-	 * 服务调用
-	 * @param id 服务ID
-	 * @return response
+	 * 创建参数实例
+	 * @return
 	 * @throws ClientException
 	 */
-	public Response invoke(String id) throws ClientException{
-		Response result = new Buffer();
-		return invoke(id,null,result);		
+	abstract public Parameter createParameter();
+
+	public int invoke(String id,Response res) throws ClientException{
+		return invoke(id,null,res,null);
+	}	
+	
+	public int invoke(String id,Parameter p,Response res) throws ClientException{
+		return invoke(id,p,res,null);
 	}
+
+	public int invoke(String id,Response res,Request req) throws ClientException{
+		return invoke(id,null,res,req);
+	}		
+		
 	/**
 	 * 服务调用
 	 * @param id 服务ID
-	 * @param result response
-	 * @return response
+	 * @param parameter 参数
+	 * @param para
+	 * @param result
+	 * @return
 	 * @throws ClientException
 	 */
-	public Response invoke(String id,Response result) throws ClientException{
-		return invoke(id,null,result);
-	}
-	/**
-	 * 服务调用
-	 * @param id 服务ID
-	 * @param para request
-	 * @return response
-	 * @throws ClientException
-	 */
-	public Response invoke(String id,Request para) throws ClientException{
-		Response result = new Buffer();
-		return invoke(id,para,result);
-	}
-	/**
-	 * 服务调用
-	 * @param id 服务ID
-	 * @param para request
-	 * @param result response
-	 * @return response
-	 * @throws ClientException
-	 */
-	abstract public Response invoke(String id,Request para,Response result) throws ClientException;	
+	abstract public int invoke(String id,Parameter p,Response res,Request req) throws ClientException;
 }

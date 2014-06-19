@@ -5,10 +5,10 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.9.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib/anyWebLoader-open-dev-1.0.13.jar"/>
 	<classpathentry kind="lib" path="lib/javax.jms.jar"/>
 	<classpathentry kind="lib" path="lib/anyFormula-open-dev-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/json-smart-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jsonPath.jar"/>
+	<classpathentry kind="lib" path="lib/anyWebLoader-open-dev-1.0.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

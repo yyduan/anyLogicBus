@@ -57,22 +57,28 @@ public class HttpClient extends Client {
 	protected String defaultContentType = "text/plain;charset=utf-8";
 	
 	public HttpClient(Properties props){	
-		home = props.GetValue("client.remote.home", "");
 		defaultEncoding = props.GetValue("http.encoding", defaultEncoding);
 		defaultContentType = props.GetValue("http.contentType", defaultContentType);
 	}
-	
+
 	@Override
-	public Response invoke(String id, Request para, Response result) throws ClientException{
-		if (home == null){
-			throw new ClientException("client.no_remote_home",
-					"Can not find the remote home,check parameter : client.remote.home");
-		}
-		String url = home + "/" + id;
+	public Parameter createParameter(){
+		return new HttpParameter(defaultEncoding);
+	}	
+	
+	private StringBuffer urlBuf = new StringBuffer();
+	@Override
+	public int invoke(String id,Parameter p,Response res,Request req) throws ClientException{
+		urlBuf.setLength(0);
+		urlBuf.append(id);		
+		if (p != null){
+			urlBuf.append('?');
+			urlBuf.append(p.toString());
+		}		
 		try {
-			return invoke(new URL(url),para,result);
+			return invoke(new URL(urlBuf.toString()),res,req);
 		} catch (MalformedURLException e) {
-			throw new ClientException("client.error_url","URL error :" + url);
+			throw new ClientException("client.error_url","URL error :" + urlBuf.toString());
 		}
 	}
 	
@@ -84,9 +90,9 @@ public class HttpClient extends Client {
 	 * 
 	 * @version 1.2.2 修改为public
 	 */
-	public Response invoke(URL url, Request para, Response result)throws ClientException {
+	public int invoke(URL url, Response res,Request req)throws ClientException {
 		try {
-			String method = para == null ? "GET":"POST";
+			String method = req == null ? "GET":"POST";
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod(method);
 			conn.setDoInput(true);
@@ -94,8 +100,8 @@ public class HttpClient extends Client {
 			if (cookies != null && cookies.length() > 0){
 				conn.addRequestProperty("Cookie", cookies);
 			}
-			if (para != null)
-				output(conn,para);
+			if (req != null)
+				output(conn,req);
 			
 			int ret = conn.getResponseCode();
 			if (ret != HttpURLConnection.HTTP_OK) {
@@ -108,7 +114,7 @@ public class HttpClient extends Client {
 			if (newCookies != null){
 				cookies = newCookies;
 			}
-			return input(conn,result);
+			return input(conn,res);
 		}catch (IOException ex){
 			throw new ClientException("client.io_error","Can not connect to remote host : " + url);
 		}
@@ -121,7 +127,7 @@ public class HttpClient extends Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	private Response input(HttpURLConnection conn,Response result) throws ClientException{
+	private int input(HttpURLConnection conn,Response result) throws ClientException{
 		InputStream in = null;
 		BufferedReader reader = null;
 		
@@ -154,7 +160,7 @@ public class HttpClient extends Client {
 			}
 			//since 1.2.2 通知result准备Buffer
 			result.prepareBuffer(false);
-			return result;
+			return 0;
 		}catch (IOException ex){
 			throw new ClientException("client.io_error","Can not read data from network.");
 		}
@@ -169,7 +175,7 @@ public class HttpClient extends Client {
 	 * @param para 参数
 	 * @throws ClientException
 	 */
-	private void output(HttpURLConnection conn, Request para) throws ClientException {
+	private int output(HttpURLConnection conn, Request para) throws ClientException {
 		OutputStream out = null;
 		try {
 
@@ -199,7 +205,7 @@ public class HttpClient extends Client {
 				String data = content.toString();
 				out.write(data.getBytes(encoding));
 			}			
-
+			return 0;
 		}catch (IOException ex){
 			throw new ClientException("client.io_error","Can not write data to network.");
 		}finally {
@@ -217,13 +223,12 @@ public class HttpClient extends Client {
 		
 		try {
 			XMLBuffer response = new XMLBuffer();
-			client.invoke("/core/AclQuery?wsdl",(Response)response);
+			client.invoke("/core/AclQuery?wsdl",null,(Response)response);
 			Document doc = response.getDocument();
 			XmlTools.saveToOutputStream(doc, System.out);
 		}catch (Exception ex){
 			ex.printStackTrace();
 		}
 	}
-
 
 }

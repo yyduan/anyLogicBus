@@ -1,8 +1,7 @@
 package com.logicbus.backend;
 
+import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
-import com.anysoft.util.Settings;
-
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -32,10 +31,10 @@ public class IpAndServiceAccessController extends AbstractAccessController {
 	 */
 	protected int maxtimesPerMin = 1000;
 	
-	public IpAndServiceAccessController(){
-		Settings settings = Settings.get();
-		maxThread = PropertiesConstants.getInt(settings, "client.maxThead", maxThread);
-		maxtimesPerMin = PropertiesConstants.getInt(settings, "client.maxTimesPerMin", maxtimesPerMin);
+	public IpAndServiceAccessController(Properties props){
+		super(props);
+		maxThread = PropertiesConstants.getInt(props, "client.maxThead", maxThread);
+		maxtimesPerMin = PropertiesConstants.getInt(props, "client.maxTimesPerMin", maxtimesPerMin);
 	}
 
 	@Override

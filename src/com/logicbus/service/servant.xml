@@ -56,6 +56,13 @@
 			visible="protected"
 			module="com.logicbus.service.AclQuery"
 		/>
+		<service 
+			id="TokenDestroy" 
+			name="TokenDestroy" 
+			note="删除Token"
+			visible="protected"
+			module="com.logicbus.backend.acm.TokenDestroy"
+		/>		
 		<catalog name="manager">
 			<service 
 				id="AssetQuery" 

@@ -7,8 +7,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.anysoft.util.Properties;
+import com.anysoft.util.PropertiesConstants;
+import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.Context;
+import com.logicbus.client.Client;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -34,8 +38,33 @@ abstract public class ACMAccessController implements AccessController {
 	 */
 	protected ACMCacheManager acmCache = null;
 	
-	public ACMAccessController(){
+	/**
+	 * 是否启用TokenCenter模式
+	 */
+	protected boolean tcMode = false;
+		
+	/**
+	 * Token Holder
+	 */
+	protected TokenHolder tokenHolder = null;
+	
+	protected TokenCenterConnector tcc = null;
+	
+	protected String appField = "a";
+	
+	protected Client httpClient = null;
+	public ACMAccessController(Properties props){
 		acmCache = getCacheManager();
+		tcMode = PropertiesConstants.getBoolean(props, "acm.tcMode", false);
+
+		if (tcMode){
+			tokenHolder = new TokenHolder(props);
+		}
+		appField = props.GetValue("acm.app", appField);		
+	}
+	
+	public TokenHolder getTokenHolder(){
+		return tokenHolder;
 	}
 	
 	/**
@@ -60,6 +89,30 @@ abstract public class ACMAccessController implements AccessController {
 			return -2;
 		}
 		
+		if (tcMode){
+			//从参数中获取Token
+			String t = ctx.GetValue("token", "");
+			if (t == null || t.length() <= 0){
+				//没有按照协议要求传递token参数
+				return -1;
+			}
+			//看看TokenHolder中有没有缓存该Token
+			boolean found = tokenHolder.exist(t);
+			if (!found){
+				//调用TokenCenter查询Token是否有效
+				String app = ctx.GetValue(appField, "Default");
+				if (tcc == null){
+					tcc = new TokenCenterConnector(Settings.get());
+				}
+				boolean valid = tcc.tokenIsValid(app, t);
+				if (!valid){
+					//连TokenCenter都说是非法
+					return -3;
+				}
+				tokenHolder.add(t);
+			}
+		}
+		
 		lock.lock();
 		try{
 			String acmObject = getACMObject(sessionId,serviceId,servant,ctx);
@@ -71,7 +124,7 @@ abstract public class ACMAccessController implements AccessController {
 			
 			current.timesTotal ++;
 			current.thread ++;
-			
+			current.waitCnt = lock.getQueueLength();
 			long timestamp = System.currentTimeMillis();
 			timestamp = (timestamp / 60000)*60000;
 			if (timestamp != current.timestamp){

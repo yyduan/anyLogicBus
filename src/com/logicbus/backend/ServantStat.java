@@ -78,6 +78,11 @@ public class ServantStat {
 	private long cycleStartTime = 0;
 	
 	/**
+	 * 等待线程数
+	 */
+	private long waitCnt = 0;
+	public void setWaitCnt(long _cnt){waitCnt = _cnt;}
+	/**
 	 * 访问记录
 	 * 
 	 * <br>在服务访问结束之后调用
@@ -153,6 +158,7 @@ public class ServantStat {
 		stat.setAttribute("duration", df.format(lastDuration));
 		stat.setAttribute("timestamp", String.valueOf(cycleStartTime));
 		stat.setAttribute("step", String.valueOf(step));
+		stat.setAttribute("waitCnt", String.valueOf(waitCnt));
 		root.appendChild(stat);		
 		
 		if (timesMetric != null || durationMetric != null){

@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.anysoft.util.Properties;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -38,6 +39,10 @@ abstract public class AbstractAccessController implements AccessController {
 	 */
 	protected ReentrantLock lock = new ReentrantLock();
 
+	public AbstractAccessController(Properties props){
+		
+	}
+	
 	@Override
 	public int accessEnd(String sessionId,Path serviceId, ServiceDescription servant,
 			Context ctx) {

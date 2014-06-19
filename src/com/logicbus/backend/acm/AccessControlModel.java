@@ -68,6 +68,10 @@ public class AccessControlModel implements Cachable {
 		fromJson(data);
 	}
 	
+	public AccessControlModel(String _id,Element e){
+		id = _id;
+		fromXML(e);
+	}
 	@Override
 	public String getId() {
 		return id;

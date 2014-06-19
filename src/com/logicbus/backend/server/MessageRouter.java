@@ -71,6 +71,7 @@ public class MessageRouter {
 				sessionId = ac.createSessionId(id, pool.getDescription(), ctx);
 				priority = ac.accessStart(sessionId,id, pool.getDescription(), ctx);
 				if (priority < 0){
+					logger.info("Unauthorized Access:" + ctx.getClientIp() + ",url:" + ctx.getRequestURI());
 					mDoc.setReturn("client.permission_denied","Permission denied！service id: "+ id);
 					return 0;
 				}

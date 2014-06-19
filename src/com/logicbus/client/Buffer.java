@@ -41,6 +41,8 @@ public class Buffer extends DefaultProperties implements Request,Response{
 	 */
 	public StringBuffer getBuffer(){return content;}
 
+	public String toString(){return content.toString();}
+	
 	/**
 	 * 准备Buffer
 	 * 

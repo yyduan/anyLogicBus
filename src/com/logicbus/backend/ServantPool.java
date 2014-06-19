@@ -156,6 +156,7 @@ public class ServantPool {
 	 * @param code 本次访问的错误代码
 	 */
 	public void visited(long duration,String code){
+		m_stat.setWaitCnt(lockStat.getQueueLength() + lockNormal.getQueueLength() + lockHigh.getQueueLength());
 		lockStat.lock();
 		try{
 			m_stat.visited(duration,code);
@@ -211,10 +212,6 @@ public class ServantPool {
 	public void recycleServant(Servant servant){
 		servant.setState(Servant.STATE_IDLE);
 	}
-	/**
-	 * m_servants对象锁
-	 */
-	protected ReentrantLock lockQueue = new ReentrantLock();
 	/**
 	 * 按照优先级获取空闲的服务员
 	 * @param priority 优先级

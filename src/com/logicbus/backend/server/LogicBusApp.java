@@ -107,7 +107,7 @@ public class LogicBusApp implements WebApp {
 		String acClass = settings.GetValue("module.accesscontroller", 
 				"com.logicbus.backend.IpAndServiceAccessController");
 		AccessController.TheFactory acf = new AccessController.TheFactory(classLoader);
-		AccessController ac = acf.newInstance(acClass);
+		AccessController ac = acf.newInstance(acClass,settings);
 		settings.registerObject("accessController", ac);
 	
 		String normalizerClass = settings.GetValue("module.normalizer", 

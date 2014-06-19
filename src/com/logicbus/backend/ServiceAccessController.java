@@ -1,5 +1,6 @@
 package com.logicbus.backend;
 
+import com.anysoft.util.Properties;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -19,6 +20,10 @@ import com.logicbus.models.servant.ServiceDescription;
  */
 public class ServiceAccessController extends IpAndServiceAccessController {
 	
+	public ServiceAccessController(Properties props) {
+		super(props);
+	}
+
 	@Override
 	public String createSessionId(Path serviceId, ServiceDescription servant,
 			Context ctx){

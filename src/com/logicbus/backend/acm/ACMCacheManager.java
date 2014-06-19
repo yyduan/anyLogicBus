@@ -7,7 +7,7 @@ import com.anysoft.util.Settings;
 
 /**
  * ACM的缓存管理器
- * @author sony
+ * @author duanyy
  *
  * @since 1.2.3
  */
