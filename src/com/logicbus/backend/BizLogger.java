@@ -1,9 +1,6 @@
 package com.logicbus.backend;
 
 import com.anysoft.util.Factory;
-import com.logicbus.backend.message.MessageDoc;
-import com.logicbus.models.catalog.Path;
-import com.logicbus.models.servant.ServiceDescription;
 
 /**
  * 业务日志接口
@@ -13,17 +10,19 @@ import com.logicbus.models.servant.ServiceDescription;
  */
 public interface BizLogger {
 	
+	
 	/**
 	 * 记录日志
-	 * @param description 服务描述
-	 * @param mDoc 文档
-	 * @param ctx 上下文
+	 * @param item 日志项
 	 */
-	public void log(Path id,ServiceDescription description, MessageDoc mDoc, Context ctx);
+	public void log(BizLogItem item);
+	
+	/**
+	 * 关闭
+	 */
+	public void close();
 	
 	public static class TheFactory extends Factory<BizLogger>{
-		public TheFactory(ClassLoader cl){
-			super(cl);
-		}
+
 	}	
 }

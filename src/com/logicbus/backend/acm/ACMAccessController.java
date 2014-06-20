@@ -83,33 +83,36 @@ abstract public class ACMAccessController implements AccessController {
 	@Override
 	public int accessStart(String sessionId,Path serviceId, ServiceDescription servant,
 			Context ctx) {
-		AccessControlModel acm = acmCache.load(sessionId);
+		AccessControlModel acm = acmCache.get(sessionId);
 		if (acm == null){
 			//-2表明无法为当前接入找到访问控制模型
 			return -2;
 		}
 		
-		if (tcMode){
-			//从参数中获取Token
-			String t = ctx.GetValue("token", "");
-			if (t == null || t.length() <= 0){
-				//没有按照协议要求传递token参数
-				return -1;
-			}
-			//看看TokenHolder中有没有缓存该Token
-			boolean found = tokenHolder.exist(t);
-			if (!found){
-				//调用TokenCenter查询Token是否有效
-				String app = ctx.GetValue(appField, "Default");
-				if (tcc == null){
-					tcc = new TokenCenterConnector(Settings.get());
+		if (!servant.getVisible().equals("public")){
+			//仅对非public服务进行控制
+			if (tcMode){
+				//从参数中获取Token
+				String t = ctx.GetValue("token", "");
+				if (t == null || t.length() <= 0){
+					//没有按照协议要求传递token参数
+					return -1;
 				}
-				boolean valid = tcc.tokenIsValid(app, t);
-				if (!valid){
-					//连TokenCenter都说是非法
-					return -3;
+				//看看TokenHolder中有没有缓存该Token
+				boolean found = tokenHolder.exist(t);
+				if (!found){
+					//调用TokenCenter查询Token是否有效
+					String app = ctx.GetValue(appField, "Default");
+					if (tcc == null){
+						tcc = new TokenCenterConnector(Settings.get());
+					}
+					boolean valid = tcc.tokenIsValid(app, t);
+					if (!valid){
+						//连TokenCenter都说是非法
+						return -3;
+					}
+					tokenHolder.add(t);
 				}
-				tokenHolder.add(t);
 			}
 		}
 		

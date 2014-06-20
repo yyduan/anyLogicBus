@@ -53,7 +53,6 @@ public class JsonMessage extends Message {
 		JsonTools.setString(root, "host", ctx.getHost());
 		JsonTools.setString(root, "serial", ctx.getGlobalSerial());
 		
-		JsonProvider provider = JsonProviderFactory.createProvider();
 		String data = provider.toJson(root);
 		try {
 			out.write(data.getBytes(msgDoc.getEncoding()));
@@ -68,4 +67,14 @@ public class JsonMessage extends Message {
 	public boolean hasFatalError(){
 		return false;
 	}	
+	
+	public String toString(){
+		return provider.toJson(root);
+	}
+	
+	protected static JsonProvider provider = null;
+	
+	static {
+		provider = JsonProviderFactory.createProvider();
+	}
 }

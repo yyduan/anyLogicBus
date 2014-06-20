@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
+import com.logicbus.backend.BizLogItem;
 import com.logicbus.backend.BizLogger;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.Servant;
@@ -119,14 +120,35 @@ public class MessageRouter {
 			mDoc.setEndTime(System.currentTimeMillis());
 			if (bizLogger != null){				
 				//需要记录日志
-				
-				if (pool == null){
-					bizLogger.log(id,null,mDoc,ctx);
-				}else{
-					bizLogger.log(id,pool.getDescription(),mDoc,ctx);
-				}
+				log(id,sessionId,pool,mDoc,ctx);
 			}
 		}
+		return 0;
+	}
+	
+	protected static int log(Path id,String sessionId,ServantPool pool,MessageDoc mDoc,Context ctx){
+		ServiceDescription.LogType logType = 
+				(pool != null) ? pool.getDescription().getLogType():ServiceDescription.LogType.brief;
+		
+		if (logType == ServiceDescription.LogType.none)
+			return 0;
+		
+		BizLogItem item = new BizLogItem();
+		
+		item.sn = ctx.getGlobalSerial();
+		item.id = id.toString();
+		item.client = sessionId;
+		item.clientIP = ctx.getClientIp();
+		item.host = ctx.getHost();
+		item.result = mDoc.getReturnCode();
+		item.reason = mDoc.getReason();
+		item.startTime = mDoc.getStartTime();
+		item.duration = mDoc.getDuration();
+		item.url = ctx.getRequestURI();
+		item.content = logType == ServiceDescription.LogType.detail ? mDoc.toString() : null;
+		
+		bizLogger.log(item);
+				
 		return 0;
 	}
 	
@@ -143,12 +165,8 @@ public class MessageRouter {
 		Settings settings = Settings.get();
 		
 		//初始化threadMode
-		threadMode = PropertiesConstants.getBoolean(settings, "core.threadMode", true);
+		threadMode = PropertiesConstants.getBoolean(settings, "servant.threadMode", true);
 		
-		//初始化BizLogger
-		String bizLoggerClass = PropertiesConstants.getString(settings, "bizlog.logger", "com.logicbus.backend.DefaultBizLogger");
-		ClassLoader cl = (ClassLoader) settings.get("classLoader");		
-		BizLogger.TheFactory factory = new BizLogger.TheFactory(cl);		
-		bizLogger = factory.newInstance(bizLoggerClass, settings);
+		bizLogger = (BizLogger) settings.get("bizLogger");
 	}
 }

@@ -40,7 +40,7 @@ anyLogicBus支持自定义访问控制器。
 ```
 在web.xml或者全局变量中指定AccessController。
 ```xml
-module.accesscontroller = MyAccessController
+	acm.module = MyAccessController
 ```
 
 在此案例中，仅仅实现accessStart方法实现了需求。如果涉及到更为复杂的访问控制，需要保存一些会话信息，则需要用到createSessionId()和accessEnd(String,Path, ServiceDescription, Context)，可参见内置的相关实现。

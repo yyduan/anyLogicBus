@@ -101,17 +101,17 @@ anyLogicBus首先是一个服务框架，因此可以很好的工作在单服务
 
 在缺省的配置下，全局环境变量文件的主备地址均指向为：
 
-    master.config=java:///com/logicbus/backend/server/http/profile.xml
-    secondary.config=java:///com/logicbus/backend/server/http/profile.xml
+    settings.master=java:///com/logicbus/backend/server/http/profile.xml
+    settings.secondary=java:///com/logicbus/backend/server/http/profile.xml
 
 可以在web.xml中配置master.config和secondary.config变量指定自己的配置文件。例如：
 
     <context-param>
-	    <param-name>master.config</param-name>
+	    <param-name>settings.master</param-name>
 	    <param-value>${master.home}/profile.xml</param-value>
 	</context-param>
 	<context-param>
-	    <param-name>secondary.config</param-name>
+	    <param-name>settings.secondary</param-name>
 	    <param-value>${secondary.home}/profile.xml</param-value>
 	</context-param>
 	
@@ -121,8 +121,8 @@ anyLogicBus首先是一个服务框架，因此可以很好的工作在单服务
     <settings>
         <parameter id="http.contenttype" value="text/xml;charset=utf-8"/>
         <parameter id="http.encoding" value="utf-8"/>
-        <parameter id="service.maxcount" value="10"/>
-        <parameter id="module.accesscontroller" value="com.logicbus.backend.IpAndServiceAccessController"/>
+        <parameter id="servant.maxcount" value="10"/>
+        <parameter id="acm.module" value="com.logicbus.backend.IpAndServiceAccessController"/>
     </settings>
 
 可通过内置核心服务来查看当前所有的全局环境变量，如：
@@ -148,13 +148,13 @@ anyLogicBus内置了下列几种访问控制器：
 
 anyLogicBus内置了一个定时器框架，可以通过配置文件启动定时器。缺省的配置文件位置为：
 
-    master.timer.config=java:///com/logicbus/backend/timer/timer.xml
-    secondary.timer.config=java:///com/logicbus/backend/timer/timer.xml
+    timer.config.master=java:///com/logicbus/backend/timer/timer.xml
+    timer.config.secondary=java:///com/logicbus/backend/timer/timer.xml
     
 可以在web.xml或者profile.xml中配置master.timer.config和secondary.timer.config变量指向自己的配置文件。通常建议基于基础变量进行配置:
 
-    master.timer.config=$(master.home)/timer.xml
-    secondary.timer.config=${secondary.home}/timer.xml
+    timer.config.master=$(master.home)/timer.xml
+    timer.config.secondary=${secondary.home}/timer.xml
 
 一个典型的定时器配置文件如下：
 
@@ -167,13 +167,13 @@ anyLogicBus内置了一个定时器框架，可以通过配置文件启动定时
 
 服务目录是anyLogicBus核心模型。服务目录的缺省配置文件为：
 
-    master.servant.config=java:///com/logicbus/models/servant/default.xml
-    secondary.servant.config=java:///com/logicbus/models/servant/default.xml
+    servant.config.master=java:///com/logicbus/models/servant/default.xml
+    servant.config.secondary=java:///com/logicbus/models/servant/default.xml
 
 可以在web.xml或者profile.xml中配置master.servant.config和secondary.servant.config指向自己的配置文件。通常建议基于基础变量配置：
 
-    master.servant.config=$(master.home)/servant.xml
-    secondary.servant.config=$(secondary.home)/servant.xml
+    servant.config.master=$(master.home)/servant.xml
+    servant.config.secondary=$(secondary.home)/servant.xml
 
 缺省的服务目录配置文件如下：
 

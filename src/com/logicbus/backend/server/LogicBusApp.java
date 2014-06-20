@@ -11,11 +11,13 @@ import org.w3c.dom.Document;
 import com.anysoft.util.DefaultProperties;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.Properties;
+import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.anysoft.util.XmlTools;
 import com.anysoft.util.resource.ResourceFactory;
 import com.anysoft.webloader.WebApp;
 import com.logicbus.backend.AccessController;
+import com.logicbus.backend.BizLogger;
 import com.logicbus.backend.Normalizer;
 import com.logicbus.backend.ServantFactory;
 import com.logicbus.backend.timer.TimerManager;
@@ -32,6 +34,11 @@ public class LogicBusApp implements WebApp {
 	 * a logger of log4j
 	 */
 	protected static Logger logger = LogManager.getLogger(LogicBusApp.class);
+	
+	/**
+	 * 业务日志记录
+	 */
+	protected static BizLogger bizLogger = null;
 	
 	/**
 	 * 启动定时器
@@ -91,9 +98,9 @@ public class LogicBusApp implements WebApp {
 				.get("ResourceFactory");
 				
 		// 装入配置文件
-		String profile = settings.GetValue("core.profile.master",
+		String profile = settings.GetValue("settings.master",
 				"java:///com/logicbus/backend/server/http/profile.xml#com.logicbus.backend.server.LogicBusApp");	
-		String secondary_profile = settings.GetValue("core.profile.secondary",
+		String secondary_profile = settings.GetValue("settings.secondary",
 				"java:///com/logicbus/backend/server/http/profile.xml#com.logicbus.backend.server.LogicBusApp");
 		
 		logger.info("Load xml settings..");
@@ -115,6 +122,12 @@ public class LogicBusApp implements WebApp {
 		Normalizer.TheFactory ncf = new Normalizer.TheFactory(classLoader);
 		Normalizer normalizer = ncf.newInstance(normalizerClass);
 		settings.registerObject("normalizer", normalizer);
+
+		//初始化BizLogger
+		String bizLoggerClass = PropertiesConstants.getString(settings, "bizlog.logger", "com.logicbus.backend.bizlog.DefaultBizLogger");		
+		BizLogger.TheFactory factory = new BizLogger.TheFactory();		
+		bizLogger = factory.newInstance(bizLoggerClass, settings);
+		settings.registerObject("bizLogger", bizLogger);
 		
 		// 启动定时器
 		startTimer(settings, resourceFactory,classLoader);
@@ -129,5 +142,9 @@ public class LogicBusApp implements WebApp {
 		ServantFactory sf = ServantFactory.get();
 		logger.info("Close servant factory...");
 		sf.close();
+		
+		if (bizLogger != null){
+			bizLogger.close();
+		}
 	}
 }

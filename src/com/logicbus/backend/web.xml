@@ -42,11 +42,11 @@
 
 <!--
 <context-param>
-	<param-name>core.profile.master</param-name>
+	<param-name>settings.master</param-name>
 	<param-value>${master.home}/profile.admin.xml</param-value>
 </context-param>
 <context-param>
-	<param-name>core.profile.secondary</param-name>
+	<param-name>settings.secondary</param-name>
 	<param-value>${secondary.home}/profile.admin.xml</param-value>
 </context-param>
 <context-param>

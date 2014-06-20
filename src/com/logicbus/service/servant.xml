@@ -5,7 +5,7 @@
 			id = "ServiceDetailQuery" 
 			name="ServiceDetailQuery" 
 			note="查询指定的服务信息" 
-			visible="protected" 
+			visible="public" 
 			module="com.logicbus.service.ServiceDetailQuery">
 			
 		    <arguments>
@@ -46,21 +46,21 @@
 			id="ServiceQuery" 
 			name="ServiceQuery" 
 			note="查询系统中所部署的所有服务"
-			visible="protected"
+			visible="public"
 			module="com.logicbus.service.ServiceQuery"
 		/>
 		<service 
 			id="AclQuery" 
 			name="AclQuery" 
 			note="查询当前的访问控制列表"
-			visible="protected"
+			visible="public"
 			module="com.logicbus.service.AclQuery"
 		/>
 		<service 
 			id="TokenDestroy" 
 			name="TokenDestroy" 
 			note="删除Token"
-			visible="protected"
+			visible="public"
 			module="com.logicbus.backend.acm.TokenDestroy"
 		/>		
 		<catalog name="manager">
@@ -68,56 +68,56 @@
 				id="AssetQuery" 
 				name="AssetQuery" 
 				note="查询服务信息"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.manager.monitor.service.AssetQuery"
 			/>
 			<service 
 				id="DataSourceQuery" 
 				name="DataSourceQuery" 
 				note="查询数据源信息"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.service.DataSourceQuery"
 			/>			
 			<service 
 				id="CellQuery" 
 				name="CellQuery" 
 				note="查询节点信息"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.manager.monitor.service.CellQuery"
 			/>	
 			<service 
 				id="GetCatalogServices" 
 				name="GetCatalogServices" 
 				note="获取指定路径下的服务列表"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.manager.metadata.service.GetCatalogServices"
 			/>		
 			<service 
 				id="GetServantCatalog" 
 				name="GetServantCatalog" 
 				note="获取当前的服务目录"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.manager.metadata.service.GetServantCatalog"
 			/>	
 			<service 
 				id="GetServiceDesc" 
 				name="GetServiceDesc" 
 				note="获取指定服务的服务描述"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.manager.metadata.service.GetServiceDesc"
 			/>		
 			<service 
 				id="NodeQuery" 
 				name="NodeQuery" 
 				note="查询节点信息"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.manager.monitor.service.NodeQuery"
 			/>		
 			<service 
 				id="SettingsQuery" 
 				name="SettingsQuery" 
 				note="查询节点的环境变量"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.manager.monitor.service.NodeSettingsQuery"
 			/>											
 		</catalog>
@@ -128,7 +128,7 @@
 				id="Demo" 
 				name="Demo" 
 				note="together框架演示"
-				visible="protected"
+				visible="public"
 				module="com.logicbus.together.service.LogicBusAgent"
 			>
 				<properties>
