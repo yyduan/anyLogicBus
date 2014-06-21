@@ -2,7 +2,6 @@ package com.logicbus.backend.bizlog;
 
 import com.anysoft.util.Properties;
 import com.logicbus.backend.BizLogItem;
-import com.logicbus.backend.BizLogger;
 
 
 /**
@@ -13,10 +12,10 @@ import com.logicbus.backend.BizLogger;
  * @since 1.2.3
  * 
  */
-public class StdOutputBizLogger implements BizLogger {
+public class StdOutputBizLogger extends AbstractBizLogger {
 
 	public StdOutputBizLogger(Properties props){
-		
+		super(props);
 	}
 
 	@Override
@@ -24,7 +23,7 @@ public class StdOutputBizLogger implements BizLogger {
 	}
 
 	@Override
-	public void log(BizLogItem item) {
+	public void onLog(BizLogItem item) {
 		System.out.println("Service:" + item.id);
 		System.out.println("Request:" + item.url);
 		System.out.println("Client:" + item.clientIP);

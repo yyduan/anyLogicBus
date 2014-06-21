@@ -96,7 +96,7 @@ public class LogicBusApp implements WebApp {
 		settings.registerObject("ResourceFactory", rf);
 		ResourceFactory resourceFactory = (ResourceFactory) settings
 				.get("ResourceFactory");
-				
+
 		// 装入配置文件
 		String profile = settings.GetValue("settings.master",
 				"java:///com/logicbus/backend/server/http/profile.xml#com.logicbus.backend.server.LogicBusApp");	

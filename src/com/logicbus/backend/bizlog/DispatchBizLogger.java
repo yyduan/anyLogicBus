@@ -1,6 +1,13 @@
 package com.logicbus.backend.bizlog;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
@@ -18,7 +25,7 @@ import com.logicbus.backend.BizLogger;
  * @since 1.2.3
  * 
  */
-public class DispatchBizLogger implements BizLogger {
+public class DispatchBizLogger extends  AbstractBizLogger {
 	/**
 	 * 工作线程数
 	 */
@@ -30,6 +37,7 @@ public class DispatchBizLogger implements BizLogger {
 	protected WorkerThread [] workers = null;
 	
 	public DispatchBizLogger(Properties props){
+		super(props);
 		threadCnt = PropertiesConstants.getInt(props, "bizlog.dispatch.threadCnt", threadCnt);
 		threadCnt = threadCnt <= 0 ? 10 : threadCnt;
 		
@@ -37,6 +45,8 @@ public class DispatchBizLogger implements BizLogger {
 		
 		String loggerClass = PropertiesConstants.getString(props, 
 				"bizlog.dispatch.logger", "com.logicbus.backend.bizlog.DefaultBizLogger");
+		loggerClass = loggerClass.equals("com.logicbus.backend.bizlog.DispatchBizLogger") 
+				? "com.logicbus.backend.bizlog.DefaultBizLogger" : loggerClass;
 		
 		BizLogger.TheFactory factory = new BizLogger.TheFactory();
 				
@@ -47,7 +57,7 @@ public class DispatchBizLogger implements BizLogger {
 			}catch (Exception ex){
 				ex.printStackTrace();
 			}	
-			workers[i] = new WorkerThread(logger);
+			workers[i] = new WorkerThread(i,logger);
 		}
 	}
 	
@@ -67,11 +77,45 @@ public class DispatchBizLogger implements BizLogger {
 	}
 	
 	@Override
-	public void log(BizLogItem item) {		
+	public void onLog(BizLogItem item) {		
 		int index = hash(item.sn);		
 		workers[index].newLog(item);
 	}
-	
+
+	@Override
+	public void report(Element root) {
+		if (reportSupport){
+			super.report(root);
+			
+			Document doc = root.getOwnerDocument();
+			
+			for (int i = 0; i < workers.length ; i ++){
+				Element thread = doc.createElement("logger");
+				thread.setAttribute("id", "Thread" + String.valueOf(i));
+				workers[i].report(thread);
+				root.appendChild(thread);
+			}
+		}
+	}
+
+	@Override
+	public void report(Map<String, Object> json) {
+		if (reportSupport){
+			super.report(json);
+			
+			List<Object> threads = new ArrayList<Object>(threadCnt);
+			
+			for (int i = 0; i < workers.length ; i ++){
+				Map<String,Object> thread = new HashMap<String,Object>(); 
+				thread.put("id", "Thread" + i);
+				workers[i].report(thread);
+				threads.add(thread);
+			}
+			
+			json.put("logger", threads);
+		}
+	}
+
 	/**
 	 * 工作线程
 	 * 
@@ -84,8 +128,10 @@ public class DispatchBizLogger implements BizLogger {
 		protected Thread thread = null;
 		protected BizLogger logger = null;
 		protected boolean stopped = false;
+		protected int id = 0;
 		
-		public WorkerThread(BizLogger _logger){
+		public WorkerThread(int _id,BizLogger _logger){
+			id = _id;
 			logger = _logger;
 			thread = new Thread(this);
 			thread.start();
@@ -101,6 +147,20 @@ public class DispatchBizLogger implements BizLogger {
 				logger.close();
 			}
 			thread.interrupt();
+		}
+		
+		public void report(Element root){
+			root.setAttribute("queueLength",String.valueOf(queue.size()));
+			if (logger != null){
+				logger.report(root);
+			}
+		}
+		
+		public void report(Map<String,Object> json){
+			json.put("queueLength", queue.size());
+			if (logger != null){
+				logger.report(json);
+			}
 		}
 		
 		@Override

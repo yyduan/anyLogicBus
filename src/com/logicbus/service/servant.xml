@@ -60,9 +60,17 @@
 			id="TokenDestroy" 
 			name="TokenDestroy" 
 			note="删除Token"
-			visible="public"
+			visible="public"			
 			module="com.logicbus.backend.acm.TokenDestroy"
+		/>
+		<service 
+			id="BizLogReport" 
+			name="BizLogReport" 
+			note="业务日志报告"
+			visible="public"
+			module="com.logicbus.service.BizLogReport"
 		/>		
+				
 		<catalog name="manager">
 			<service 
 				id="AssetQuery" 

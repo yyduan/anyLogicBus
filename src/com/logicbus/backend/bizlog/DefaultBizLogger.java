@@ -1,8 +1,9 @@
 package com.logicbus.backend.bizlog;
 
+
 import com.anysoft.util.Properties;
 import com.logicbus.backend.BizLogItem;
-import com.logicbus.backend.BizLogger;
+
 
 
 /**
@@ -10,10 +11,10 @@ import com.logicbus.backend.BizLogger;
  * @author duanyy
  * @since 1.2.3
  */
-public class DefaultBizLogger implements BizLogger {
+public class DefaultBizLogger extends AbstractBizLogger {
 
 	public DefaultBizLogger(Properties props){
-		
+		super(props);
 	}
 
 
@@ -23,7 +24,8 @@ public class DefaultBizLogger implements BizLogger {
 
 
 	@Override
-	public void log(BizLogItem item) {
+	public void onLog(BizLogItem item) {
 
 	}
+
 }
