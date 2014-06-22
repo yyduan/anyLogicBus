@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.anysoft.util.DefaultProperties;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
 import com.logicbus.backend.BizLogItem;
@@ -36,12 +39,14 @@ public class DispatchBizLogger extends  AbstractBizLogger {
 	 */
 	protected WorkerThread [] workers = null;
 	
+	protected static Logger logger = LogManager.getLogger(DispatchBizLogger.class);
+	
 	public DispatchBizLogger(Properties props){
 		super(props);
 		threadCnt = PropertiesConstants.getInt(props, "bizlog.dispatch.threadCnt", threadCnt);
 		threadCnt = threadCnt <= 0 ? 10 : threadCnt;
 		
-		workers = new WorkerThread[10];
+		workers = new WorkerThread[threadCnt];
 		
 		String loggerClass = PropertiesConstants.getString(props, 
 				"bizlog.dispatch.logger", "com.logicbus.backend.bizlog.DefaultBizLogger");
@@ -49,16 +54,23 @@ public class DispatchBizLogger extends  AbstractBizLogger {
 				? "com.logicbus.backend.bizlog.DefaultBizLogger" : loggerClass;
 		
 		BizLogger.TheFactory factory = new BizLogger.TheFactory();
+		
+		Properties child = new DefaultProperties("Default",props);
 				
 		for (int i = 0 ; i < workers.length ; i ++){
 			BizLogger logger = null;
 			try {
-				logger = factory.newInstance(loggerClass,props);				
+				child.SetValue("thead", String.valueOf(i));
+				logger = factory.newInstance(loggerClass,child);				
 			}catch (Exception ex){
 				ex.printStackTrace();
 			}	
 			workers[i] = new WorkerThread(i,logger);
 		}
+		
+		logger.info("DispatchBizLogger is Loaded..");
+		logger.info("Count of Thread is " + threadCnt);
+		logger.info("Child biz logger is " + loggerClass);
 	}
 	
 	protected int hash(String sn){

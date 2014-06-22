@@ -138,6 +138,7 @@
 				note="together框架演示"
 				visible="public"
 				module="com.logicbus.together.service.LogicBusAgent"
+				log="detail"
 			>
 				<properties>
 					<!--
@@ -174,6 +175,7 @@
 				note="模拟服务调用过程,耗时按正态进行分布,用于系统框架的并发测试" 
 				visible="public"
 				module="com.logicbus.service.Simulator"
+				log="detail"
 			/>		    
 			<service 
 				id="AreYouAlive" 
