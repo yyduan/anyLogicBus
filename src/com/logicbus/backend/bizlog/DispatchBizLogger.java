@@ -43,6 +43,7 @@ public class DispatchBizLogger extends  AbstractBizLogger {
 	
 	public DispatchBizLogger(Properties props){
 		super(props);
+		
 		threadCnt = PropertiesConstants.getInt(props, "bizlog.dispatch.threadCnt", threadCnt);
 		threadCnt = threadCnt <= 0 ? 10 : threadCnt;
 		
@@ -60,7 +61,7 @@ public class DispatchBizLogger extends  AbstractBizLogger {
 		for (int i = 0 ; i < workers.length ; i ++){
 			BizLogger logger = null;
 			try {
-				child.SetValue("thead", String.valueOf(i));
+				child.SetValue("thread", String.valueOf(i));
 				logger = factory.newInstance(loggerClass,child);				
 			}catch (Exception ex){
 				ex.printStackTrace();

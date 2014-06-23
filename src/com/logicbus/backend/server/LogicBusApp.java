@@ -128,6 +128,11 @@ public class LogicBusApp implements WebApp {
 		BizLogger.TheFactory factory = new BizLogger.TheFactory();		
 		bizLogger = factory.newInstance(bizLoggerClass, settings);
 		settings.registerObject("bizLogger", bizLogger);
+		String bizLogHome = PropertiesConstants.getString(settings, "bizlog.home", "");
+		if (bizLogHome == null || bizLogHome.length() <= 0){
+			logger.info("bizlog.home is not set.Set it to /var/log/bizlog");
+			settings.SetValue("bizlog.home","var/log/bizlog");
+		}
 		
 		// 启动定时器
 		startTimer(settings, resourceFactory,classLoader);

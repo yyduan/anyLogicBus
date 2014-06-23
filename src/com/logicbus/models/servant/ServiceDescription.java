@@ -311,7 +311,7 @@ public class ServiceDescription implements XmlSerializer{
 					if (type.equals("detail")){
 						ret = LogType.detail;
 					}else{
-						ret = LogType.none;
+						ret = LogType.brief;
 					}
 				}
 			}

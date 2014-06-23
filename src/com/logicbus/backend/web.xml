@@ -40,6 +40,12 @@
 	<param-value>${webcontext.realPath}</param-value>
 </context-param>
 
+<context-param>
+	<param-name>bizlog.home</param-name>
+	<param-value>/var/log/bizlog</param-value>
+</context-param>
+
+
 <!--
 <context-param>
 	<param-name>settings.master</param-name>

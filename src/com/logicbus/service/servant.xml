@@ -5,7 +5,8 @@
 			id = "ServiceDetailQuery" 
 			name="ServiceDetailQuery" 
 			note="查询指定的服务信息" 
-			visible="public" 
+			visible="public"
+			log = "none" 
 			module="com.logicbus.service.ServiceDetailQuery">
 			
 		    <arguments>
@@ -18,7 +19,8 @@
 			id="GC" 
 			name="内存回收服务" 
 			note="主动触发虚拟机回收内存" 
-			visible="protected" 
+			visible="protected"
+			log = "brief" 
 			module="com.logicbus.service.GC"
 		/>
 		<service 
@@ -26,6 +28,7 @@
 			module="com.logicbus.service.ServiceReload" 
 			name="ServiceReload" 
 			note="重新装入服务缓冲池"
+			log = "brief"
 			visible="protected"
 		/>	
 		<service 
@@ -33,6 +36,7 @@
 			module="com.logicbus.service.ServicePause" 
 			name="ServicePause" 
 			note="暂停服务"
+			log = "brief"
 			visible="protected"
 		/>	
 		<service 
@@ -40,6 +44,7 @@
 			module="com.logicbus.service.ServiceResume" 
 			name="ServiceResume" 
 			note="恢复服务"
+			log = "brief"
 			visible="protected"
 		/>
 		<service 
@@ -47,6 +52,7 @@
 			name="ServiceQuery" 
 			note="查询系统中所部署的所有服务"
 			visible="public"
+			log = "none" 
 			module="com.logicbus.service.ServiceQuery"
 		/>
 		<service 
@@ -54,13 +60,15 @@
 			name="AclQuery" 
 			note="查询当前的访问控制列表"
 			visible="public"
+			log = "none" 
 			module="com.logicbus.service.AclQuery"
 		/>
 		<service 
 			id="TokenDestroy" 
 			name="TokenDestroy" 
 			note="删除Token"
-			visible="public"			
+			visible="public"
+			log = "brief"
 			module="com.logicbus.backend.acm.TokenDestroy"
 		/>
 		<service 
@@ -68,6 +76,7 @@
 			name="BizLogReport" 
 			note="业务日志报告"
 			visible="public"
+			log = "none" 
 			module="com.logicbus.service.BizLogReport"
 		/>		
 				
@@ -77,6 +86,7 @@
 				name="AssetQuery" 
 				note="查询服务信息"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.manager.monitor.service.AssetQuery"
 			/>
 			<service 
@@ -84,6 +94,7 @@
 				name="DataSourceQuery" 
 				note="查询数据源信息"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.service.DataSourceQuery"
 			/>			
 			<service 
@@ -91,6 +102,7 @@
 				name="CellQuery" 
 				note="查询节点信息"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.manager.monitor.service.CellQuery"
 			/>	
 			<service 
@@ -98,6 +110,7 @@
 				name="GetCatalogServices" 
 				note="获取指定路径下的服务列表"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.manager.metadata.service.GetCatalogServices"
 			/>		
 			<service 
@@ -105,6 +118,7 @@
 				name="GetServantCatalog" 
 				note="获取当前的服务目录"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.manager.metadata.service.GetServantCatalog"
 			/>	
 			<service 
@@ -112,6 +126,7 @@
 				name="GetServiceDesc" 
 				note="获取指定服务的服务描述"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.manager.metadata.service.GetServiceDesc"
 			/>		
 			<service 
@@ -119,6 +134,7 @@
 				name="NodeQuery" 
 				note="查询节点信息"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.manager.monitor.service.NodeQuery"
 			/>		
 			<service 
@@ -126,6 +142,7 @@
 				name="SettingsQuery" 
 				note="查询节点的环境变量"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.manager.monitor.service.NodeSettingsQuery"
 			/>											
 		</catalog>
@@ -138,7 +155,7 @@
 				note="together框架演示"
 				visible="public"
 				module="com.logicbus.together.service.LogicBusAgent"
-				log="detail"
+				log = "none" 
 			>
 				<properties>
 					<!--
@@ -182,6 +199,7 @@
 				name="AreYouAlive" 
 				note="查询服务器是否可用" 
 				visible="public"
+				log = "none" 
 				module="com.logicbus.service.AreYouAlive"
 			/>
 			<service
@@ -189,6 +207,7 @@
 				name="Helloworld"
 				note="Hello world,我的第一个Logicbus服务"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.service.Helloworld"
 			>
 				<properties>
@@ -199,6 +218,7 @@
 				name="HelloJSON"
 				note="HelloJSON ,我的第一个Logicbus服务。"
 				visible="public"
+				log = "none" 
 				module="com.logicbus.service.HelloJSON"
 			/>			
 		</catalog>
