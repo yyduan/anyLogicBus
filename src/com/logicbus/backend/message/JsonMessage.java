@@ -54,6 +54,12 @@ public class JsonMessage extends Message {
 		JsonTools.setString(root, "serial", ctx.getGlobalSerial());
 		
 		String data = provider.toJson(root);
+		
+		String jsonp = ctx.GetValue("jsonp", "");
+		if (jsonp != null && jsonp.length() > 0){
+			data = jsonp + "(" + data + ")";
+		}
+		
 		try {
 			out.write(data.getBytes(msgDoc.getEncoding()));
 		}catch (Exception ex){
