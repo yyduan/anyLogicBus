@@ -12,6 +12,8 @@ import com.logicbus.backend.AccessController;
 import com.logicbus.backend.BizLogItem;
 import com.logicbus.backend.BizLogger;
 import com.logicbus.backend.Context;
+import com.logicbus.backend.QueuedServantFactory;
+import com.logicbus.backend.QueuedServantPool;
 import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
 import com.logicbus.backend.ServantFactory;
@@ -99,13 +101,13 @@ public class MessageRouter {
 			}			
 		}catch (ServantException ex){
 			mDoc.setReturn(ex.getCode(), ex.getMessage());
-			logger.error(ex.getCode() + ":" + ex.getMessage());
+			logger.error(ex.getCode() + ":" + ex.getMessage(),ex);
 		}catch (Exception ex){
 			mDoc.setReturn("core.fatalerror",ex.getMessage());
-			logger.error("core.fatalerror:" + ex.getMessage());
+			logger.error("core.fatalerror:" + ex.getMessage(),ex);
 		}catch (Throwable t){
 			mDoc.setReturn("core.fatalerror",t.getMessage());
-			logger.error("core.fatalerror:" + t.getMessage());			
+			logger.error("core.fatalerror:" + t.getMessage(),t);			
 		}
 		finally {
 			if (pool != null){
@@ -120,15 +122,93 @@ public class MessageRouter {
 			mDoc.setEndTime(System.currentTimeMillis());
 			if (bizLogger != null){				
 				//需要记录日志
-				log(id,sessionId,pool,mDoc,ctx);
+				log(id,sessionId,pool == null ? null : pool.getDescription(),mDoc,ctx);
 			}
 		}
 		return 0;
 	}
+
+	/**
+	 * 服务调用
+	 * @param id 服务id
+	 * @param mDoc 消息文档
+	 * @param ctx 上下文
+	 * @param ac 访问控制器
+	 * @return 
+	 */
+	static public int actionWithQueuedServantFactory(Path id,MessageDoc mDoc,Context ctx,AccessController ac){
+		mDoc.setStartTime(System.currentTimeMillis());
+		
+		QueuedServantPool pool = null;
+		Servant servant = null;		
+		String sessionId = "";
+		
+		try{
+			QueuedServantFactory factory = QueuedServantFactory.get();
+			pool = factory.getPool(id);		
+			if (!pool.isRunning()){
+				throw new ServantException("core.service_paused",
+						"The Service is paused:service id:" + id);
+			}
+
+			int priority = 0;
+			
+			if (null != ac){
+				sessionId = ac.createSessionId(id, pool.getDescription(), ctx);
+				priority = ac.accessStart(sessionId,id, pool.getDescription(), ctx);
+				if (priority < 0){
+					logger.info("Unauthorized Access:" + ctx.getClientIp() + ",url:" + ctx.getRequestURI());
+					mDoc.setReturn("client.permission_denied","Permission denied！service id: "+ id);
+					return 0;
+				}
+			}
+
+			servant = pool.borrowObject(priority);
+
+			if (!threadMode){
+				//在非线程模式下,不支持服务超时
+				execute(servant,mDoc,ctx);
+			}else{
+				CountDownLatch latch = new CountDownLatch(1);
+				ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx,latch);
+				thread.start();
+				if (!latch.await(servant.getTimeOutValue(), TimeUnit.MILLISECONDS)){
+					mDoc.setReturn("core.time_out","Time out or interrupted.");
+				}
+				thread = null;
+			}			
+		}catch (ServantException ex){
+			mDoc.setReturn(ex.getCode(), ex.getMessage());
+			logger.error(ex.getCode() + ":" + ex.getMessage(),ex);
+		}catch (Exception ex){
+			mDoc.setReturn("core.fatalerror",ex.getMessage());
+			logger.error("core.fatalerror:" + ex.getMessage(),ex);
+		}catch (Throwable t){
+			mDoc.setReturn("core.fatalerror",t.getMessage());
+			logger.error("core.fatalerror:" + t.getMessage(),t);			
+		}
+		finally {
+			if (pool != null){
+				if (servant != null){
+					pool.returnObject(servant);		
+				}				
+				pool.visited(mDoc.getDuration(),mDoc.getReturnCode());
+				if (ac != null){
+					ac.accessEnd(sessionId,id, pool.getDescription(), ctx);
+				}				
+			}			
+			mDoc.setEndTime(System.currentTimeMillis());
+			if (bizLogger != null){				
+				//需要记录日志
+				log(id,sessionId,pool == null ? null : pool.getDescription(),mDoc,ctx);
+			}
+		}
+		return 0;
+	}	
 	
-	protected static int log(Path id,String sessionId,ServantPool pool,MessageDoc mDoc,Context ctx){
+	protected static int log(Path id,String sessionId,ServiceDescription sd,MessageDoc mDoc,Context ctx){
 		ServiceDescription.LogType logType = 
-				(pool != null) ? pool.getDescription().getLogType():ServiceDescription.LogType.brief;
+				(sd != null) ? sd.getLogType():ServiceDescription.LogType.brief;
 		
 		if (logType == ServiceDescription.LogType.none)
 			return 0;

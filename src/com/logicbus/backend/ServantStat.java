@@ -13,7 +13,9 @@ import org.w3c.dom.Element;
  * 服务统计信息
  * 
  * @author duanyy
- *
+ * 
+ * @version 1.2.4 [20140703 duanyy]
+ * 	- 增加workingCnt和idleCnt统计信息
  */
 public class ServantStat {
 	/**
@@ -80,8 +82,14 @@ public class ServantStat {
 	/**
 	 * 等待线程数
 	 */
-	private long waitCnt = 0;
-	public void setWaitCnt(long _cnt){waitCnt = _cnt;}
+	private int waitCnt = 0;
+	public void setWaitCnt(int _cnt){waitCnt = _cnt;}
+	
+	private int workingCnt = 0;
+	public void setWorkingCnt(int _cnt){workingCnt = _cnt;}
+	
+	private int idleCnt = 0;
+	public void setIdleCnt(int _cnt){idleCnt = _cnt;}
 	/**
 	 * 访问记录
 	 * 
@@ -159,6 +167,8 @@ public class ServantStat {
 		stat.setAttribute("timestamp", String.valueOf(cycleStartTime));
 		stat.setAttribute("step", String.valueOf(step));
 		stat.setAttribute("waitCnt", String.valueOf(waitCnt));
+		stat.setAttribute("idleCnt", String.valueOf(idleCnt));
+		stat.setAttribute("workingCnt", String.valueOf(workingCnt));
 		root.appendChild(stat);		
 		
 		if (timesMetric != null || durationMetric != null){

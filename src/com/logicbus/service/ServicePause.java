@@ -4,10 +4,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.logicbus.backend.Context;
+import com.logicbus.backend.QueuedServantFactory;
+import com.logicbus.backend.QueuedServantPool;
 import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
-import com.logicbus.backend.ServantFactory;
-import com.logicbus.backend.ServantPool;
 import com.logicbus.backend.ServantStat;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
@@ -71,8 +71,8 @@ public class ServicePause extends Servant {
 		Document doc = root.getOwnerDocument();
 		Element service = doc.createElement("service");
 		sd.toXML(service);		
-		ServantFactory sf = ServantFactory.get();
-		ServantPool pool = sf.getPool(path);
+		QueuedServantFactory sf = QueuedServantFactory.get();
+		QueuedServantPool pool = sf.getPool(path);
 		if (pool == null) {
 			// 没有找到相应的pool，应该是该服务没有一次调用
 		} else {

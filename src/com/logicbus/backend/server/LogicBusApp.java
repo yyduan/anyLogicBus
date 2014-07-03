@@ -19,7 +19,7 @@ import com.anysoft.webloader.WebApp;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.BizLogger;
 import com.logicbus.backend.Normalizer;
-import com.logicbus.backend.ServantFactory;
+import com.logicbus.backend.QueuedServantFactory;
 import com.logicbus.backend.timer.TimerManager;
 
 
@@ -144,7 +144,7 @@ public class LogicBusApp implements WebApp {
 		logger.info("Stop timer..");
 		__tm.stop();
 		
-		ServantFactory sf = ServantFactory.get();
+		QueuedServantFactory sf = QueuedServantFactory.get();
 		logger.info("Close servant factory...");
 		sf.close();
 		

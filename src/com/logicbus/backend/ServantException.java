@@ -1,25 +1,17 @@
 package com.logicbus.backend;
 
+import com.anysoft.util.BaseException;
+
 
 /**
  * 服务过程异常类
  * 
  * @author duanyy
- *
+ * @version 1.2.4 [20140703 duanyy]
+ * - 修改父类为BaseException
  */
-public class ServantException extends Exception {
+public class ServantException extends BaseException {
 	private static final long serialVersionUID = -5968077876441355718L;
-	
-	/**
-	 * 错误代码
-	 */
-	private String m_code;
-	
-	/**
-	 * 获取错误代码
-	 * @return
-	 */
-	public String getCode(){return m_code;}
 
 	/**
 	 * constructor
@@ -28,7 +20,6 @@ public class ServantException extends Exception {
 	 * @param message 错误原因
 	 */
 	public ServantException(String code,String message){
-		super(message);
-		m_code = code;		
+		super(code,message);	
 	}
 }

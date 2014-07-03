@@ -138,7 +138,7 @@ public class MessageRouterServletHandler implements ServletHandler {
 				}
 			}
 			
-			MessageRouter.action(id,msgDoc,ctx,ac);
+			MessageRouter.actionWithQueuedServantFactory(id,msgDoc,ctx,ac);
 			
 			{
 				if (logger.getEffectiveLevel().equals(Level.DEBUG)){

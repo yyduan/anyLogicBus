@@ -1,5 +1,6 @@
 package com.logicbus.backend;
 
+import com.anysoft.pool.Pooled;
 import com.anysoft.util.PropertiesConstants;
 import com.logicbus.backend.message.*;
 import com.logicbus.models.servant.Argument;
@@ -23,8 +24,11 @@ import org.apache.log4j.LogManager;
  * @version 1.0.8 [20140412 duanyy] <br>
  * - 增加从Message获取参数功能，见{@link com.logicbus.backend.Servant#getArgument(String, Message, Context) getArgument(String, Message, Context)}
  * 和{@link com.logicbus.backend.Servant#getArgument(String, String, Message, Context) getArgument(String, String, Message, Context)}
+ * 
+ * @version 1.2.4 [20140703 duanyy]<br>
+ * - 实现Pooled接口
  */
-abstract public class Servant {
+abstract public class Servant implements Pooled{
 	/**
 	 * 服务描述
 	 */

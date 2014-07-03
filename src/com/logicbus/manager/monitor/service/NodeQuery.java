@@ -6,6 +6,8 @@ import org.w3c.dom.Element;
 import com.anysoft.util.Settings;
 import com.anysoft.util.SystemStatus;
 import com.logicbus.backend.Context;
+import com.logicbus.backend.QueuedServantFactory;
+import com.logicbus.backend.QueuedServantPool;
 import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantFactory;
 import com.logicbus.backend.ServantPool;
@@ -49,11 +51,11 @@ public class NodeQuery extends Servant {
 			location.appendChild(eRuntime);
 		}
 		{
-			ServantFactory sf = ServantFactory.get();
-			ServantPool [] pools = sf.getPools();
+			QueuedServantFactory sf = QueuedServantFactory.get();
+			QueuedServantPool [] pools = sf.getPools();
 			if (pools.length > 0){
 				Element eServices = doc.createElement("assets");
-				for (ServantPool pool:pools){	
+				for (QueuedServantPool pool:pools){	
 					Element eService = doc.createElement("asset");
 					ServiceDescription sd = pool.getDescription();
 					sd.toXML(eService);
