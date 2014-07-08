@@ -91,3 +91,4 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 
  - 1.2.4 [20140705 duanyy]
  	 + Servant缓冲池采用队列来实现
+ 	 + HttpClient可以根据Response的Content-Type调整encoding (1.2.4.1)

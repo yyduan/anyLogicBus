@@ -25,6 +25,8 @@ import com.anysoft.util.XmlTools;
  * 
  * @version 1.0.7 [20140418 duanyy]
  * - 优化Http头的读写机制
+ * 
+ * @version 1.2.4.1 可以根据Response的Content-Type调整encoding
  */
 public class HttpClient extends Client {
 	/**
@@ -134,8 +136,17 @@ public class HttpClient extends Client {
 		try {
 			String contentType = conn.getHeaderField("Content-Type");
 			String encoding = conn.getHeaderField("Content-Encoding");
-			encoding = encoding == null ? defaultEncoding : encoding;
-			contentType = contentType == null ? defaultContentType : contentType;			
+			if (encoding == null){
+				if (contentType != null){
+					int offset = contentType.indexOf("charset=");
+					if (offset >= 0){
+						encoding = contentType.substring(offset + 8);
+					}
+				}
+			}
+			encoding = encoding == null || encoding.length() <= 0 ? defaultEncoding : encoding;
+			contentType = contentType == null ? defaultContentType : contentType;	
+			
 			result.setResponseAttribute("Content-Type",contentType);
 			result.setResponseAttribute("Content-Encoding",encoding);
 			
@@ -216,14 +227,13 @@ public class HttpClient extends Client {
 	public static void main(String [] args){
 		CommandLine cmd = new CommandLine(args);
 		Settings settings = Settings.get();
-		settings.SetValue("client.remote.home", "http://localhost:8090/services");
 		settings.addSettings(cmd);
 		
 		HttpClient client = new HttpClient(settings);
 		
 		try {
 			XMLBuffer response = new XMLBuffer();
-			client.invoke("/core/AclQuery?wsdl",null,(Response)response);
+			client.invoke("http://132.121.97.110:8090/services/core/AclQuery?wsdl",null,(Response)response);
 			Document doc = response.getDocument();
 			XmlTools.saveToOutputStream(doc, System.out);
 		}catch (Exception ex){
