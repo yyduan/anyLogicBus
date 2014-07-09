@@ -5,6 +5,9 @@ package com.logicbus.client;
  * 
  * @author duanyy
  * @since 1.2.3
+ * 
+ * @version 1.2.4.2 [20140709 duanyy]
+ * - 增加encoding方法来指定编码
  */
 public interface Parameter {
 	
@@ -22,6 +25,15 @@ public interface Parameter {
 	 * @return
 	 */
 	public Parameter params(String ... _params);
+	
+	/**
+	 * 设置编码
+	 * @param _encoding
+	 * @return
+	 * 
+	 * @since 1.2.4.2
+	 */
+	public Parameter encoding(String _encoding);
 	
 	/**
 	 * 组合成字符串

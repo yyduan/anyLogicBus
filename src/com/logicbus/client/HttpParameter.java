@@ -12,6 +12,9 @@ import com.anysoft.util.DefaultProperties;
  * 
  * @author duanyy
  * @since 1.2.3
+ * 
+ * @version 1.2.4.2 [20140709 duanyy]
+ * - encoding成为{@link com.logicbus.client.Parameter Parameter}的方法.
  */
 public class HttpParameter extends DefaultProperties implements Parameter{
 	/**
@@ -37,7 +40,7 @@ public class HttpParameter extends DefaultProperties implements Parameter{
 	 * @param _encoding 编码
 	 * @return
 	 */
-	public HttpParameter encoding(String _encoding){
+	public Parameter encoding(String _encoding){
 		encoding = _encoding;
 		return this;
 	}
