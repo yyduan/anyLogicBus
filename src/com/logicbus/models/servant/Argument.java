@@ -31,6 +31,9 @@ import com.logicbus.backend.message.MessageDoc;
  * 
  * @version 1.2.0 [20140609 duanyy]<br>
  * - 优化getter的初始化
+ * 
+ * @version 1.2.4.4 [20140709 duanyy]<br>
+ * - 增加copyFrom方法
  */
 public class Argument implements XmlSerializer,JsonSerializer{
 	/**
@@ -162,6 +165,21 @@ public class Argument implements XmlSerializer,JsonSerializer{
 		}
 		return theGetter.getValue(this, msg, ctx);
 	}	
+	
+	/**
+	 * 从另外的实例中复制数据
+	 * @param argu
+	 * 
+	 * @since 1.2.4.4
+	 */
+	public void copyFrom(Argument argu){
+		id = argu.id;
+		defaultValue = argu.defaultValue;
+		isOption = argu.isOption;
+		getter = argu.getter;
+		getterParameters = argu.getterParameters;
+		isCached = argu.isCached;
+	}
 	
 	@Override
 	public void toXML(Element e) {

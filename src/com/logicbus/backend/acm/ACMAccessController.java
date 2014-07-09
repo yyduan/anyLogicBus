@@ -21,6 +21,9 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @author duanyy
  * @since 1.2.3
+ * 
+ * @version 1.2.4.3 [20140709 duanyy]
+ * - 在找不到ACM的情况下,使用缺省的ACM
  */
 abstract public class ACMAccessController implements AccessController {
 	/**
@@ -52,10 +55,13 @@ abstract public class ACMAccessController implements AccessController {
 	
 	protected String appField = "a";
 	
+	protected String defaultAcm = "default";
+	
 	protected Client httpClient = null;
 	public ACMAccessController(Properties props){
 		acmCache = getCacheManager();
 		tcMode = PropertiesConstants.getBoolean(props, "acm.tcMode", false);
+		defaultAcm = PropertiesConstants.getString(props, "acm.default", defaultAcm);
 
 		if (tcMode){
 			tokenHolder = new TokenHolder(props);
@@ -85,8 +91,9 @@ abstract public class ACMAccessController implements AccessController {
 			Context ctx) {
 		AccessControlModel acm = acmCache.get(sessionId);
 		if (acm == null){
-			//-2表明无法为当前接入找到访问控制模型
-			return -2;
+			acm = acmCache.get(defaultAcm);
+			if (acm == null)
+				return -2;
 		}
 		
 		if (!servant.getVisible().equals("public")){

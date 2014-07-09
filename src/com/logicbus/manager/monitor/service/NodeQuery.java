@@ -9,8 +9,6 @@ import com.logicbus.backend.Context;
 import com.logicbus.backend.QueuedServantFactory;
 import com.logicbus.backend.QueuedServantPool;
 import com.logicbus.backend.Servant;
-import com.logicbus.backend.ServantFactory;
-import com.logicbus.backend.ServantPool;
 import com.logicbus.backend.ServantStat;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;

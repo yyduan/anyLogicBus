@@ -101,7 +101,7 @@ public class MessageRouter {
 			}			
 		}catch (ServantException ex){
 			mDoc.setReturn(ex.getCode(), ex.getMessage());
-			logger.error(ex.getCode() + ":" + ex.getMessage(),ex);
+			logger.error(ex.getCode() + ":" + ex.getMessage());
 		}catch (Exception ex){
 			mDoc.setReturn("core.fatalerror",ex.getMessage());
 			logger.error("core.fatalerror:" + ex.getMessage(),ex);
@@ -179,7 +179,7 @@ public class MessageRouter {
 			}			
 		}catch (ServantException ex){
 			mDoc.setReturn(ex.getCode(), ex.getMessage());
-			logger.error(ex.getCode() + ":" + ex.getMessage(),ex);
+			logger.error(ex.getCode() + ":" + ex.getMessage());
 		}catch (Exception ex){
 			mDoc.setReturn("core.fatalerror",ex.getMessage());
 			logger.error("core.fatalerror:" + ex.getMessage(),ex);

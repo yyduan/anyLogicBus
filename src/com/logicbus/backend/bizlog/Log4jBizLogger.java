@@ -81,7 +81,7 @@ public class Log4jBizLogger extends AbstractBizLogger {
 		myAppender.setEncoding(PropertiesConstants.getString(props,
 				"bizlog.log4j.encoding", "${http.encoding}"));
 		myAppender.setBufferSize(PropertiesConstants.getInt(props,
-				"biz.log4j.bufferSize", 10240));
+				"bizlog.log4j.bufferSize", 10240));
 		myAppender.setBufferedIO(PropertiesConstants.getBoolean(props,
 				"bizlog.log4j.bufferedIO", true));
 		myAppender.setImmediateFlush(PropertiesConstants.getBoolean(props,

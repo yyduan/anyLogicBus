@@ -31,6 +31,9 @@ import java.util.List;
  * @version 1.2.3 [20140617 duanyy]<br>
  * - 增加日志的相关属性
  * 
+ * @version 1.2.4.4 [20140709 duanyy]<br>
+ * - 增加LogType的设置方法
+ * - 增加properties和arguments的设置方法
  */
 public class ServiceDescription implements XmlSerializer{
 	/**
@@ -56,7 +59,7 @@ public class ServiceDescription implements XmlSerializer{
 	/**
 	 * 服务参数
 	 */
-	private Properties m_properties;
+	private DefaultProperties m_properties;
 	/**
 	 * 服务的可见性(public,login,limited)
 	 */
@@ -87,6 +90,22 @@ public class ServiceDescription implements XmlSerializer{
 	 * @return
 	 */
 	public LogType getLogType(){return logType;}
+	
+	/**
+	 * 设置日志类型
+	 * @param type
+	 * 
+	 * @since 1.2.4.4
+	 */
+	public void setLogType(LogType type){logType = type;}
+	
+	/**
+	 * 设置日志类型
+	 * @param type
+	 * 
+	 * @since 1.2.4.4
+	 */
+	public void setLogType(String type){logType = parseLogType(type);}
 	
 	/**
 	 * constructor
@@ -215,6 +234,32 @@ public class ServiceDescription implements XmlSerializer{
 		if (argumentList == null)
 			return null;		
 		return argumentList.get(id);
+	}
+	
+	/**
+	 * 设置ArgumentList
+	 * @param list
+	 * 
+	 * @since 1.2.4.4
+	 * 
+	 */
+	public void setArgumentList(Argument [] list){
+		argumentList.clear();
+		for (Argument argu:list){
+			Argument newArgu = new Argument();
+			newArgu.copyFrom(argu);
+			argumentList.put(argu.getId(),argu);
+		}
+	}
+	
+	/**
+	 * 设置Properties
+	 * @param props
+	 * 
+	 * @since 1.2.4.4
+	 */
+	public void setProperties(DefaultProperties props){
+		m_properties.copyFrom(props);
 	}
 	
 	/**

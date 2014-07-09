@@ -93,3 +93,6 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 + Servant缓冲池采用队列来实现
  	 + HttpClient可以根据Response的Content-Type调整encoding (1.2.4.1)
  	 + Parameter增加encoding方法(1.2.4.2)
+ 	 + ACMAccessController在找不到ACM的情况下,使用缺省的ACM(1.2.4.3)
+ 	 + ServiceDescription增加LogType的设置方法(1.2.4.4)
+ 	 + ServiceDescription增加properties和arguments的设置方法(1.2.4.4)
