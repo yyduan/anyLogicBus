@@ -96,3 +96,4 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 + ACMAccessController在找不到ACM的情况下,使用缺省的ACM(1.2.4.3)
  	 + ServiceDescription增加LogType的设置方法(1.2.4.4)
  	 + ServiceDescription增加properties和arguments的设置方法(1.2.4.4)
+ 	 + LogicBusApp在初始化的时候增加装入扩展的配置文件(1.2.4.5)

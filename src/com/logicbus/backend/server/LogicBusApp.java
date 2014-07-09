@@ -27,7 +27,9 @@ import com.logicbus.backend.timer.TimerManager;
  * anyLogicBus基于anyWebLoader的应用
  * 
  * @author duanyy
- *
+ * @version 1.2.4.5 [20140709 duanyy]
+ * - 增加扩展的配置文件
+ * 
  */
 public class LogicBusApp implements WebApp {
 	/**
@@ -97,6 +99,17 @@ public class LogicBusApp implements WebApp {
 		ResourceFactory resourceFactory = (ResourceFactory) settings
 				.get("ResourceFactory");
 
+		//先装入扩展的配置文件
+		String extProfile = settings.GetValue("settings.ext.master", "");
+		String extSecondaryProfile = settings.GetValue("settings.ext.secondary", "");
+		if (extProfile != null && extProfile.length() > 0 
+				&& extSecondaryProfile != null && extSecondaryProfile.length() > 0){
+			logger.info("Load ext xml settings");
+			logger.info("Url = " + extProfile);
+			settings.addSettings(extProfile,extSecondaryProfile,resourceFactory);
+			logger.info("Load xml settings..OK!");
+		}
+		
 		// 装入配置文件
 		String profile = settings.GetValue("settings.master",
 				"java:///com/logicbus/backend/server/http/profile.xml#com.logicbus.backend.server.LogicBusApp");	
