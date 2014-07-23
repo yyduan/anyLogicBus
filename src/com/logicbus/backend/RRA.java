@@ -1,7 +1,11 @@
 package com.logicbus.backend;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -104,7 +108,28 @@ public class RRA {
 				eRRA.appendChild(eValue);
 			}
 		}
-	}		
+	}	
+	
+
+	public void toJson(Map<String, Object> json) {
+		json.put("step", step);
+		json.put("rows", rows);
+		json.put("cf", cf.toString());
+		
+		List<Object> values = new ArrayList<Object>();
+		Iterator<RRAValue> iter = iterator();
+		while (iter.hasNext()){			
+			RRAValue v = iter.next();			
+			if (v != null){
+				Map<String,Object> value = new HashMap<String,Object>(2);
+				value.put("t", v.timestamp);
+				value.put("v", v.value);
+				values.add(value);
+			}
+		}
+		json.put("values", values);
+	}	
+	
 	public static class RRAValue {
 		public long timestamp = 0;
 		public double value = 0;
@@ -177,5 +202,6 @@ public class RRA {
 		}
 		
 	}
+
 
 }

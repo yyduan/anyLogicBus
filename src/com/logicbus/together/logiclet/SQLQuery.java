@@ -16,7 +16,7 @@ import com.anysoft.util.Properties;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.Message;
-import com.logicbus.datasource.SQLTools;
+import com.logicbus.dbcp.sql.SQLTools;
 import com.logicbus.together.AbstractLogiclet;
 import com.logicbus.together.ExecuteWatcher;
 import com.logicbus.together.LogicletFactory;

@@ -27,6 +27,9 @@ import org.apache.log4j.LogManager;
  * 
  * @version 1.2.4 [20140703 duanyy]<br>
  * - 实现Pooled接口
+ * 
+ * @version 1.2.5 [20140722 duanyy]<br>
+ * - Pooled接口取消了desctory方法，增加了close方法
  */
 abstract public class Servant implements Pooled{
 	/**
@@ -123,7 +126,7 @@ abstract public class Servant implements Pooled{
 	 * {@link com.logicbus.backend.ServantPool#close() close}时调用。
 	 * 
 	 */
-	public void destroy(){
+	public void close(){
 		
 	}
 

@@ -12,7 +12,6 @@ import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.Context;
-import com.logicbus.client.Client;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -57,7 +56,6 @@ abstract public class ACMAccessController implements AccessController {
 	
 	protected String defaultAcm = "default";
 	
-	protected Client httpClient = null;
 	public ACMAccessController(Properties props){
 		acmCache = getCacheManager();
 		tcMode = PropertiesConstants.getBoolean(props, "acm.tcMode", false);

@@ -19,9 +19,8 @@ import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.JsonMessage;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
-import com.logicbus.datasource.ConnectionPool;
-import com.logicbus.datasource.ConnectionPoolFactory;
-import com.logicbus.datasource.SQLTools;
+import com.logicbus.dbcp.ConnectionPool;
+import com.logicbus.dbcp.DataSource;
 import com.logicbus.models.servant.ServiceDescription;
 import com.logicbus.together.Compiler;
 import com.logicbus.together.ExecuteWatcher;
@@ -59,9 +58,12 @@ public class LogicBusAgent extends Servant {
 		}
 		
 		if (dbSupport){
-			ConnectionPool pool = ConnectionPoolFactory.getPool();
-			Connection conn = pool.getConnection(dsName, 3000);
-			
+			DataSource ds = DataSource.get();
+			ConnectionPool pool = ds.getPool(dsName);
+			if (pool == null){
+				throw new ServantException("core.sqlerror","Can not get a connection pool named " + dsName);
+			}			
+			Connection conn = pool.getConnection(3000);			
 			if (conn == null) 
 					throw new ServantException("core.sqlerror","Can not get a db connection : " + dsName);
 			
@@ -91,7 +93,7 @@ public class LogicBusAgent extends Servant {
 				throw ex;
 			}finally{
 				ctx.setConnection(null);
-				SQLTools.close(conn);
+				pool.recycle(conn);
 			}
 		}else{
 			Element root = msg.getRoot();
@@ -116,11 +118,16 @@ public class LogicBusAgent extends Servant {
 		}
 		
 		if (dbSupport){
-			ConnectionPool pool = ConnectionPoolFactory.getPool();
-			Connection conn = pool.getConnection(dsName, 3000);
+			DataSource ds = DataSource.get();
+			ConnectionPool pool = ds.getPool(dsName);
+			if (pool == null){
+				throw new ServantException("core.sqlerror","Can not get a connection pool named " + dsName);
+			}
 			
+			Connection conn = pool.getConnection(3000);				
 			if (conn == null) 
 					throw new ServantException("core.sqlerror","Can not get a db connection : " + dsName);
+			
 			
 			if (transactionSupport){
 				conn.setAutoCommit(false);
@@ -148,7 +155,7 @@ public class LogicBusAgent extends Servant {
 				throw ex;
 			}finally{
 				ctx.setConnection(null);
-				SQLTools.close(conn);
+				pool.recycle(conn);
 			}
 		}else{
 			Map root = msg.getRoot();

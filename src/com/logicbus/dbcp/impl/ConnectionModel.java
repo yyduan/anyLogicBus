@@ -1,4 +1,4 @@
-package com.logicbus.datasource;
+package com.logicbus.dbcp.impl;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,36 +8,24 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
+import com.anysoft.cache.Cachable;
 import com.anysoft.util.Confirmer;
-import com.anysoft.util.JsonSerializer;
 import com.anysoft.util.JsonTools;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.anysoft.util.XmlElementProperties;
-import com.anysoft.util.XmlSerializer;
-
 
 /**
- * 数据库连接工厂类
- * 
- * <br>
- * 负责根据配置信息创建连接
- * 
+ * 连接模型
  * @author duanyy
- * @since 1.0.6
- * 
- * @version 1.1.0 [20140422 duanyy] <br>
- * - 改用Class.forName装入jdbc驱动,避免无法注册的问题
- * 
- * @version 1.1.1 [20140423 duanyy] <br>
- * - 在创建数据库连接前,进行各项参数的确认,通常用于将数据库密码分开保存.
- * 
+ * @since 1.2.5
  */
-public class ConnectionFactory implements XmlSerializer,JsonSerializer{
+public class ConnectionModel implements Cachable{
 	/**
 	 * a logger of log4j
 	 */
-	protected static final Logger logger = LogManager.getLogger(ConnectionFactory.class);	
+	protected static final Logger logger 
+		= LogManager.getLogger(ConnectionModel.class);	
 	/**
 	 * 名称
 	 */
@@ -126,7 +114,7 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 	public int getMaxIdle(){return maxIdle;}
 	
 	/**
-	 * 空闲连接数
+	 * 最大等待时间
 	 */
 	protected int maxWait = 5000;
 	
@@ -160,52 +148,9 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 	 * @since 1.1.1
 	 */
 	protected String callback = "";
-	
-	
-	protected Confirmer confirmer = null;
-	
-	/**
-	 * 按照当前的连接属性创建数据库连接
-	 * @return
-	 */
-	public Connection newConnection(){
-		Connection conn = null;
-		try {
-			ClassLoader cl = getClassLoader();
-			
-			if (confirmer == null){
-				//初始化confirmer
-				if (callbackId != null && callbackId.length() > 0 
-						&& callback != null && callback.length() > 0){
-					try {
-						confirmer = (Confirmer)cl.loadClass(callback).newInstance();
-						confirmer.prepare(callbackId);
-					}catch (Exception ex){
-						
-					}
-				}
-			}
-			
-			if (confirmer == null){
-				Class.forName(driver, true, cl);
-				conn = DriverManager.getConnection(url, username, password);
-			}else{
-				String _driver = confirmer.confirm("driver", driver);
-				String _url = confirmer.confirm("url", url);
-				String _username = confirmer.confirm("username", username);
-				String _password = confirmer.confirm("password", password);
-				
-				Class.forName(_driver,true,cl);
-				conn = DriverManager.getConnection(_url, _username,_password);
-			}
-		}catch (Exception ex){
-			logger.error("Can not create a connection to " + url,ex);
-		}
 		
-		return conn;
-	}
+	protected Confirmer confirmer = null;
 
-	
 	/**
 	 * 获取当前的ClassLoader
 	 * @return
@@ -234,6 +179,20 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		e.setAttribute("callbackId", callbackId);
 		e.setAttribute("callback", callback);
 	}
+	
+	public void report(Map<String,Object> json){
+		JsonTools.setString(json, "name",name);
+		JsonTools.setString(json, "driver",driver);
+		JsonTools.setString(json, "url",url);
+		JsonTools.setString(json, "username", username);
+		JsonTools.setString(json, "password","********");
+		JsonTools.setInt(json, "maxActive", maxActive);
+		JsonTools.setInt(json, "maxIdle", maxIdle);
+		JsonTools.setInt(json, "maxWait", maxWait);
+		JsonTools.setString(json, "monitor", monitor);
+		JsonTools.setString(json, "callbackId", callbackId);
+		JsonTools.setString(json, "callback", callback);
+	}	
 	
 	@Override
 	public void toXML(Element e) {
@@ -298,4 +257,52 @@ public class ConnectionFactory implements XmlSerializer,JsonSerializer{
 		callbackId = JsonTools.getString(json, "callbackId", callbackId);
 		callback = JsonTools.getString(json, "callback", callback);
 	}
+
+	@Override
+	public String getId() {
+		return name;
+	}
+
+	@Override
+	public boolean isExpired() {
+		return false;
+	}
+
+	/**
+	 * 按照当前的连接属性创建数据库连接
+	 * @return
+	 */
+	public Connection newConnection(){
+		Connection conn = null;
+		try {
+			ClassLoader cl = getClassLoader();
+			
+			if (confirmer == null){
+				if (callbackId != null && callbackId.length() > 0 
+						&& callback != null && callback.length() > 0){
+					try {
+						confirmer = (Confirmer)cl.loadClass(callback).newInstance();
+						confirmer.prepare(callbackId);
+					}catch (Exception ex){
+						
+					}
+				}
+			}			
+			if (confirmer == null){
+				Class.forName(driver, true, cl);
+				conn = DriverManager.getConnection(url, username, password);
+			}else{
+				String _driver = confirmer.confirm("driver", driver);
+				String _url = confirmer.confirm("url", url);
+				String _username = confirmer.confirm("username", username);
+				String _password = confirmer.confirm("password", password);
+				
+				Class.forName(_driver,true,cl);
+				conn = DriverManager.getConnection(_url, _username,_password);
+			}
+		}catch (Exception ex){
+			logger.error("Can not create a connection to " + url,ex);
+		}		
+		return conn;
+	}	
 }

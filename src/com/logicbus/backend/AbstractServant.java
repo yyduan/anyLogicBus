@@ -8,6 +8,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @author duanyy
  * @since 1.2.3
+ * 
+ * @version 1.2.5 [20140722 duanyy]
+ * - Servant的destroy方法改为close
+ * 
  */
 abstract public class AbstractServant extends Servant {
 	
@@ -29,8 +33,8 @@ abstract public class AbstractServant extends Servant {
 		onCreate(sd);
 	}
 	
-	public void destroy(){
-		super.destroy();
+	public void close(){
+		super.close();
 		onDestroy();
 	}
 	

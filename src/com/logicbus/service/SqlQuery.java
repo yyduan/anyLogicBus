@@ -14,9 +14,9 @@ import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
-import com.logicbus.datasource.ConnectionPool;
-import com.logicbus.datasource.ConnectionPoolFactory;
-import com.logicbus.datasource.SQLTools;
+import com.logicbus.dbcp.ConnectionPool;
+import com.logicbus.dbcp.DataSource;
+import com.logicbus.dbcp.sql.SQLTools;
 import com.logicbus.models.servant.ServiceDescription;
 
 public class SqlQuery extends Servant {
@@ -57,8 +57,13 @@ public class SqlQuery extends Servant {
 				max_count  = m_max_count;
 			}
 		}
-		ConnectionPool pool = ConnectionPoolFactory.getPool();
-		Connection conn = pool.getConnection(datasource,3000);
+		
+		DataSource ds = DataSource.get();
+		ConnectionPool pool = ds.getPool(datasource);
+		if (pool == null){
+			throw new ServantException("core.sqlerror","Can not get a connection pool named " + datasource);
+		}
+		Connection conn = pool.getConnection(3000);
 		if (conn == null){
 			throw new ServantException("core.sql_error","Can not get a db connection:" + datasource);
 		}
@@ -122,7 +127,8 @@ public class SqlQuery extends Servant {
 			throw new ServantException("core.sql_error","在执行SQL语句过程中发生错误:" + ex.getMessage());
 		}
 		finally{
-			SQLTools.close(stmt,conn);
+			SQLTools.close(stmt);
+			pool.recycle(conn);
 		}
 		return 0;
 	}

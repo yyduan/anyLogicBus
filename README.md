@@ -97,3 +97,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 + ServiceDescription增加LogType的设置方法(1.2.4.4)
  	 + ServiceDescription增加properties和arguments的设置方法(1.2.4.4)
  	 + LogicBusApp在初始化的时候增加装入扩展的配置文件(1.2.4.5)
+ 	
+ - 1.2.5 [20140722 duanyy]
+     + 基础包(com.anysoft.pool)有更新
+     + 重写dbcp实现

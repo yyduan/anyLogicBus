@@ -67,9 +67,14 @@ public class QueuedServantPool extends QueuedPool<Servant> {
 	
 	@Override
 	protected String getIdOfMaxQueueLength() {
-		return "servant.maxcount";
+		return "servant.maxActive";
 	}
 
+	@Override
+	protected String getIdOfIdleQueueLength() {
+		return "servant.maxIdle";
+	}
+	
 	@Override
 	protected Servant createObject() throws BaseException {
 		return createServant(m_desc);
@@ -196,5 +201,6 @@ public class QueuedServantPool extends QueuedPool<Servant> {
 			e.printStackTrace();
 			throw new ServantException("core.error_remote_module",e.getMessage());
 		}
-	}	
+	}
+
 }

@@ -1,7 +1,11 @@
 package com.logicbus.backend;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -61,6 +65,20 @@ public class Metric {
 			}
 		}
 	}	
+	
+	public void toJson(Map<String,Object> json){
+		json.put("id", getID());
+		RRA [] _rras = getRRAs();
+		if (_rras.length > 0){
+			List<Object> rras = new ArrayList<Object>(_rras.length);
+			for (RRA _rra:_rras){
+				Map<String,Object> rra = new HashMap<String,Object>();
+				_rra.toJson(rra);
+				rras.add(rra);
+			}
+			json.put("rras", rras);
+		}
+	}
 	
 	protected RRA createRRA(String _def) {
 		String[] tokens = _def.split(":");

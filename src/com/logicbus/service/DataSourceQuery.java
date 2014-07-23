@@ -1,18 +1,20 @@
 package com.logicbus.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.logicbus.backend.AbstractServant;
 import com.logicbus.backend.Context;
-import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
+import com.logicbus.backend.message.JsonMessage;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
-import com.logicbus.datasource.ConnectionFactory;
-import com.logicbus.datasource.ConnectionPool;
-import com.logicbus.datasource.ConnectionPoolFactory;
-import com.logicbus.datasource.DataSourceStat;
-import com.logicbus.datasource.NamedDataSource;
+import com.logicbus.dbcp.ConnectionPool;
+import com.logicbus.dbcp.DataSource;
+import com.logicbus.models.servant.ServiceDescription;
 
 /**
  * 查询指定数据源的信息
@@ -40,39 +42,58 @@ import com.logicbus.datasource.NamedDataSource;
  * 
  * @author duanyy
  * @since 1.0.6
+ * @version 1.2.5 [20140723 duanyy]
+ * - dbcp的实现更新
+ * 
  */
-public class DataSourceQuery extends Servant {
+public class DataSourceQuery extends AbstractServant {
 
 	@Override
-	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {				
-		XMLMessage msg = (XMLMessage) msgDoc.asMessage(XMLMessage.class);
+	protected void onDestroy() {
+	}
+
+	@Override
+	protected void onCreate(ServiceDescription sd) throws ServantException {
+	}
+
+	@Override
+	protected int onXml(MessageDoc msgDoc, Context ctx) throws Exception {
+		XMLMessage msg = (XMLMessage) msgDoc.asMessage(XMLMessage.class);		
+		String name = getArgument("name", msgDoc, ctx);	
 		
-		String name = getArgument("name", msgDoc, ctx);
-		
-		ConnectionPool cp = ConnectionPoolFactory.getPool();
-		
-		NamedDataSource ds = cp.getDataSource(name);
-		
-		if (ds == null){
-			throw new ServantException("user.data_not_found","Can not find a datasource named " + name);
+		DataSource ds = DataSource.get();				
+		ConnectionPool pool = ds.getPool(name);		
+		if (pool == null){
+			throw new ServantException("user.data_not_found","Can not find a connection pool named " + name);
 		}
 		
-		Element root = msg.getRoot();
+		Element root = msg.getRoot();		
+		Document doc = msg.getDocument();		
+		Element dbcp = doc.createElement("dbcp");
 		
-		Document doc = msg.getDocument();
+		pool.report(dbcp);
 		
-		Element dsElem = doc.createElement("datasource");
+		root.appendChild(dbcp);
 		
-		ConnectionFactory cf = ds.getFactory();
+		return 0;
+	}
+
+	@Override
+	protected int onJson(MessageDoc msgDoc, Context ctx) throws Exception {
+		JsonMessage msg = (JsonMessage) msgDoc.asMessage(JsonMessage.class);
+		String name = getArgument("name",msgDoc,ctx);
+		DataSource ds = DataSource.get();				
+		ConnectionPool pool = ds.getPool(name);		
+		if (pool == null){
+			throw new ServantException("user.data_not_found","Can not find a connection pool named " + name);
+		}
 		
-		cf.report(dsElem);
+		Map<String,Object> root = msg.getRoot();		
+		Map<String,Object> dbcp = new HashMap<String,Object>();
 		
-		DataSourceStat stat = ds.getStat();
+		pool.report(dbcp);
 		
-		stat.toXML(dsElem);
-		
-		root.appendChild(dsElem);
-		
+		root.put("dbcp", dbcp);
 		return 0;
 	}
 

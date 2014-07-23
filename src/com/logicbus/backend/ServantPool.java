@@ -19,6 +19,9 @@ import com.logicbus.models.servant.ServiceDescription;
  * @author duanyy
  * @version 1.2.2 [20140617 duanyy]
  * - 改进同步模型
+ * 
+ * @version 1.2.5 [20140722 duanyy]
+ * - Servant的destroy方法变更为close
  */
 public class ServantPool {
 	
@@ -125,7 +128,7 @@ public class ServantPool {
 				for (int i = 0 ; i < m_servants.length ; i ++){
 					Servant s = m_servants[i];
 					if (s != null){
-						s.destroy();
+						s.close();
 					}
 					m_servants[i] = null;
 				}
@@ -140,7 +143,7 @@ public class ServantPool {
 				for (int i = 0 ; i < m_highpriority_servants.length ; i ++){
 					Servant s = m_highpriority_servants[i];
 					if (s != null){
-						s.destroy();
+						s.close();
 					}
 					m_highpriority_servants[i] = null;
 				}
