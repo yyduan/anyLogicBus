@@ -21,11 +21,12 @@ import com.logicbus.dbcp.ConnectionPoolStat;
  */
 public class ConnectionPoolImpl extends QueuedPool<Connection> implements ConnectionPool {
 	protected ConnectionModel model = null;
-	protected ConnectionPoolStat stat = null;
+	protected ConnectionPoolStatImpl stat = null;
 	protected ConnectionPoolImpl(ConnectionModel _model){
 		model = _model;
 		
 		stat = new ConnectionPoolStatImpl();
+		stat.setMonitor(model.getMonitor());
 		
 		Properties props = new DefaultProperties();		
 		props.SetValue(getIdOfMaxQueueLength(), 
