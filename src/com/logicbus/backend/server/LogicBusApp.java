@@ -30,6 +30,8 @@ import com.logicbus.backend.timer.TimerManager;
  * @version 1.2.4.5 [20140709 duanyy]
  * - 增加扩展的配置文件
  * 
+ * @version 1.2.5 [20140723 duanyy]
+ * - 修正ResourceFactory的bug
  */
 public class LogicBusApp implements WebApp {
 	/**
@@ -95,10 +97,20 @@ public class LogicBusApp implements WebApp {
 		
 		//resourceFactory
 		String rf = settings.GetValue("resource.factory","com.anysoft.util.resource.ResourceFactory");
-		settings.registerObject("ResourceFactory", rf);
-		ResourceFactory resourceFactory = (ResourceFactory) settings
-				.get("ResourceFactory");
-
+		ResourceFactory resourceFactory = null;
+		try {
+			logger.info("Use resource factory:" + rf);
+			resourceFactory = (ResourceFactory) classLoader.loadClass(rf).newInstance();
+		} catch (InstantiationException | IllegalAccessException
+				| ClassNotFoundException e) {
+			logger.error("Can not create instance of :" + rf);
+		}
+		if (resourceFactory == null){
+			resourceFactory = new ResourceFactory();
+			logger.info("Use default:" + ResourceFactory.class.getName());
+		}
+		settings.registerObject("ResourceFactory", resourceFactory);
+		
 		//先装入扩展的配置文件
 		String extProfile = settings.GetValue("settings.ext.master", "");
 		String extSecondaryProfile = settings.GetValue("settings.ext.secondary", "");

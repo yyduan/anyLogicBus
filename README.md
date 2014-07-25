@@ -101,3 +101,4 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  - 1.2.5 [20140722 duanyy]
      + 基础包(com.anysoft.pool)有更新
      + 重写dbcp实现
+     + 修正ResourceFactory的bug(1.2.5.1)
