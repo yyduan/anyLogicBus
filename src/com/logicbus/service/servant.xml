@@ -79,7 +79,14 @@
 			log = "none" 
 			module="com.logicbus.service.BizLogReport"
 		/>		
-				
+		<service 
+			id="EnvQuery" 
+			name="EnvQuery" 
+			note="查询JVM环境变量"
+			visible="public"
+			log = "none" 
+			module="com.logicbus.service.EnvQuery"
+		/>				
 		<catalog name="manager">
 			<service 
 				id="AssetQuery" 
