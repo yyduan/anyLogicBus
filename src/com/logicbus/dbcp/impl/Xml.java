@@ -25,6 +25,9 @@ import com.anysoft.util.resource.ResourceFactory;
  * @author duanyy
  *
  * @since 1.2.5
+ * 
+ * @version 1.2.5.3 [20140731 duanyy]
+ * -  基础包的Cacheable接口修改 
  */
 public class Xml implements DBCMProvider {
 	protected static final Logger logger = LogManager.getLogger(Xml.class);
@@ -36,6 +39,10 @@ public class Xml implements DBCMProvider {
 	@Override
 	public void addChangeListener(ChangeAware<ConnectionModel> listener) {
 	}
+	@Override
+	public void removeChangeListener(ChangeAware<ConnectionModel> listener) {
+		
+	}	
 
 	@Override
 	public void configure(Element _e, Properties _properties)
@@ -75,6 +82,12 @@ public class Xml implements DBCMProvider {
 			addModel(name,model);
 		}
 	}
+
+
+	@Override
+	public ConnectionModel load(String id, boolean cacheAllowed) {
+		return load(id);
+	}		
 	
 	/**
 	 * 增加model
@@ -113,5 +126,6 @@ public class Xml implements DBCMProvider {
 			IOTools.closeStream(in);
 		}		
 		return ret;
-	}		
+	}
+	
 }

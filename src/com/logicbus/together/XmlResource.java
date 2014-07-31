@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.anysoft.cache.Cachable;
+import com.anysoft.cache.Cacheable;
 import com.anysoft.cache.CacheManager;
 import com.anysoft.cache.ChangeAware;
 import com.anysoft.cache.Provider;
@@ -27,9 +27,10 @@ import com.anysoft.util.resource.ResourceFactory;
  * @author duanyy
  * 
  * @since 1.1.0
- * 
+ * @version 1.2.5.3 [20140731 duanyy]
+ * -  基础包的Cacheable接口修改
  */
-public class XmlResource implements Cachable{
+public class XmlResource implements Cacheable{
 	
 	/** 
 	 * a logger of log4j
@@ -127,7 +128,16 @@ public class XmlResource implements Cachable{
 		public void addChangeListener(ChangeAware<XmlResource> listener) {
 			// do nothing
 		}
+		
+		@Override
+		public void removeChangeListener(ChangeAware<XmlResource> listener) {
+			// do nothing
+		}
 
+		@Override
+		public XmlResource load(String id, boolean cacheAllowed) {
+			return load(id);
+		}
 	}
 	
 	

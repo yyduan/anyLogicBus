@@ -8,7 +8,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
-import com.anysoft.cache.Cachable;
+import com.anysoft.cache.Cacheable;
 import com.anysoft.util.Confirmer;
 import com.anysoft.util.JsonTools;
 import com.anysoft.util.PropertiesConstants;
@@ -19,8 +19,11 @@ import com.anysoft.util.XmlElementProperties;
  * 连接模型
  * @author duanyy
  * @since 1.2.5
+ * 
+ * @version 1.2.5.3 [20140731 duanyy]
+ * -  基础包的Cacheable接口修改
  */
-public class ConnectionModel implements Cachable{
+public class ConnectionModel implements Cacheable{
 	/**
 	 * a logger of log4j
 	 */

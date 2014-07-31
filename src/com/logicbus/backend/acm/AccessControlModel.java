@@ -11,7 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.anysoft.cache.Cachable;
+import com.anysoft.cache.Cacheable;
 import com.anysoft.util.JsonTools;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.StringMatcher;
@@ -26,9 +26,12 @@ import com.anysoft.util.XmlTools;
  * 
  * @author duanyy
  * @since 1.2.3
+ * 
+ * @version 1.2.5.3 [20140731 duanyy]
+ * -  基础包的Cacheable接口修改
  */
 
-public class AccessControlModel implements Cachable {
+public class AccessControlModel implements Cacheable {
 	
 	/**
 	 * id

@@ -15,7 +15,8 @@ import com.logicbus.dbcp.ConnectionPoolFactory;
  * 
  * @author duanyy
  * @since 1.2.5
- * 
+ * @version 1.2.5.3 [20140731 duanyy]
+ * -  基础包的Cacheable接口修改
  */
 public class Provided implements ConnectionPoolFactory{
 	protected static final Logger logger = LogManager.getLogger(Provided.class);
@@ -34,7 +35,7 @@ public class Provided implements ConnectionPoolFactory{
 	@Override
 	public ConnectionPool getPool(String name) {
 		if (provider != null){
-			ConnectionModel model = provider.load(name);
+			ConnectionModel model = provider.load(name,true);
 			if (model != null){
 				return new ConnectionPoolImpl(model);
 			}

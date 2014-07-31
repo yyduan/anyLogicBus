@@ -16,6 +16,9 @@ import com.jayway.jsonpath.spi.JsonProviderFactory;
  * 基于XMLResource的ACMProvider
  * @author duanyy
  * @since 1.2.3
+ * 
+ * @version 1.2.5.3 [20140731 duanyy]
+ * -  基础包的Cacheable接口修改
  */
 public class XMLResourceACMProvider extends XMLResourceSimpleModelProvider<AccessControlModel>{
 
