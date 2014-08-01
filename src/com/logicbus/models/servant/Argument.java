@@ -1,18 +1,7 @@
 package com.logicbus.models.servant;
 
-import java.util.Map;
-
-import org.w3c.dom.Element;
-
-import com.anysoft.util.BaseException;
-import com.anysoft.util.DefaultProperties;
-import com.anysoft.util.Factory;
 import com.anysoft.util.JsonSerializer;
-import com.anysoft.util.JsonTools;
 import com.anysoft.util.Properties;
-import com.anysoft.util.PropertiesConstants;
-import com.anysoft.util.Settings;
-import com.anysoft.util.XmlElementProperties;
 import com.anysoft.util.XmlSerializer;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.ServantException;
@@ -34,47 +23,29 @@ import com.logicbus.backend.message.MessageDoc;
  * 
  * @version 1.2.4.4 [20140709 duanyy]<br>
  * - 增加copyFrom方法
+ * 
+ * @version 1.2.5.4 [20140801 duanyy]<br>
+ * - Argument变更为interface
  */
-public class Argument implements XmlSerializer,JsonSerializer{
-	/**
-	 * 参数ID
-	 */
-	protected String id;
+public interface Argument extends XmlSerializer,JsonSerializer{
 	
 	/**
 	 * 获取Id
 	 * @return
 	 */
-	public String getId(){return id;}
-	
-	/**
-	 * 缺省值
-	 */
-	protected String defaultValue;
+	public String getId();
 	
 	/**
 	 * 获取缺省值
 	 * @return
 	 */
-	public String getDefaultValue(){return defaultValue;}
-	
-	/**
-	 * 是否可选
-	 */
-	protected boolean isOption;
+	public String getDefaultValue();
 	
 	/**
 	 * 是否可选
 	 * @return
 	 */
-	public boolean isOption(){return isOption;}
-	
-	/**
-	 * 是否需要缓存
-	 * @since 1.0.8
-	 * 
-	 */
-	protected boolean isCached = false;
+	public boolean isOption();
 	
 	/**
 	 * 是否需要缓存
@@ -82,71 +53,32 @@ public class Argument implements XmlSerializer,JsonSerializer{
 	 * 
 	 * @since 1.0.8
 	 */
-	public boolean isCached(){return isCached;}
-	
-	/**
-	 * 参数getter
-	 */
-	protected String getter ="Default";
-	
+	public boolean isCached();
 	/**
 	 * 获取getter
 	 * @return
 	 */
-	public String getGetter(){return getter;}
-	
-	/**
-	 * getter的参数
-	 */
-	protected String getterParameters;
+	public String getGetter();
 	
 	/**
 	 * 获取gettter的参数
 	 * @return
 	 */
-	public String getGetterParameters(){return getterParameters;}
-	
-	/**
-	 * getter的参数列表
-	 */
-	protected Properties parameters = null;
-	
+	public String getGetterParameters();
+
 	/**
 	 * 获取getter的参数列表
 	 * @return
 	 */
-	public Properties getParameter(){
-		if (parameters != null){
-			return parameters;
-		}
-		if (getterParameters == null || getterParameters.length() <= 0){
-			return null;
-		}
-		parameters = new DefaultProperties();
-		parameters.loadFromString(getterParameters);
-		return parameters;
-	}
-	
-	/**
-	 * getter的实例
-	 */
-	protected Getter theGetter = null;
-	
+	public Properties getParameter();
+		
 	/**
 	 * 获取参数值
 	 * @param msg 服务接口文档
 	 * @param ctx 上下文
 	 * @return 参数值
 	 */
-	public String getValue(MessageDoc msg,Context ctx)throws ServantException{
-		if (theGetter == null){
-			Settings settings = Settings.get();
-			ClassLoader cl = (ClassLoader)settings.get("classLoader");
-			TheFactory factory = new TheFactory(cl);
-			theGetter = factory.newInstance(getter,getParameter());
-		}
-		return theGetter.getValue(this, msg, ctx);
-	}
+	public String getValue(MessageDoc msg,Context ctx)throws ServantException;
 	
 	/**
 	 * 获取参数值
@@ -156,97 +88,6 @@ public class Argument implements XmlSerializer,JsonSerializer{
 	 * 
 	 * @since 1.0.8
 	 */
-	public String getValue(Message msg,Context ctx)throws ServantException{
-		if (theGetter == null){
-			Settings settings = Settings.get();
-			ClassLoader cl = (ClassLoader)settings.get("classLoader");
-			TheFactory factory = new TheFactory(cl);
-			theGetter = factory.newInstance(getter,getParameter());
-		}
-		return theGetter.getValue(this, msg, ctx);
-	}	
+	public String getValue(Message msg,Context ctx)throws ServantException;
 	
-	/**
-	 * 从另外的实例中复制数据
-	 * @param argu
-	 * 
-	 * @since 1.2.4.4
-	 */
-	public void copyFrom(Argument argu){
-		id = argu.id;
-		defaultValue = argu.defaultValue;
-		isOption = argu.isOption;
-		getter = argu.getter;
-		getterParameters = argu.getterParameters;
-		isCached = argu.isCached;
-	}
-	
-	@Override
-	public void toXML(Element e) {
-		e.setAttribute("id", id);
-		e.setAttribute("defaultValue", defaultValue);
-		e.setAttribute("isOption", isOption?"true":"false");
-		e.setAttribute("getter", getter);
-		e.setAttribute("parameters", getterParameters);
-		// since 1.0.8
-		e.setAttribute("isCached", isCached ? "true" : "false");
-	}
-
-	@Override
-	public void fromXML(Element e) {
-		XmlElementProperties props = new XmlElementProperties(e,null);
-		
-		id = PropertiesConstants.getString(props, "id", "");
-		defaultValue = PropertiesConstants.getString(props, "defaultValue", "");
-		isOption = PropertiesConstants.getBoolean(props, "isOption", true);
-		getter = PropertiesConstants.getString(props,"getter","Default");
-		// 1.2.0 修正笔误
-		getterParameters = PropertiesConstants.getString(props,"parameters","");
-		
-		// since 1.0.8
-		isCached = PropertiesConstants.getBoolean(props, "isCached", false);
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public void toJson(Map json) {
-		JsonTools.setString(json, "id", id);
-		JsonTools.setString(json, "defaultValue",defaultValue);
-		JsonTools.setBoolean(json, "isOption",isOption);
-		JsonTools.setString(json, "getter",getter);
-		JsonTools.setString(json, "parameters",getterParameters);
-		// since 1.0.8
-		JsonTools.setBoolean(json, "isCached", isCached);
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public void fromJson(Map json) {
-		id = JsonTools.getString(json, "id","");
-		defaultValue = JsonTools.getString(json, "defaultValue","");
-		isOption = JsonTools.getBoolean(json, "isOption",true);
-		getter = JsonTools.getString(json, "getter","Default");
-		getterParameters = JsonTools.getString(json, "parameters","");
-		// since 1.0.8
-		isCached = JsonTools.getBoolean(json, "isCached", false);
-	}
-
-	/**
-	 * Factory of getter
-	 * @author duanyy
-	 *
-	 */
-	public static class TheFactory extends Factory<Getter>{
-		public TheFactory(ClassLoader cl){
-			super(cl);
-		}
-		
-		@Override
-		public String getClassName(String _module) throws BaseException{
-			if (_module.indexOf(".") < 0){
-				return "com.logicbus.models.servant.getter." + _module;
-			}
-			return _module;
-		}		
-	}
 }

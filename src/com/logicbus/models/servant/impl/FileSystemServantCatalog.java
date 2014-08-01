@@ -14,6 +14,7 @@ import com.anysoft.util.Settings;
 import com.anysoft.util.XmlTools;
 import com.logicbus.models.catalog.CatalogNode;
 import com.logicbus.models.catalog.Path;
+import com.logicbus.models.servant.DefaultServiceDescription;
 import com.logicbus.models.servant.ServantCatalog;
 import com.logicbus.models.servant.ServantCatalogNode;
 import com.logicbus.models.servant.ServiceDescription;
@@ -39,6 +40,9 @@ import com.logicbus.models.servant.ServiceDescriptionWatcher;
  * - local.servant.home:当没有配置home时启用，可在web.xml或全局配置文件中配置，缺省值为${local.home}/servants,其中local.home同样是全局变量 <br>
  * 
  * @author hmyyduan
+ * 
+ * @version 1.2.6 [20140801 duanyy]<br>
+ * - ServiceDescription变更为interface,采用DefaultServiceDescription
  * 
  */
 public class FileSystemServantCatalog implements ServantCatalog {
@@ -207,7 +211,7 @@ public class FileSystemServantCatalog implements ServantCatalog {
 		}
 		
 		Path childPath = _path.append(id);
-		ServiceDescription sd = new ServiceDescription(id);
+		DefaultServiceDescription sd = new DefaultServiceDescription(id);
 		
 		sd.fromXML(root);
 		sd.setPath(childPath.getPath());

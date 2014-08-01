@@ -19,6 +19,7 @@ import com.logicbus.backend.Context;
 import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.Message;
 import com.logicbus.models.servant.Argument;
+import com.logicbus.models.servant.DefaultArgument;
 
 
 /**
@@ -94,7 +95,7 @@ abstract public class AbstractLogiclet implements Logiclet {
 					continue;
 				}
 				Element e = (Element) n;
-				Argument argu = new Argument();
+				Argument argu = new DefaultArgument();
 				argu.fromXML(e);
 				if (argu.getId().length() <= 0){
 					continue;

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Vector;
 
 
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -19,6 +20,7 @@ import com.anysoft.util.XmlTools;
 import com.anysoft.util.resource.ResourceFactory;
 import com.logicbus.models.catalog.CatalogNode;
 import com.logicbus.models.catalog.Path;
+import com.logicbus.models.servant.DefaultServiceDescription;
 import com.logicbus.models.servant.ServantCatalog;
 import com.logicbus.models.servant.ServiceDescription;
 import com.logicbus.models.servant.ServiceDescriptionWatcher;
@@ -179,7 +181,7 @@ public class XMLDocumentServantCatalog implements ServantCatalog {
 		
 		Path childPath = _path.append(id);
 		
-		ServiceDescription sd = new ServiceDescription(childPath.getId());
+		DefaultServiceDescription sd = new DefaultServiceDescription(childPath.getId());
 		sd.fromXML(root);
 		sd.setPath(childPath.getPath());
 		
