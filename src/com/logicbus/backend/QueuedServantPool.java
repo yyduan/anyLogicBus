@@ -21,8 +21,11 @@ import com.logicbus.models.servant.ServiceDescription;
  * @author duanyy
  * @since 1.2.4
  * 
+ * @version 1.2.6 [20140807 duanyy]
+ * - 实现ServantPool接口
+ * 
  */
-public class QueuedServantPool extends QueuedPool<Servant> {
+public class QueuedServantPool extends QueuedPool<Servant> implements ServantPool{
 	/**
 	 * 服务描述
 	 */

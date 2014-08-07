@@ -6,9 +6,9 @@ import org.w3c.dom.Element;
 import com.anysoft.util.Settings;
 import com.anysoft.util.SystemStatus;
 import com.logicbus.backend.Context;
-import com.logicbus.backend.QueuedServantFactory;
-import com.logicbus.backend.QueuedServantPool;
 import com.logicbus.backend.Servant;
+import com.logicbus.backend.ServantFactory;
+import com.logicbus.backend.ServantPool;
 import com.logicbus.backend.ServantStat;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
@@ -17,7 +17,9 @@ import com.logicbus.models.servant.ServiceDescription;
 /**
  * 查询工作节点的信息
  * @author duanyy
- *
+ * 
+ * @version 1.2.6 [20140807 duanyy] <br>
+ * - ServantPool和ServantFactory插件化
  */
 public class NodeQuery extends Servant {
 
@@ -49,11 +51,11 @@ public class NodeQuery extends Servant {
 			location.appendChild(eRuntime);
 		}
 		{
-			QueuedServantFactory sf = QueuedServantFactory.get();
-			QueuedServantPool [] pools = sf.getPools();
+			ServantFactory sf = (ServantFactory)settings.get("servantFactory");
+			ServantPool [] pools = sf.getPools();
 			if (pools.length > 0){
 				Element eServices = doc.createElement("assets");
-				for (QueuedServantPool pool:pools){	
+				for (ServantPool pool:pools){	
 					Element eService = doc.createElement("asset");
 					ServiceDescription sd = pool.getDescription();
 					sd.toXML(eService);

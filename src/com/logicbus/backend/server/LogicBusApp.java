@@ -18,8 +18,12 @@ import com.anysoft.util.resource.ResourceFactory;
 import com.anysoft.webloader.WebApp;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.BizLogger;
+import com.logicbus.backend.DefaultNormalizer;
+import com.logicbus.backend.IpAndServiceAccessController;
 import com.logicbus.backend.Normalizer;
 import com.logicbus.backend.QueuedServantFactory;
+import com.logicbus.backend.ServantFactory;
+import com.logicbus.backend.bizlog.DefaultBizLogger;
 import com.logicbus.backend.timer.TimerManager;
 
 
@@ -32,18 +36,16 @@ import com.logicbus.backend.timer.TimerManager;
  * 
  * @version 1.2.5 [20140723 duanyy]
  * - 修正ResourceFactory的bug
+ * 
+ * @version 1.2.6 [20140807 duanyy] <br>
+ * - ServantPool和ServantFactory插件化
  */
 public class LogicBusApp implements WebApp {
 	/**
 	 * a logger of log4j
 	 */
 	protected static Logger logger = LogManager.getLogger(LogicBusApp.class);
-	
-	/**
-	 * 业务日志记录
-	 */
-	protected static BizLogger bizLogger = null;
-	
+		
 	/**
 	 * 启动定时器
 	 * @param settings 参数
@@ -136,29 +138,72 @@ public class LogicBusApp implements WebApp {
 		String encoding = settings.GetValue("http.encoding","utf-8");
 		XmlTools.setDefaultEncoding(encoding);
 		
-		String acClass = settings.GetValue("acm.module", 
-				"com.logicbus.backend.IpAndServiceAccessController");
-		AccessController.TheFactory acf = new AccessController.TheFactory(classLoader);
-		AccessController ac = acf.newInstance(acClass,settings);
-		settings.registerObject("accessController", ac);
-	
-		String normalizerClass = settings.GetValue("normalizer.module", 
-				"com.logicbus.backend.DefaultNormalizer");
-		Normalizer.TheFactory ncf = new Normalizer.TheFactory(classLoader);
-		Normalizer normalizer = ncf.newInstance(normalizerClass);
-		settings.registerObject("normalizer", normalizer);
-
-		//初始化BizLogger
-		String bizLoggerClass = PropertiesConstants.getString(settings, "bizlog.logger", "com.logicbus.backend.bizlog.DefaultBizLogger");		
-		BizLogger.TheFactory factory = new BizLogger.TheFactory();		
-		bizLogger = factory.newInstance(bizLoggerClass, settings);
-		settings.registerObject("bizLogger", bizLogger);
-		String bizLogHome = PropertiesConstants.getString(settings, "bizlog.home", "");
-		if (bizLogHome == null || bizLogHome.length() <= 0){
-			logger.info("bizlog.home is not set.Set it to /var/log/bizlog");
-			settings.SetValue("bizlog.home","var/log/bizlog");
+		//初始化AccessController
+		{
+			String acClass = settings.GetValue("acm.module", 
+					"com.logicbus.backend.IpAndServiceAccessController");
+			
+			logger.info("AccessController is initializing,module:" + acClass);
+			AccessController ac = null;
+			try {
+				AccessController.TheFactory acf = new AccessController.TheFactory(classLoader);
+				ac = acf.newInstance(acClass,settings);
+			}catch (Throwable t){
+				ac = new IpAndServiceAccessController(settings);
+				logger.error("Failed to initialize AccessController.Using default:" + IpAndServiceAccessController.class.getName());
+			}
+			settings.registerObject("accessController", ac);
 		}
-		
+		//初始化Normalizer
+		{
+			String normalizerClass = settings.GetValue("normalizer.module", 
+				"com.logicbus.backend.DefaultNormalizer");
+			
+			logger.info("Normalizer is initializing,module:" + normalizerClass);
+			Normalizer normalizer = null;
+			try {
+				Normalizer.TheFactory ncf = new Normalizer.TheFactory(classLoader);
+				normalizer = ncf.newInstance(normalizerClass);
+			}catch (Throwable t){
+				normalizer = new DefaultNormalizer();
+				logger.error("Failed to initialize Normalizer.Using default:" + DefaultNormalizer.class.getName());
+			}
+			settings.registerObject("normalizer", normalizer);
+		}
+		//初始化BizLogger
+		{
+			String bizLoggerClass = PropertiesConstants.getString(settings, "bizlog.logger", "com.logicbus.backend.bizlog.DefaultBizLogger");
+			logger.info("BizLogger is initializing,module:" + bizLoggerClass);								
+			BizLogger bizLogger = null;
+			try {
+				BizLogger.TheFactory factory = new BizLogger.TheFactory();
+				bizLogger = factory.newInstance(bizLoggerClass, settings);
+			}catch (Throwable t){
+				bizLogger = new DefaultBizLogger(settings);
+				logger.error("Failed to initialize bizLogger.Using default:" + DefaultBizLogger.class.getName());				
+			}
+			settings.registerObject("bizLogger", bizLogger);
+						
+			String bizLogHome = PropertiesConstants.getString(settings, "bizlog.home", "");
+			if (bizLogHome == null || bizLogHome.length() <= 0){
+				logger.info("bizlog.home is not set.Set it to /var/log/bizlog");
+				settings.SetValue("bizlog.home","var/log/bizlog");
+			}
+		}
+		//初始化servantFactory
+		{
+			String sfClass = PropertiesConstants.getString(settings, "servant.factory", "com.logicbus.backend.QueuedServantFactory");
+			logger.info("Servant Factory is initializing,module:" + sfClass);
+			ServantFactory sf = null;
+			try {
+				ServantFactory.TheFactory sfFactory = new ServantFactory.TheFactory();
+				sf = sfFactory.newInstance(sfClass, settings);
+			}catch (Throwable t){
+				sf = new QueuedServantFactory(settings);
+				logger.error("Failed to initialize servantFactory.Using default:" + QueuedServantFactory.class.getName());
+			}
+			settings.registerObject("servantFactory", sf);
+		}
 		// 启动定时器
 		startTimer(settings, resourceFactory,classLoader);
 	}
@@ -169,12 +214,26 @@ public class LogicBusApp implements WebApp {
 		logger.info("Stop timer..");
 		__tm.stop();
 		
-		QueuedServantFactory sf = QueuedServantFactory.get();
-		logger.info("Close servant factory...");
-		sf.close();
+		Settings settings = Settings.get();
 		
+		ServantFactory sf = (ServantFactory)settings.get("servantFactory");
+		if (sf != null){
+			logger.info("The servantFactory is closing..");
+			try {
+				sf.close();
+			}catch (Throwable t){
+				
+			}
+		}
+
+		BizLogger bizLogger = (BizLogger)settings.get("bizLogger");
 		if (bizLogger != null){
-			bizLogger.close();
+			logger.info("The bizLogger is closing..");
+			try {
+				bizLogger.close();
+			}catch (Throwable t){
+				
+			}
 		}
 	}
 }

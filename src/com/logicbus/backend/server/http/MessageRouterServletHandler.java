@@ -38,6 +38,9 @@ import com.logicbus.models.catalog.Path;
  * 
  * @version 1.2.1 [20140614 duanyy] <br>
  * - 支持跨域服务调用
+ * 
+ * @version 1.2.6 [20140807 duanyy] <br>
+ * - ServantPool和ServantFactory插件化
  */
 public class MessageRouterServletHandler implements ServletHandler {
 	/**
@@ -138,7 +141,7 @@ public class MessageRouterServletHandler implements ServletHandler {
 				}
 			}
 			
-			MessageRouter.actionWithQueuedServantFactory(id,msgDoc,ctx,ac);
+			MessageRouter.action(id,msgDoc,ctx,ac);
 			
 			{
 				if (logger.getEffectiveLevel().equals(Level.DEBUG)){
