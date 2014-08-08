@@ -24,6 +24,15 @@ public class JmsModel extends SimpleModel{
 	public JmsModel(String _id) {
 		super(_id);
 	}
+
+	/**
+	 * JmsContext的实现类
+	 */
+	protected String module = DefaultJmsContext.class.getName();
+	
+	public String getModule(){
+		return module;
+	}
 	
 	protected HashMap<String,SimpleModel> destinations = new HashMap<String,SimpleModel>();
 	
@@ -35,6 +44,9 @@ public class JmsModel extends SimpleModel{
 	@Override
 	public void fromXML(Element root) {
 		super.fromXML(root);
+		
+		String _module = root.getAttribute("module");
+		module = _module != null && _module.length() > 0 ? _module : module;
 		
 		NodeList nodeList = XmlTools.getNodeListByPath(root, "destination");
 		if (nodeList != null && nodeList.getLength() > 0){
@@ -83,6 +95,9 @@ public class JmsModel extends SimpleModel{
 	@Override
 	public void fromJson(Map root) {
 		super.fromJson(root);
+
+		Object _module = root.get("module");
+		module = _module != null && _module instanceof String ? _module.toString() : module;		
 		
 		Object _fieldsObject = root.get("destinations");
 		if (_fieldsObject != null && _fieldsObject instanceof List){
