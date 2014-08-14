@@ -23,6 +23,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @version 1.2.4.3 [20140709 duanyy]
  * - 在找不到ACM的情况下,使用缺省的ACM
+ * 
+ * @version 1.2.6.2 [20140814 duanyy]
+ * - 优化缺省ACM模型的存储机制
+ * 
  */
 abstract public class ACMAccessController implements AccessController {
 	/**
@@ -54,13 +58,15 @@ abstract public class ACMAccessController implements AccessController {
 	
 	protected String appField = "a";
 	
-	protected String defaultAcm = "default";
+	protected String defaultAcmId = "default";
+	
+	protected AccessControlModel defaultAcm = null;
 	
 	public ACMAccessController(Properties props){
 		acmCache = getCacheManager();
 		tcMode = PropertiesConstants.getBoolean(props, "acm.tcMode", false);
-		defaultAcm = PropertiesConstants.getString(props, "acm.default", defaultAcm);
-
+		defaultAcmId = PropertiesConstants.getString(props, "acm.default", defaultAcmId);
+		defaultAcm = acmCache.get(defaultAcmId);
 		if (tcMode){
 			tokenHolder = new TokenHolder(props);
 		}
@@ -89,7 +95,7 @@ abstract public class ACMAccessController implements AccessController {
 			Context ctx) {
 		AccessControlModel acm = acmCache.get(sessionId);
 		if (acm == null){
-			acm = acmCache.get(defaultAcm);
+			acm = defaultAcm;
 			if (acm == null)
 				return -2;
 		}

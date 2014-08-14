@@ -142,6 +142,7 @@ public class JmsSource implements Watcher<JmsModel>{
 		JmsModel found = models.get(id);
 		if (found == null){
 			synchronized (models){
+				found = models.get(id);
 				if (found == null){
 					for (JmsModelFactory f:factories){
 						found = f.loadModel(id);

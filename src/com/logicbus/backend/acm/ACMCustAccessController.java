@@ -20,7 +20,7 @@ public class ACMCustAccessController extends ACMAccessController {
 	@Override
 	public String createSessionId(Path id, ServiceDescription sd,
 			Context ctx) {
-		return ctx.GetValue(appField, "Default");
+		return ctx.GetValue(appField, "default");
 	}
 
 }
