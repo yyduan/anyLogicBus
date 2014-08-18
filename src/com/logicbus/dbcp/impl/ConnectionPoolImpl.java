@@ -18,6 +18,9 @@ import com.logicbus.dbcp.ConnectionPoolStat;
  * ConnectionPool实现
  * @author duanyy
  * @since 1.2.5
+ * 
+ * @version 1.2.6.3 [20140815 duanyy]
+ * - 配合基础类库Pool修改
  */
 public class ConnectionPoolImpl extends QueuedPool<Connection> implements ConnectionPool {
 	protected ConnectionModel model = null;
@@ -84,8 +87,8 @@ public class ConnectionPoolImpl extends QueuedPool<Connection> implements Connec
 	
 	protected void visited(long duration, boolean isNull) {
 		if (stat != null) {
-			stat.visited(getCreatingQueueLength(),getWorkingQueueLength(), getIdleQueueLength(),
-					getWaitQueueLength(), duration, isNull);
+			stat.visited(getCreatingCnt(),getWorkingCnt(), getIdleCnt(),
+					getWaitCnt(), duration, isNull);
 		}
 	}
 

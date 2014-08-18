@@ -24,6 +24,8 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.2.6 [20140807 duanyy]
  * - 实现ServantPool接口
  * 
+ * @version 1.2.6.3 [20140815 duanyy]
+ * - 配合基础类库Pool修改
  */
 public class QueuedServantPool extends QueuedPool<Servant> implements ServantPool{
 	/**
@@ -107,7 +109,8 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 		logger.info("Id:" + m_desc.getServiceID());
 		logger.info("Name:" + m_desc.getName());
 		logger.info("Module:" + m_desc.getModule());
-		logger.info("Pool Size:" + getMaxQueueLength());		
+		logger.info("MaxActive:" + getMaxActive());
+		logger.info("MaxIdle:" + getMaxIdle());
 	}	
 	
 	/**
@@ -128,9 +131,9 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 	 * @param code 本次访问的错误代码
 	 */
 	public void visited(long duration,String code){
-		m_stat.setWaitCnt(lockStat.getQueueLength() + getWaitQueueLength());
-		m_stat.setIdleCnt(getIdleQueueLength());
-		m_stat.setWorkingCnt(getWorkingQueueLength());
+		m_stat.setWaitCnt(lockStat.getQueueLength() + getWaitCnt());
+		m_stat.setIdleCnt(getIdleCnt());
+		m_stat.setWorkingCnt(getWorkingCnt());
 		lockStat.lock();
 		try{
 			m_stat.visited(duration,code);
@@ -200,7 +203,6 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 			e.printStackTrace();
 			throw new ServantException("core.error_module",e.getMessage());
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new ServantException("core.error_remote_module",e.getMessage());
 		}
