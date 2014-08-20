@@ -45,6 +45,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @version 1.2.6 [20140807 duanyy] <br>
  * - ServantPool和ServantFactory插件化
+ * 
+ * @version 1.2.6.4 [20140820 duanyy] <br>
+ * - 修正servant实例无法获取到，抛出NullPointException问题
+ * 
  */
 public class MessageRouter {
 	
@@ -89,19 +93,23 @@ public class MessageRouter {
 			}
 
 			servant = pool.borrowObject(priority);
-
-			if (!threadMode){
-				//在非线程模式下,不支持服务超时
-				execute(servant,mDoc,ctx);
+			if (servant == null){
+				logger.warn("Can not get a servant from pool in the limited time,check servant.queueTimeout variable.");
+				mDoc.setReturn("core.time_out", "Can not get a servant from pool in the limited time,check servant.queueTimeout variable.");
 			}else{
-				CountDownLatch latch = new CountDownLatch(1);
-				ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx,latch);
-				thread.start();
-				if (!latch.await(servant.getTimeOutValue(), TimeUnit.MILLISECONDS)){
-					mDoc.setReturn("core.time_out","Time out or interrupted.");
+				if (!threadMode){
+					//在非线程模式下,不支持服务超时
+					execute(servant,mDoc,ctx);
+				}else{
+					CountDownLatch latch = new CountDownLatch(1);
+					ServantWorkerThread thread = new ServantWorkerThread(servant,mDoc,ctx,latch);
+					thread.start();
+					if (!latch.await(servant.getTimeOutValue(), TimeUnit.MILLISECONDS)){
+						mDoc.setReturn("core.time_out","Time out or interrupted.");
+					}
+					thread = null;
 				}
-				thread = null;
-			}			
+			}
 		}catch (ServantException ex){
 			mDoc.setReturn(ex.getCode(), ex.getMessage());
 			logger.error(ex.getCode() + ":" + ex.getMessage());

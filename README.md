@@ -112,3 +112,4 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
      + 优化JMS框架(1.2.6.1)
      + 优化ACM访问控制模型的缺省模型存储机制(1.2.6.2)
      + 配合基础类库Pool的修改(1.2.6.3)
+     + MessageRouter:修正servant实例无法获取到，抛出NullPointException问题(1.2.6.4)
