@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<logger 
+	module="com.anysoft.stream.DispatchHandler<BizLogItem>" 
+	report.enable="true" 
+	report.cycle="3600000"
+	async="false"
+>
+	<logger 
+		module="com.logicbus.backend.bizlog.Log4jBizLogger"
+		delimeter="%%"
+		billing="true"
+		log4j.file="${bizlog.home}/bizlog${server.port}_${thread}.log"
+		log4j.datePattern="'.'yyyy-MM-dd-HH-mm"
+		log4j.encoding="${http.encoding}"
+		log4j.bufferSize="10240"
+		log4j.bufferedIO="true"
+		log4j.immediateFlush="false"
+		
+		report.enable="false"
+		
+		async="true"
+		async.interval="1000"
+		async.maxQueueLength="4096"
+	/>
+</logger>

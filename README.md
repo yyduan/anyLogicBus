@@ -114,3 +114,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
      + 配合基础类库Pool的修改(1.2.6.3)
      + MessageRouter:修正servant实例无法获取到，抛出NullPointException问题(1.2.6.4)
      + LogicBusApp:增加onInit/onDestroy事件，以便子类更好的进行初始化和销毁(1.2.6.5)
+     
+ - 1.2.7 [20140829 duanyy]
+	 + 重写BigLogger(1.2.7)
+ 	 

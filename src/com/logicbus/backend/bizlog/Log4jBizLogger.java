@@ -5,42 +5,71 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
+import org.w3c.dom.Element;
 
+import com.anysoft.stream.AbstractHandler;
+import com.anysoft.util.BaseException;
 import com.anysoft.util.DefaultProperties;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
-import com.logicbus.backend.BizLogItem;
-
 
 /**
- * 输出到Log4j的BizLogger
- * 
+ * 基于Log4j的BizLogger
  * @author duanyy
- *
- * @since 1.2.3
+ * @version 1.2.7 [20140828 duanyy] <br>
+ * - 重写BizLogger
  */
-public class Log4jBizLogger extends AbstractBizLogger {
+public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLogger {
+
+	/**
+	 * a logger of log4j
+	 */
 	protected Logger logger = null;
+	
+	/**
+	 * 线程id
+	 */
 	protected int thread = 0;
-	public Log4jBizLogger(Properties props) {
-		super(props);
-
-		thread = PropertiesConstants.getInt(props, "thread", 0);
-				
-		delimeter = PropertiesConstants.getString(props,
-				"bizlog.log4j.delimeter", delimeter);
-		
-		isBilling = PropertiesConstants.getBoolean(props, 
-				"bizlog.isBilling", isBilling);
-	}
-
+	
+	/**
+	 * 输出间隔符
+	 */
 	protected String delimeter = "%%";
+	
+	/**
+	 * 计费标志
+	 */
 	protected boolean isBilling = true;
+	
+	/**
+	 * 单条记录的缓存
+	 */
 	protected StringBuffer buf = new StringBuffer();
 	
+	/**
+	 * log4j的变量集模板
+	 */
+	protected DefaultProperties log4jProperties = null;
+	
 	@Override
-	protected void onLog(BizLogItem item) {
+	protected void onConfigure(Element _e, Properties p) throws BaseException {
+		thread = PropertiesConstants.getInt(p, "thread", 0);
+		delimeter = PropertiesConstants.getString(p,"delimeter", delimeter);
+		isBilling = PropertiesConstants.getBoolean(p,"billing", isBilling);
+		
+		log4jProperties = new DefaultProperties("Default",Settings.get());
+		log4jProperties.SetValue("thread", String.valueOf(thread));
+		log4jProperties.SetValue("file",p.GetValue("log4j.file", "${bizlog.home}/bizlog${server.port}_${thread}.log", false));
+		log4jProperties.SetValue("datePattern",p.GetValue("log4j.datePattern", "'.'yyyy-MM-dd-HH-mm", false));
+		log4jProperties.SetValue("encoding",p.GetValue("log4j.encoding", "${http.encoding}", false));
+		log4jProperties.SetValue("bufferSize",p.GetValue("log4j.bufferSize", "10240", false));
+		log4jProperties.SetValue("bufferedIO",p.GetValue("log4j.bufferedIO", "true", false));
+		log4jProperties.SetValue("immediateFlush",p.GetValue("log4j.immediateFlush", "false", false));
+	}
+
+	@Override
+	protected void onHandle(BizLogItem item) {
 		buf.setLength(0);
 		
 		buf.append(isBilling?1:0).append(delimeter)
@@ -60,32 +89,32 @@ public class Log4jBizLogger extends AbstractBizLogger {
 		}
 
 		if (logger == null){
-			Properties props = new DefaultProperties("Default",Settings.get());
-			props.SetValue("thread", String.valueOf(thread));
-			logger = initLogger(props);
+			synchronized (this){
+				logger = initLogger(log4jProperties);
+			}
 		}
 		
 		logger.info(buf.toString());
 	}
-	
+
 	private Logger initLogger(Properties props) {
 		Logger _logger = LogManager.getLogger(Log4jBizLogger.class.getName() + "." + thread);
 		_logger.setAdditivity(false);
 		
 		DailyRollingFileAppender myAppender = new DailyRollingFileAppender();
 		myAppender.setFile(PropertiesConstants.getString(props,
-				"bizlog.log4j.file",
-				"${bizlog.home}/bizlog${server.port}_${thread}.log"));
+				"file",
+				"${bizlog.home}/bizlog${server.port}_${thread}.log",true));
 		myAppender.setDatePattern(PropertiesConstants.getString(props,
-				"bizlog.log4j.datePattern", "'.'yyyy-MM-dd-HH-mm"));
+				"datePattern", "'.'yyyy-MM-dd-HH-mm",true));
 		myAppender.setEncoding(PropertiesConstants.getString(props,
-				"bizlog.log4j.encoding", "${http.encoding}"));
+				"encoding", "${http.encoding}",true));
 		myAppender.setBufferSize(PropertiesConstants.getInt(props,
-				"bizlog.log4j.bufferSize", 10240));
+				"bufferSize", 10240,true));
 		myAppender.setBufferedIO(PropertiesConstants.getBoolean(props,
-				"bizlog.log4j.bufferedIO", true));
+				"bufferedIO", true,true));
 		myAppender.setImmediateFlush(PropertiesConstants.getBoolean(props,
-				"bizlog.log4j.immediateFlush", false));
+				"immediateFlush", false,true));
 		myAppender.setLayout(new MyLayout());
 		myAppender.setName(Log4jBizLogger.class.getName() + "." + thread);
 		
@@ -95,6 +124,11 @@ public class Log4jBizLogger extends AbstractBizLogger {
 		return _logger;
 	}
 
+	@Override
+	protected void onFlush() {
+		//no buffer
+	}
+	
 	/**
 	 * 自定义的Layout
 	 * 
@@ -120,6 +154,9 @@ public class Log4jBizLogger extends AbstractBizLogger {
 		public boolean ignoresThrowable() {
 			return true;
 		}
-		
+	}
+	
+	public static void main(String [] args){
+		System.out.println(BizLogger.Dispatch.class.getName());
 	}
 }

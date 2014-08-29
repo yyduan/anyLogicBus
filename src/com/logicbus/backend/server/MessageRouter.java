@@ -9,8 +9,6 @@ import org.apache.log4j.Logger;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
-import com.logicbus.backend.BizLogItem;
-import com.logicbus.backend.BizLogger;
 import com.logicbus.backend.Context;
 import com.logicbus.backend.QueuedServantFactory;
 import com.logicbus.backend.Servant;
@@ -18,7 +16,8 @@ import com.logicbus.backend.ServantException;
 import com.logicbus.backend.ServantFactory;
 import com.logicbus.backend.ServantPool;
 import com.logicbus.backend.ServantWorkerThread;
-import com.logicbus.backend.bizlog.DefaultBizLogger;
+import com.logicbus.backend.bizlog.BizLogItem;
+import com.logicbus.backend.bizlog.BizLogger;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
@@ -49,6 +48,8 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.2.6.4 [20140820 duanyy] <br>
  * - 修正servant实例无法获取到，抛出NullPointException问题
  * 
+ * @version 1.2.7 [20140828 duanyy] <br>
+ * - 重写BizLogger
  */
 public class MessageRouter {
 	
@@ -160,7 +161,7 @@ public class MessageRouter {
 		item.url = ctx.getRequestURI();
 		item.content = logType == ServiceDescription.LogType.detail ? mDoc.toString() : null;
 		
-		bizLogger.log(item);
+		bizLogger.handle(item);
 				
 		return 0;
 	}
@@ -182,9 +183,6 @@ public class MessageRouter {
 		threadMode = PropertiesConstants.getBoolean(settings, "servant.threadMode", true);
 		
 		bizLogger = (BizLogger) settings.get("bizLogger");
-		if (bizLogger == null){
-			bizLogger = new DefaultBizLogger(settings);
-		}
 		
 		servantFactory = (ServantFactory) settings.get("servantFactory");
 		if (servantFactory == null){

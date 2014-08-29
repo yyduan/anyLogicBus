@@ -16,13 +16,12 @@ import com.anysoft.util.XmlTools;
 import com.anysoft.util.resource.ResourceFactory;
 import com.anysoft.webloader.WebApp;
 import com.logicbus.backend.AccessController;
-import com.logicbus.backend.BizLogger;
 import com.logicbus.backend.DefaultNormalizer;
 import com.logicbus.backend.IpAndServiceAccessController;
 import com.logicbus.backend.Normalizer;
 import com.logicbus.backend.QueuedServantFactory;
 import com.logicbus.backend.ServantFactory;
-import com.logicbus.backend.bizlog.DefaultBizLogger;
+import com.logicbus.backend.bizlog.BizLogger;
 import com.logicbus.backend.timer.TimerManager;
 
 
@@ -42,6 +41,8 @@ import com.logicbus.backend.timer.TimerManager;
  * @version 1.2.6.5 [20140828 duanyy] <br>
  * - 增加onInit/onDestroy事件，以便子类更好的进行初始化和销毁. <br>
  * 
+ * @version 1.2.7 [20140828 duanyy] <br>
+ * - 重写BizLogger
  */
 public class LogicBusApp implements WebApp {
 	/**
@@ -89,24 +90,20 @@ public class LogicBusApp implements WebApp {
 		}
 		//初始化BizLogger
 		{
-			String bizLoggerClass = PropertiesConstants.getString(settings, "bizlog.logger", "com.logicbus.backend.bizlog.DefaultBizLogger");
-			logger.info("BizLogger is initializing,module:" + bizLoggerClass);								
-			BizLogger bizLogger = null;
-			try {
-				BizLogger.TheFactory factory = new BizLogger.TheFactory();
-				bizLogger = factory.newInstance(bizLoggerClass, settings);
-			}catch (Throwable t){
-				bizLogger = new DefaultBizLogger(settings);
-				logger.error("Failed to initialize bizLogger.Using default:" + DefaultBizLogger.class.getName());				
-			}
-			settings.registerObject("bizLogger", bizLogger);
-						
 			String bizLogHome = PropertiesConstants.getString(settings, "bizlog.home", "");
 			if (bizLogHome == null || bizLogHome.length() <= 0){
 				logger.info("bizlog.home is not set.Set it to /var/log/bizlog");
 				settings.SetValue("bizlog.home","var/log/bizlog");
 			}
+			BizLogger bizLogger = BizLogger.TheFactory.getLogger(settings);
+			if (bizLogger != null){
+				logger.info("BizLogger is initialized,module:" + bizLogger.getClass().getName());
+				settings.registerObject("bizLogger", bizLogger);
+			}else{
+				logger.error("Can not create a bizlogger instance..");
+			}
 		}
+
 		//初始化servantFactory
 		{
 			String sfClass = PropertiesConstants.getString(settings, "servant.factory", "com.logicbus.backend.QueuedServantFactory");
@@ -213,21 +210,13 @@ public class LogicBusApp implements WebApp {
 		ServantFactory sf = (ServantFactory)settings.get("servantFactory");
 		if (sf != null){
 			logger.info("The servantFactory is closing..");
-			try {
-				sf.close();
-			}catch (Throwable t){
-				
-			}
+			IOTools.close(sf);
 		}
 
 		BizLogger bizLogger = (BizLogger)settings.get("bizLogger");
 		if (bizLogger != null){
 			logger.info("The bizLogger is closing..");
-			try {
-				bizLogger.close();
-			}catch (Throwable t){
-				
-			}
+			IOTools.close(bizLogger);
 		}
 	}
 	@Override
