@@ -50,6 +50,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @version 1.2.7 [20140828 duanyy] <br>
  * - 重写BizLogger
+ * 
+ * @version 1.2.7.1 [20140902 duanyy] <br>
+ * - BizLogItem去掉host属性
+ * 
  */
 public class MessageRouter {
 	
@@ -153,7 +157,7 @@ public class MessageRouter {
 		item.id = id.toString();
 		item.client = sessionId;
 		item.clientIP = ctx.getClientIp();
-		item.host = ctx.getHost();
+		//item.host = ctx.getHost();
 		item.result = mDoc.getReturnCode();
 		item.reason = mDoc.getReason();
 		item.startTime = mDoc.getStartTime();

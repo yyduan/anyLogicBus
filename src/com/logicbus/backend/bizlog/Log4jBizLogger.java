@@ -19,6 +19,9 @@ import com.anysoft.util.Settings;
  * @author duanyy
  * @version 1.2.7 [20140828 duanyy] <br>
  * - 重写BizLogger
+ * 
+ * @version 1.2.7.1 [20140902 duanyy] <br>
+ * - 增加app信息的输出
  */
 public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLogger {
 
@@ -52,11 +55,26 @@ public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLo
 	 */
 	protected DefaultProperties log4jProperties = null;
 	
+	/**
+	 * 应用
+	 * 
+	 * @since 1.2.7.1
+	 */
+	protected String app;
+	
+	/**
+	 * 服务主机(ip:port)
+	 * 
+	 * @since 1.2.7.1
+	 */
+	protected String host;
+	
 	@Override
 	protected void onConfigure(Element _e, Properties p) throws BaseException {
 		thread = PropertiesConstants.getInt(p, "thread", 0);
 		delimeter = PropertiesConstants.getString(p,"delimeter", delimeter);
 		isBilling = PropertiesConstants.getBoolean(p,"billing", isBilling);
+		app = PropertiesConstants.getString(p, "app", "${server.app}");
 		
 		log4jProperties = new DefaultProperties("Default",Settings.get());
 		log4jProperties.SetValue("thread", String.valueOf(thread));
@@ -70,12 +88,19 @@ public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLo
 
 	@Override
 	protected void onHandle(BizLogItem item) {
+		if (logger == null){
+			synchronized (this){
+				host = log4jProperties.GetValue("host", "${server.host}:${server.port}");
+				logger = initLogger(log4jProperties);
+			}
+		}		
 		buf.setLength(0);
 		
 		buf.append(isBilling?1:0).append(delimeter)
 		.append(item.sn).append(delimeter)
 		.append(item.startTime).append(delimeter)
-		.append(item.host).append(delimeter)
+		.append(app).append(delimeter)
+		.append(host).append(delimeter)
 		.append(item.clientIP).append(delimeter)
 		.append(item.client).append(delimeter)
 		.append(item.duration).append(delimeter)
@@ -87,13 +112,6 @@ public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLo
 		if (item.content != null && item.content.length() > 0){
 			buf.append(item.content.replaceAll("\n", "").replaceAll("\r",""));
 		}
-
-		if (logger == null){
-			synchronized (this){
-				logger = initLogger(log4jProperties);
-			}
-		}
-		
 		logger.info(buf.toString());
 	}
 

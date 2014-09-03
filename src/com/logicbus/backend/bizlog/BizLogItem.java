@@ -13,6 +13,9 @@ import com.anysoft.stream.Flowable;
  * 
  * @version 1.2.7 [20140828 duanyy] <br>
  * - 通过com.anysoft.stream来实现
+ * 
+ * @version 1.2.7.1 [20140902 duanyy] <br>
+ * - 出于节约内存的考虑，去掉host属性
  */
 public class BizLogItem implements Comparable<BizLogItem>,Flowable {
 	
@@ -39,7 +42,7 @@ public class BizLogItem implements Comparable<BizLogItem>,Flowable {
 	/**
 	 * 服务主机
 	 */
-	public String host;
+	//public String host;
 	
 	/**
 	 * 结果代码
