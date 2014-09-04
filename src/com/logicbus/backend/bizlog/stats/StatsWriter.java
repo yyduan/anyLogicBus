@@ -9,6 +9,10 @@ import com.anysoft.stream.AbstractHandler;
  * @author duanyy
  *
  * @since 1.2.7.1
+ * 
+ * @version 1.2.7.2 [20140903 duanyy]
+ * - 优化BizLogStatsItem数据结构
+ * 
  */
 abstract public class StatsWriter extends AbstractHandler<BizLogStatsItem> {
 	protected Hashtable<String,BizLogStatsItem> stats = new Hashtable<String,BizLogStatsItem>();
@@ -20,7 +24,7 @@ abstract public class StatsWriter extends AbstractHandler<BizLogStatsItem> {
 		if (found == null){
 			stats.put(key, _data);
 		}else{
-			found.incr(_data.times, _data.duration);
+			found.incr(_data.times,_data.errorTimes,_data.duration);
 		}
 	}
 

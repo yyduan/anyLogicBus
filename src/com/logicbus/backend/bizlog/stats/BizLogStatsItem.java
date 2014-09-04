@@ -13,22 +13,27 @@ import com.anysoft.util.JsonTools;
  * @author duanyy
  *
  * @since 1.2.7.1
+ * 
+ * @version 1.2.7.2 [20140903 duanyy]
+ * - 将hasError属性修改为errorTimes;
  */
 public class BizLogStatsItem implements Comparable<BizLogStatsItem>,Flowable,JsonSerializer{
 	/**
 	 * 服务Id
 	 */
 	protected String serviceId;
-	
-	/**
-	 * 是否调用错误
-	 */
-	protected boolean hasError;
 
 	/**
 	 * 调用次数
 	 */
 	protected long times = 0;
+
+	/**
+	 * 错误次数
+	 * 
+	 * @since 1.2.7.2
+	 */
+	protected long errorTimes = 0;
 	
 	/**
 	 * 调用总时长
@@ -40,9 +45,8 @@ public class BizLogStatsItem implements Comparable<BizLogStatsItem>,Flowable,Jso
 	 */
 	protected String app;
 	
-	public BizLogStatsItem(String _serviceId,boolean _hasError){
+	public BizLogStatsItem(String _serviceId){
 		serviceId = _serviceId;
-		hasError = _hasError;
 	}
 	
 	public BizLogStatsItem app(final String _app){
@@ -55,14 +59,10 @@ public class BizLogStatsItem implements Comparable<BizLogStatsItem>,Flowable,Jso
 		return this;
 	}
 	
-	public BizLogStatsItem hasError(final boolean _hasError){
-		hasError = _hasError;
-		return this;
-	}
-	
-	public BizLogStatsItem incr(final long _times,final double _duration){
-		times = _times;
-		duration = _duration;
+	public BizLogStatsItem incr(final long _times,final long _errorTimes,final double _duration){
+		times += _times;
+		errorTimes += _errorTimes;
+		duration += _duration;
 		return this;
 	}
 	
@@ -89,18 +89,12 @@ public class BizLogStatsItem implements Comparable<BizLogStatsItem>,Flowable,Jso
 
 	@Override
 	public String getStatsDimesion() {
-		return serviceId + "%" + (hasError ? 1 : 0);
+		return serviceId;
 	}
 
 	@Override
 	public int compareTo(BizLogStatsItem o) {
-		int ret = serviceId.compareTo(o.serviceId);
-		
-		if (ret == 0){
-			ret = (hasError == o.hasError) ? 1:0;
-		}
-		
-		return ret;
+		return serviceId.compareTo(o.serviceId);
 	}
 	
 	public int hashCode(){
@@ -111,8 +105,8 @@ public class BizLogStatsItem implements Comparable<BizLogStatsItem>,Flowable,Jso
 	@Override
 	public void toJson(Map json) {
 		JsonTools.setString(json,"service",serviceId);
-		JsonTools.setBoolean(json, "error", hasError);
 		JsonTools.setLong(json, "times", times);
+		JsonTools.setLong(json, "error", errorTimes);
 		JsonTools.setDouble(json, "duration", duration);
 	}
 
@@ -120,8 +114,8 @@ public class BizLogStatsItem implements Comparable<BizLogStatsItem>,Flowable,Jso
 	@Override
 	public void fromJson(Map json) {
 		serviceId = JsonTools.getString(json, "service", "");
-		hasError = JsonTools.getBoolean(json, "error", false);
 		times = JsonTools.getLong(json, "times", 0);
+		errorTimes = JsonTools.getLong(json, "error", 0);
 		duration = JsonTools.getDouble(json, "duration", 0);
 	}
 }

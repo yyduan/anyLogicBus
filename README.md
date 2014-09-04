@@ -118,4 +118,8 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  - 1.2.7 [20140829 duanyy]
 	 + 重写BigLogger(1.2.7)
 	 + 增加BizLogger数据统计框架(1.2.7.1)
+ 	 + 增加BizLogger的pause和resume的控制服务(1.2.7.2)
+ 	 + 优化BizLogger的统计模型(1.2.7.2)
+ 	 + 增加核心服务BizLoggerPause,用于暂停BizLogger的处理(1.2.7.2)
+ 	 + 增加核心服务BizLoggerResume,用于恢复BizLogger的处理(1.2.7.2)
  	 

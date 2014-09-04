@@ -16,52 +16,64 @@ import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
 import com.logicbus.models.servant.ServiceDescription;
 
-public class BizLogReport extends AbstractServant{
+/**
+ * 暂停BizLogger的处理
+ * 
+ * @author duanyy
+ *
+ * @since 1.2.7.2
+ */
+public class BizLoggerPause extends AbstractServant {
 
 	@Override
 	protected void onDestroy() {
+
 	}
 
 	@Override
-	protected void onCreate(ServiceDescription sd) throws ServantException{
+	protected void onCreate(ServiceDescription sd) throws ServantException {
+
 	}
 
 	@Override
-	protected int onXml(MessageDoc msgDoc, Context ctx) throws Exception{
+	protected int onXml(MessageDoc msgDoc, Context ctx) throws Exception {
 		XMLMessage msg = (XMLMessage) msgDoc.asMessage(XMLMessage.class);
 		
 		Settings settings = Settings.get();
 		
 		BizLogger bizLogger = (BizLogger) settings.get("bizLogger");
 		
-		Element root = msg.getRoot();
-		Document doc = root.getOwnerDocument();
-		
-		Element logger = doc.createElement(bizLogger.getHandlerType());
-		
-		bizLogger.report(logger);
-		
-		root.appendChild(logger);
+		if (bizLogger != null){
+			bizLogger.pause();
+			
+			Element root = msg.getRoot();
+			Document doc = root.getOwnerDocument();
+			
+			Element logger = doc.createElement(bizLogger.getHandlerType());
+			bizLogger.report(logger);
+			root.appendChild(logger);
+		}
 		return 0;
 	}
 
 	@Override
-	protected int onJson(MessageDoc msgDoc, Context ctx) throws Exception{
+	protected int onJson(MessageDoc msgDoc, Context ctx) throws Exception {
 		JsonMessage msg = (JsonMessage)msgDoc.asMessage(JsonMessage.class);
 		
 		Settings settings = Settings.get();
 		
 		BizLogger bizLogger = (BizLogger) settings.get("bizLogger");
 		
-		Map<String,Object> root = msg.getRoot();
-	
-		Map<String,Object> logger = new HashMap<String,Object>();
+		if (bizLogger != null){
+			bizLogger.pause();
+			
+			Map<String,Object> root = msg.getRoot();
 		
-		bizLogger.report(logger);
-		
-		root.put(bizLogger.getHandlerType(), logger);
+			Map<String,Object> logger = new HashMap<String,Object>();	
+			bizLogger.report(logger);
+			root.put(bizLogger.getHandlerType(), logger);
+		}
 		return 0;
 	}
-
 
 }

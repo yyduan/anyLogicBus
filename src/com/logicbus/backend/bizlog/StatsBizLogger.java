@@ -16,6 +16,10 @@ import com.logicbus.backend.bizlog.stats.BizLogStatsItem;
  * @author duanyy
  * 
  * @since 1.2.7.1
+ * 
+ * @version 1.2.7.2 [20140903 duanyy]
+ * - 优化BizLogStatsItem数据结构
+ * 
  */
 public class StatsBizLogger extends AbstractHandler<BizLogItem> implements
 		BizLogger {
@@ -25,7 +29,7 @@ public class StatsBizLogger extends AbstractHandler<BizLogItem> implements
 	protected void onHandle(BizLogItem _data) {
 		if (handler != null){
 			BizLogStatsItem statsItem = 
-					(new BizLogStatsItem(_data.id,_data.result.equals("core.ok"))).incr(1, _data.duration);
+					(new BizLogStatsItem(_data.id)).incr(1,_data.result.equals("core.ok")?1:0, _data.duration);
 	
 			handler.handle(statsItem);
 		}

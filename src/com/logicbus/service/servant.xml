@@ -80,6 +80,22 @@
 			module="com.logicbus.service.BizLogReport"
 		/>		
 		<service 
+			id="BizLoggerPause" 
+			name="BizLoggerPause" 
+			note="暂停BizLogger的处理"
+			visible="public"
+			log = "none" 
+			module="com.logicbus.service.BizLoggerPause"
+		/>		
+		<service 
+			id="BizLoggerResume" 
+			name="BizLoggerResume" 
+			note="恢复BizLogger的处理"
+			visible="public"
+			log = "none" 
+			module="com.logicbus.service.BizLoggerResume"
+		/>						
+		<service 
 			id="EnvQuery" 
 			name="EnvQuery" 
 			note="查询JVM环境变量"
