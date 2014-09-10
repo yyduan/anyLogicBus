@@ -23,11 +23,9 @@ import com.logicbus.models.catalog.Path;
 public class AppProxyNormalizer implements Normalizer {
 
 	protected String proxyServiceId = "/core/AppProxy";
-	protected String proxyPath = "/services/";
 	
 	public AppProxyNormalizer(Properties p){
 		proxyServiceId = PropertiesConstants.getString(p, "normalizer.appproxy.id", proxyServiceId);
-		proxyPath = PropertiesConstants.getString(p, "normalizer.appproxy.path", proxyPath);
 	}
 	
 	@Override
@@ -67,6 +65,7 @@ public class AppProxyNormalizer implements Normalizer {
 				}
 			}else{
 				if (path.charAt(i) == '/'){
+					found = i;
 					break;
 				}
 			}

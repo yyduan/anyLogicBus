@@ -125,4 +125,5 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 + LogicBusApp:去掉Normalizer，将Normalizer降级为Servlet级别对象(1.2.7.2)
  	 + Normalizer:增加代理URL语法的解析实现（ProxyNormalizer和AppProxyNormalizer）(1.2.7.2)
  	 + 增加核心服务Proxy,用于服务代理(1.2.7.2)
+ 	 + 修正bizlog日志中client的取值(1.2.7.2)
  	 

@@ -54,6 +54,8 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.2.7.1 [20140902 duanyy] <br>
  * - BizLogItem去掉host属性
  * 
+ * @version 1.2.7.2 [20140910 duanyy] <br>
+ * - 修正bizlog日志中client的取值
  */
 public class MessageRouter {
 	
@@ -155,8 +157,9 @@ public class MessageRouter {
 		
 		item.sn = ctx.getGlobalSerial();
 		item.id = id.toString();
-		item.client = sessionId;
 		item.clientIP = ctx.getClientIp();
+		//当无法取到sessionId时，直接取ip(当服务找不到时)
+		item.client = sessionId != null && sessionId.length() > 0 ? sessionId : item.clientIP;
 		//item.host = ctx.getHost();
 		item.result = mDoc.getReturnCode();
 		item.reason = mDoc.getReason();
