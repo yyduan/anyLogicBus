@@ -29,7 +29,7 @@ public class StatsBizLogger extends AbstractHandler<BizLogItem> implements
 	protected void onHandle(BizLogItem _data) {
 		if (handler != null){
 			BizLogStatsItem statsItem = 
-					(new BizLogStatsItem(_data.id)).incr(1,_data.result.equals("core.ok")?1:0, _data.duration);
+					(new BizLogStatsItem(_data.id)).incr(1,_data.result.equals("core.ok")?0:1, _data.duration);
 	
 			handler.handle(statsItem);
 		}

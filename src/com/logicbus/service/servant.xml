@@ -64,6 +64,21 @@
 			module="com.logicbus.service.AclQuery"
 		/>
 		<service 
+			id="Proxy" 
+			name="Proxy" 
+			note="代理服务"
+			visible="protected"
+			log = "brief" 
+			module="com.logicbus.service.Proxy"
+		>
+				<properties>
+					<parameter id="proxy.path" value="/services/"/>
+					<parameter id="proxy.forwarded" value="false"/>
+					<parameter id="proxy.forwarded.header" value="${http.forwardedheader}"/>
+					<parameter id="proxy.scheme" value="http"/>
+				</properties>
+		</service>		
+		<service 
 			id="TokenDestroy" 
 			name="TokenDestroy" 
 			note="删除Token"

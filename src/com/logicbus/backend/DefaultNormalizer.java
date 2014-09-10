@@ -2,6 +2,7 @@ package com.logicbus.backend;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.anysoft.util.Properties;
 import com.logicbus.models.catalog.Path;
 
 
@@ -9,9 +10,15 @@ import com.logicbus.models.catalog.Path;
  * 缺省实现的Normalizer
  * 
  * @author duanyy
- *
+ * 
+ * @version 1.2.7.2 [20140910 duanyy] <br>
+ * - 增加基于Properties的构造函数
  */
 public class DefaultNormalizer implements Normalizer {
+
+	public DefaultNormalizer(Properties settings) {
+
+	}
 
 	@Override
 	public Path normalize(Context ctx, HttpServletRequest request) {

@@ -41,6 +41,9 @@ import com.logicbus.models.catalog.Path;
  * 
  * @version 1.2.6 [20140807 duanyy] <br>
  * - ServantPool和ServantFactory插件化
+ * 
+ * @version 1.2.7.2 [20140910 duanyy] <br>
+ * - Normalizer降级为Servlet级别对象
  */
 public class MessageRouterServletHandler implements ServletHandler {
 	/**
@@ -77,12 +80,24 @@ public class MessageRouterServletHandler implements ServletHandler {
 	public void init(ServletConfig servletConfig) throws ServletException {
 		Settings settings = Settings.get();
 		encoding = settings.GetValue("http.encoding", encoding);
-		defaultAllowOrigin = settings.GetValue("http.alloworigin", defaultAllowOrigin);
+		defaultAllowOrigin = settings.GetValue("http.alloworigin",
+				defaultAllowOrigin);
 		ac = (AccessController) settings.get("accessController");
-		
-		normalizer = (Normalizer) settings.get("normalizer");
-		if (normalizer == null){
-			normalizer = new DefaultNormalizer();
+
+		String normalizerClass = servletConfig.getInitParameter("normalizer");
+		normalizerClass = normalizerClass == null
+				|| normalizerClass.length() <= 0 ? "com.logicbus.backend.DefaultNormalizer"
+				: normalizerClass;
+
+		logger.info("Normalizer is initializing,module:" + normalizerClass);
+		try {
+			Normalizer.TheFactory ncf = new Normalizer.TheFactory(
+					Settings.getClassLoader());
+			normalizer = ncf.newInstance(normalizerClass,settings);
+		} catch (Throwable t) {
+			normalizer = new DefaultNormalizer(settings);
+			logger.error("Failed to initialize Normalizer.Using default:"
+					+ DefaultNormalizer.class.getName());
 		}
 	}
 

@@ -16,9 +16,7 @@ import com.anysoft.util.XmlTools;
 import com.anysoft.util.resource.ResourceFactory;
 import com.anysoft.webloader.WebApp;
 import com.logicbus.backend.AccessController;
-import com.logicbus.backend.DefaultNormalizer;
 import com.logicbus.backend.IpAndServiceAccessController;
-import com.logicbus.backend.Normalizer;
 import com.logicbus.backend.QueuedServantFactory;
 import com.logicbus.backend.ServantFactory;
 import com.logicbus.backend.bizlog.BizLogger;
@@ -72,22 +70,7 @@ public class LogicBusApp implements WebApp {
 			}
 			settings.registerObject("accessController", ac);
 		}
-		//初始化Normalizer
-		{
-			String normalizerClass = settings.GetValue("normalizer.module", 
-				"com.logicbus.backend.DefaultNormalizer");
-			
-			logger.info("Normalizer is initializing,module:" + normalizerClass);
-			Normalizer normalizer = null;
-			try {
-				Normalizer.TheFactory ncf = new Normalizer.TheFactory(classLoader);
-				normalizer = ncf.newInstance(normalizerClass);
-			}catch (Throwable t){
-				normalizer = new DefaultNormalizer();
-				logger.error("Failed to initialize Normalizer.Using default:" + DefaultNormalizer.class.getName());
-			}
-			settings.registerObject("normalizer", normalizer);
-		}
+
 		//初始化BizLogger
 		{
 			String bizLogHome = PropertiesConstants.getString(settings, "bizlog.home", "");
