@@ -51,6 +51,7 @@ public class Proxy extends Servant {
 		try {
 			buf.resetMessage(msg,ctx.getGlobalSerial());
 			client.invoke(url,null,buf,buf);
+			msg.setContentType(buf.getContentType());
 		}catch (Exception ex){
 			throw ex;
 		}
