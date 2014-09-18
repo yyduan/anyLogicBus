@@ -8,6 +8,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import com.anysoft.stream.Handler;
 import com.anysoft.util.DefaultProperties;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.PropertiesConstants;
@@ -20,6 +21,8 @@ import com.logicbus.backend.IpAndServiceAccessController;
 import com.logicbus.backend.QueuedServantFactory;
 import com.logicbus.backend.ServantFactory;
 import com.logicbus.backend.bizlog.BizLogger;
+import com.logicbus.backend.stats.core.Fragment;
+import com.logicbus.backend.stats.core.MetricsHandler;
 import com.logicbus.backend.timer.TimerManager;
 
 
@@ -41,6 +44,10 @@ import com.logicbus.backend.timer.TimerManager;
  * 
  * @version 1.2.7 [20140828 duanyy] <br>
  * - 重写BizLogger
+ * 
+ * @version 1.2.8 [20140914 duanyy] <br>
+ * - 增加指标收集体系
+ * 
  */
 public class LogicBusApp implements WebApp {
 	/**
@@ -84,6 +91,18 @@ public class LogicBusApp implements WebApp {
 				settings.registerObject("bizLogger", bizLogger);
 			}else{
 				logger.error("Can not create a bizlogger instance..");
+			}
+		}
+		
+		//初始化MetricsHandler
+		// since 1.2.8
+		{
+			Handler<Fragment> handler = MetricsHandler.TheFactory.getInstance(settings);
+			if (handler != null){
+				logger.info("MetricsHandler is initalized,module:" + handler.getClass().getName());
+				settings.registerObject("metricsHandler", handler);
+			}else{
+				logger.error("Can not create a metrics handler instance.");
 			}
 		}
 
@@ -200,6 +219,13 @@ public class LogicBusApp implements WebApp {
 		if (bizLogger != null){
 			logger.info("The bizLogger is closing..");
 			IOTools.close(bizLogger);
+		}
+		
+		// since 1.2.8
+		MetricsHandler metricsHandler = (MetricsHandler)settings.get("metricsHandler");
+		if (metricsHandler != null){
+			logger.info("The metrics handler is closing..");
+			IOTools.close(metricsHandler);
 		}
 	}
 	@Override

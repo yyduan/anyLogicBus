@@ -126,4 +126,10 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 + Normalizer:增加代理URL语法的解析实现（ProxyNormalizer和AppProxyNormalizer）(1.2.7.2)
  	 + 增加核心服务Proxy,用于服务代理(1.2.7.2)
  	 + 修正bizlog日志中client的取值(1.2.7.2)
- 	 
+ 
+  - 1.2.8 [20140912 duanyy]
+  	 + 增加监控指标收集体系(1.2.8)
+  	 + JsonSerializer中Map参数化(1.2.8)
+  	 + 增加核心服务:MetricsReport,用于报告Metrics处理统计信息;MetricsPause,用于暂停MetricsHandler的处理;MetricsResume,用于恢复MetricsHandler的处理(1.2.8)
+  	 + 增加Selector机制(com.logicbus.selector)(1.2.8)
+  	 + 淘汰BizLogger数据统计框架(1.2.8)

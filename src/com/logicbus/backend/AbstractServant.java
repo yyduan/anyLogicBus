@@ -1,6 +1,12 @@
 package com.logicbus.backend;
 
+import com.anysoft.util.Settings;
 import com.logicbus.backend.message.MessageDoc;
+import com.logicbus.backend.stats.core.Dimensions;
+import com.logicbus.backend.stats.core.Fragment;
+import com.logicbus.backend.stats.core.Measures;
+import com.logicbus.backend.stats.core.MetricsCollector;
+import com.logicbus.backend.stats.core.MetricsHandler;
 import com.logicbus.models.servant.ServiceDescription;
 
 /**
@@ -12,8 +18,11 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.2.5 [20140722 duanyy]
  * - Servant的destroy方法改为close
  * 
+ * @version 1.2.8 [20140914 duanyy]
+ * - 增加指标收集体系
+ * 
  */
-abstract public class AbstractServant extends Servant {
+abstract public class AbstractServant extends Servant implements MetricsCollector {
 	
 	@Override
 	public int actionProcess(MessageDoc msg, Context ctx) throws Exception {
@@ -29,6 +38,16 @@ abstract public class AbstractServant extends Servant {
 	
 	public void create(ServiceDescription sd) throws ServantException{
 		super.create(sd);
+		
+		if (metricsHandler == null){
+			synchronized (lock){
+				if (metricsHandler == null){
+					Settings settings = Settings.get();
+					metricsHandler = (MetricsHandler) settings.get("metricsHandler");
+				}
+			}
+		}
+		
 		jsonDefault = sd.getProperties().GetValue("jsonDefault",jsonDefault);
 		onCreate(sd);
 	}
@@ -45,4 +64,90 @@ abstract public class AbstractServant extends Servant {
 	abstract protected int onXml(MessageDoc msgDoc, Context ctx) throws Exception;
 
 	abstract protected int onJson(MessageDoc msgDoc, Context ctx) throws Exception;
+	
+	@Override
+	public void metricsIncr(Fragment fragment){
+		if (metricsHandler != null){
+			Dimensions dims = fragment.getDimensions();
+			if (dims != null){
+				dims.lpush(getDescription().getPath());
+			}
+			metricsHandler.handle(fragment,System.currentTimeMillis());
+		}
+	}
+	
+	public void metricsIncr(String _id,String [] _dims,Object..._values){
+		Fragment f = new Fragment(_id);
+		
+		Dimensions dims = f.getDimensions();
+		if (dims != null)
+			dims.lpush(_dims);
+		
+		Measures meas = f.getMeasures();
+		if (meas != null)
+			meas.lpush(_values);
+		
+		metricsIncr(f);
+	}
+	
+	public void metricsIncr(String _id,String [] _dims,Double..._values){
+		Fragment f = new Fragment(_id);
+		
+		Dimensions dims = f.getDimensions();
+		if (dims != null)
+			dims.lpush(_dims);
+		
+		Measures meas = f.getMeasures();
+		if (meas != null)
+			meas.lpush(_values);
+		
+		metricsIncr(f);
+	}
+	
+	public void metricsIncr(String _id,String [] _dims,Long..._values){
+		Fragment f = new Fragment(_id);
+		
+		Dimensions dims = f.getDimensions();
+		if (dims != null)
+			dims.lpush(_dims);
+		
+		Measures meas = f.getMeasures();
+		if (meas != null)
+			meas.lpush(_values);
+		
+		metricsIncr(f);		
+	}
+	
+	public void metricsIncr(String _id,Double..._values){
+		Fragment f = new Fragment(_id);
+		
+		Measures meas = f.getMeasures();
+		if (meas != null)
+			meas.lpush(_values);
+		
+		metricsIncr(f);		
+	}
+	
+	public void metricsIncr(String _id,Long ..._values){
+		Fragment f = new Fragment(_id);
+		
+		Measures meas = f.getMeasures();
+		if (meas != null)
+			meas.lpush(_values);
+		
+		metricsIncr(f);	
+	}
+	
+	public void metricsIncr(String _id,Object ..._values){
+		Fragment f = new Fragment(_id);
+		
+		Measures meas = f.getMeasures();
+		if (meas != null)
+			meas.lpush(_values);
+		
+		metricsIncr(f);	
+	}	
+	
+	protected static Object lock = new Object();
+	protected static MetricsHandler metricsHandler = null;
 }

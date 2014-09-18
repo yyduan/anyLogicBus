@@ -414,8 +414,8 @@ public class DefaultServiceDescription implements ServiceDescription{
 	 * 从JSON对象中读入
 	 * @param json 
 	 */
-	@SuppressWarnings("rawtypes")
-	public void fromJson(Map json){
+	@SuppressWarnings("unchecked")
+	public void fromJson(Map<String,Object> json){
 		setServiceID((String)json.get("id"));
 		setName((String)json.get("name"));
 		setModule((String)json.get("module"));
@@ -426,13 +426,13 @@ public class DefaultServiceDescription implements ServiceDescription{
 		
 		Object propertiesObj = json.get("properties");
 		if (propertiesObj != null && propertiesObj instanceof List){
-			List propsList = (List)propertiesObj;
+			List<Object> propsList = (List<Object>)propertiesObj;
 			for (Object para:propsList){
 				if (!( para instanceof Map)){
 					continue;
 				}
 				try {
-					Map paraMap = (Map)para;
+					Map<String,Object> paraMap = (Map<String,Object>)para;
 					String id = (String)paraMap.get("id");
 					String value = (String)paraMap.get("value");
 					
@@ -447,7 +447,7 @@ public class DefaultServiceDescription implements ServiceDescription{
 		
 		Object modulesObj = json.get("modules");
 		if (modulesObj != null && modulesObj instanceof List){
-			List modulesList = (List) modulesObj;
+			List<Object> modulesList = (List<Object>) modulesObj;
 			for (Object module:modulesList){
 				if (! (module instanceof String)){
 					continue;
@@ -458,12 +458,12 @@ public class DefaultServiceDescription implements ServiceDescription{
 		
 		Object argumentsObj = json.get("arguments");
 		if (argumentsObj != null && argumentsObj instanceof List){
-			List arguList = (List)argumentsObj;
+			List<Object> arguList = (List<Object>)argumentsObj;
 			for (Object argumentObj : arguList){
 				if (! (argumentObj instanceof Map)){
 					continue;
 				}
-				Map argumentMap = (Map) argumentObj;
+				Map<String,Object> argumentMap = (Map<String,Object>) argumentObj;
 				Argument argu = new DefaultArgument();
 				argu.fromJson(argumentMap);
 				if (argu.getId().length() <= 0){
@@ -478,8 +478,7 @@ public class DefaultServiceDescription implements ServiceDescription{
 	 * 写出到JSON对象
 	 * @param json
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void toJson(Map json){
+	public void toJson(Map<String,Object> json){
 		json.put("type", "service");
 		json.put("id", getServiceID());
 		json.put("name",getName());
@@ -493,11 +492,11 @@ public class DefaultServiceDescription implements ServiceDescription{
 			Enumeration<?> __keys = properties.keys();
 			if (__keys.hasMoreElements()){
 				
-				List propertiesList = new Vector();				
+				List<Object> propertiesList = new Vector<Object>();				
 				while (__keys.hasMoreElements()){
 					String __name = (String)__keys.nextElement();
 					String __value = properties.GetValue(__name,"",false,true);					
-					Map pair = new HashMap();
+					Map<String,Object> pair = new HashMap<String,Object>();
 					pair.put("id", __name);
 					pair.put("value", __value);					
 					propertiesList.add(pair);
@@ -508,7 +507,7 @@ public class DefaultServiceDescription implements ServiceDescription{
 		}
 		if (modulesMaster != null && modulesMaster.size() > 0)
 		{
-			List modulesList = new Vector();
+			List<Object> modulesList = new Vector<Object>();
 			for (String module:modulesMaster){
 				modulesList.add(module);
 			}
@@ -516,10 +515,10 @@ public class DefaultServiceDescription implements ServiceDescription{
 			json.put("modules", modulesList);
 		}		
 		if (argumentList != null && argumentList.size() > 0){
-			List arguList = new Vector();
+			List<Object> arguList = new Vector<Object>();
 			Argument [] _argumentList = getArgumentList();
 			for (Argument argument:_argumentList){
-				Map argumentMap = new HashMap();
+				Map<String,Object> argumentMap = new HashMap<String,Object>();
 				
 				argument.toJson(argumentMap);
 				

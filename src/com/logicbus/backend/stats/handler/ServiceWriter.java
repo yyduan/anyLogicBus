@@ -1,4 +1,4 @@
-package com.logicbus.backend.bizlog.stats;
+package com.logicbus.backend.stats.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,23 +11,23 @@ import org.w3c.dom.Element;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
+import com.logicbus.backend.stats.core.Dimensions;
+import com.logicbus.backend.stats.core.Fragment;
 import com.logicbus.client.ClientException;
 import com.logicbus.client.HttpClient;
 import com.logicbus.client.JsonBuffer;
 import com.logicbus.client.Parameter;
 
 /**
- * 统计数据服务输出
+ * 服务调用输出
  * 
  * @author duanyy
- * 
- * @since 1.2.7.1
- * 
+ * @since 1.2.8
  */
-public class StatsServiceWriter extends StatsWriter {
+public class ServiceWriter extends SummaryWriter {
 
 	@Override
-	protected void write(Map<String, BizLogStatsItem> _data) {
+	protected void write(Map<String, Fragment> _data,long t) {
 		//免失败模式开启
 		//如果连续错误次数超过3次，则连续10分钟不再尝试，直接返回为true
 		if (errorTimes > 3 && System.currentTimeMillis() - lastTryTime < 10 * 60 * 1000)
@@ -52,23 +52,26 @@ public class StatsServiceWriter extends StatsWriter {
 			Map<String,Object> root = result.getRoot();
 			
 			List<Object> data = new ArrayList<Object>();
-			Collection<BizLogStatsItem> values = _data.values();
-			
-			for (BizLogStatsItem item:values){
+			Collection<Fragment> values = _data.values();
+		
+			if (host == null){
+				Settings settings = Settings.get();
+				host = settings.GetValue("host", "${server.host}:${server.port}");
+			}
+			for (Fragment item:values){
 				Map<String,Object> map = new HashMap<String,Object>(5);
+				
+				Dimensions dims = item.getDimensions();
+				
+				if (dims != null){
+					dims.lpush(host,app);
+				}
+				
 				item.toJson(map);
 				data.add(map);
 			}
 			
 			root.put("data", data);
-		
-			root.put("app", app);
-			
-			if (host == null){
-				Settings settings = Settings.get();
-				host = settings.GetValue("host", "${server.host}:${server.port}");
-			}
-			root.put("host", host);
 			
 			para.param("count", String.valueOf(data.size()));
 		}
@@ -88,7 +91,6 @@ public class StatsServiceWriter extends StatsWriter {
 		app = PropertiesConstants.getString(p,"app","${server.app}",true);
 		client = new HttpClient(p);
 	}
-
 	protected String host = null;
 	protected String app;
 	protected String url;

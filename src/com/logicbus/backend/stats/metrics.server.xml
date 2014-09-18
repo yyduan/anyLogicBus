@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<source>
+	<context>
+		<handler id="default" module="com.logicbus.backend.stats.handler.Default" report.enable="true" report.cycle="3600000">
+			
+		</handler>
+	</context>
+</source>

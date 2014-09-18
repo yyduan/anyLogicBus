@@ -109,7 +109,31 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.BizLoggerResume"
-		/>						
+		/>	
+		<service 
+			id="MetricsReport" 
+			name="MetricsReport" 
+			note="指标处理报告"
+			visible="public"
+			log = "none" 
+			module="com.logicbus.service.MetricsReport"
+		/>		
+		<service 
+			id="MetricsPause" 
+			name="MetricsPause" 
+			note="暂停MetricsHandler的处理"
+			visible="public"
+			log = "brief" 
+			module="com.logicbus.service.MetricsPause"
+		/>		
+		<service 
+			id="MetricsResume" 
+			name="MetricsResume" 
+			note="恢复MetricsHandler的处理"
+			visible="public"
+			log = "brief" 
+			module="com.logicbus.service.BizLoggerResume"
+		/>							
 		<service 
 			id="EnvQuery" 
 			name="EnvQuery" 

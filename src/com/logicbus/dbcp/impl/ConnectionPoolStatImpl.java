@@ -223,9 +223,8 @@ public class ConnectionPoolStatImpl implements ConnectionPoolStat{
 	public void fromXML(Element e) {
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void toJson(Map json) {
+	public void toJson(Map<String,Object> json) {
 		JsonTools.setInt(json, "step", step);
 		JsonTools.setLong(json, "timestamp", cycleStartTime);
 		
@@ -270,9 +269,8 @@ public class ConnectionPoolStatImpl implements ConnectionPoolStat{
 		json.put("metrics", metrics);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public void fromJson(Map json) {
+	public void fromJson(Map<String,Object> json) {
 	
 	}	
 	

@@ -29,6 +29,9 @@ import com.anysoft.util.XmlTools;
  * 
  * @version 1.2.5.3 [20140731 duanyy]
  * -  基础包的Cacheable接口修改
+ * 
+ * @version 1.2.8 [20140912 duanyy]
+ * - JsonSerializer中Map参数化
  */
 
 public class AccessControlModel implements Cacheable {
@@ -116,9 +119,8 @@ public class AccessControlModel implements Cacheable {
 		
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void toJson(Map json) {
+	public void toJson(Map<String,Object> json) {
 		json.put("id", id);
 		json.put("pwd", pwd);
 		json.put("maxThread",String.valueOf(maxThread));
@@ -126,9 +128,9 @@ public class AccessControlModel implements Cacheable {
 		json.put("priority", String.valueOf(priority));
 		
 		if (acls != null && acls.size() > 0){
-			ArrayList list = new ArrayList();
+			ArrayList<Object> list = new ArrayList<Object>();
 			for (ACL acl:acls){
-				Map map = new HashMap();
+				Map<String,Object> map = new HashMap<String,Object>();
 				
 				map.put("ip", acl.ip);
 				map.put("service", acl.service);
@@ -177,9 +179,9 @@ public class AccessControlModel implements Cacheable {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Override
-	public void fromJson(Map json) {
+	public void fromJson(Map<String,Object> json) {
 		pwd = JsonTools.getString(json, "pwd", "");
 		maxThread = JsonTools.getInt(json, "maxThread", maxThread);
 		maxTimesPerMin = JsonTools.getInt(json, "maxTimesPerMin", maxTimesPerMin);
@@ -187,12 +189,12 @@ public class AccessControlModel implements Cacheable {
 		
 		Object _acls = json.get("acls");
 		if (_acls != null && _acls instanceof List){
-			List _aclsList = (List) _acls;
+			List<Object> _aclsList = (List<Object>) _acls;
 			for (Object _acl:_aclsList){
 				if (! (_acl instanceof Map)){
 					continue;
 				}
-				Map _aclMap = (Map)_acl;
+				Map<String,Object> _aclMap = (Map<String,Object>)_acl;
 				ACL acl = new ACL();
 				acl.ip = JsonTools.getString(_aclMap, "ip", "*");
 				acl.service = JsonTools.getString(_aclMap, "service","*");

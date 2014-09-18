@@ -17,7 +17,8 @@ import com.anysoft.util.XmlTools;
 /**
  * Jms配置模型
  * @author duanyy
- *
+ * @version 1.2.8 [20140912 duanyy]
+ * - JsonSerializer中Map参数化
  */
 public class JmsModel extends SimpleModel{
 
@@ -91,9 +92,9 @@ public class JmsModel extends SimpleModel{
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Override
-	public void fromJson(Map root) {
+	public void fromJson(Map<String,Object> root) {
 		super.fromJson(root);
 
 		Object _module = root.get("module");
@@ -101,12 +102,12 @@ public class JmsModel extends SimpleModel{
 		
 		Object _fieldsObject = root.get("destinations");
 		if (_fieldsObject != null && _fieldsObject instanceof List){
-			for (Object _fieldObject:(List)_fieldsObject){
+			for (Object _fieldObject:(List<Object>)_fieldsObject){
 				if (!(_fieldObject instanceof Map)){
 					continue;
 				}
 				
-				Map _data = (Map)_fieldObject;
+				Map<String,Object> _data = (Map<String,Object>)_fieldObject;
 				String id = (String)_data.get("id");
 				if (id == null || id.length() <= 0){
 					continue;
@@ -121,17 +122,16 @@ public class JmsModel extends SimpleModel{
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void toJson(Map root) {
+	public void toJson(Map<String,Object> root) {
 		super.toJson(root);
 		
 		Collection<SimpleModel> models = destinations.values();
 		
 		if (models.size() > 0){
-			List list = new ArrayList();
+			List<Object> list = new ArrayList<Object>();
 			for (SimpleModel model:models){
-				Map mapModel = new HashMap();
+				Map<String,Object> mapModel = new HashMap<String,Object>();
 				
 				model.toJson(mapModel);
 				

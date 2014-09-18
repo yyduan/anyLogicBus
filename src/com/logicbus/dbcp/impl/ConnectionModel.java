@@ -22,6 +22,9 @@ import com.anysoft.util.XmlElementProperties;
  * 
  * @version 1.2.5.3 [20140731 duanyy]
  * -  基础包的Cacheable接口修改
+ * 
+ * @version 1.2.8 [20140912 duanyy]
+ * - JsonSerializer中Map参数化
  */
 public class ConnectionModel implements Cacheable{
 	/**
@@ -229,9 +232,8 @@ public class ConnectionModel implements Cacheable{
 		callback = PropertiesConstants.getString(props, "callback", "");
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public void toJson(Map json) {
+	public void toJson(Map<String,Object> json) {
 		JsonTools.setString(json, "name",name);
 		JsonTools.setString(json, "driver",driver);
 		JsonTools.setString(json, "url",url);
@@ -245,9 +247,8 @@ public class ConnectionModel implements Cacheable{
 		JsonTools.setString(json, "callback", callback);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public void fromJson(Map json) {
+	public void fromJson(Map<String,Object> json) {
 		name = JsonTools.getString(json, "name", "");
 		driver = JsonTools.getString(json, "driver", "");
 		url = JsonTools.getString(json, "url", "");

@@ -26,7 +26,8 @@ import com.anysoft.util.resource.ResourceFactory;
  * 
  * @version 1.2.7 [20140828 duanyy] <br>
  * - 通过com.anysoft.stream来实现
- * 
+ * @version 1.2.8 [20140917 duanyy] <br>
+ * - Handler:handle和flush方法增加timestamp参数，以便时间同步
  */
 public interface BizLogger extends Handler<BizLogItem>{	
 	
@@ -45,12 +46,12 @@ public interface BizLogger extends Handler<BizLogItem>{
 	public static class Default extends AbstractHandler<BizLogItem> implements BizLogger{
 
 		@Override
-		protected void onHandle(BizLogItem _data) {
+		protected void onHandle(BizLogItem _data,long t) {
 
 		}
 
 		@Override
-		protected void onFlush() {
+		protected void onFlush(long t) {
 
 		}
 

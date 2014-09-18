@@ -56,6 +56,9 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @version 1.2.7.2 [20140910 duanyy] <br>
  * - 修正bizlog日志中client的取值
+ * 
+ * @version 1.2.8 [20140917 duanyy] <br>
+ * - Handler:handle和flush方法增加timestamp参数，以便时间同步
  */
 public class MessageRouter {
 	
@@ -168,7 +171,7 @@ public class MessageRouter {
 		item.url = ctx.getRequestURI();
 		item.content = logType == ServiceDescription.LogType.detail ? mDoc.toString() : null;
 		
-		bizLogger.handle(item);
+		bizLogger.handle(item,System.currentTimeMillis());
 				
 		return 0;
 	}

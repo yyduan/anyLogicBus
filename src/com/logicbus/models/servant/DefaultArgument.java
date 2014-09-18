@@ -23,7 +23,9 @@ import com.logicbus.backend.message.MessageDoc;
  * @author duanyy
  * 
  * @since 1.2.5.4
- *
+ * 
+ * @version 1.2.8 [20140912 duanyy]
+ * - JsonSerializer中Map参数化
  */
 public class DefaultArgument implements Argument{
 	/**
@@ -198,9 +200,8 @@ public class DefaultArgument implements Argument{
 		isCached = PropertiesConstants.getBoolean(props, "isCached", false);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public void toJson(Map json) {
+	public void toJson(Map<String,Object> json) {
 		JsonTools.setString(json, "id", id);
 		JsonTools.setString(json, "defaultValue",defaultValue);
 		JsonTools.setBoolean(json, "isOption",isOption);
@@ -210,9 +211,8 @@ public class DefaultArgument implements Argument{
 		JsonTools.setBoolean(json, "isCached", isCached);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public void fromJson(Map json) {
+	public void fromJson(Map<String,Object> json) {
 		id = JsonTools.getString(json, "id","");
 		defaultValue = JsonTools.getString(json, "defaultValue","");
 		isOption = JsonTools.getBoolean(json, "isOption",true);

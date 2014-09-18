@@ -29,6 +29,9 @@ import com.anysoft.util.resource.ResourceFactory;
  * @since 1.1.0
  * @version 1.2.5.3 [20140731 duanyy]
  * -  基础包的Cacheable接口修改
+ * 
+ * @version 1.2.8 [20140912 duanyy]
+ * - JsonSerializer中Map参数化
  */
 public class XmlResource implements Cacheable{
 	
@@ -59,15 +62,13 @@ public class XmlResource implements Cacheable{
 		xmlURI = e.getAttribute("uri");
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public void toJson(Map json) {
+	public void toJson(Map<String,Object> json) {
 		JsonTools.setString(json, "uri", xmlURI);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public void fromJson(Map json) {
+	public void fromJson(Map<String,Object> json) {
 		xmlURI = JsonTools.getString(json, "uri", "");
 	}
 

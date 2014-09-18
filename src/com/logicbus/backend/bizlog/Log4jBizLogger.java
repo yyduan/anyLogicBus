@@ -22,6 +22,9 @@ import com.anysoft.util.Settings;
  * 
  * @version 1.2.7.1 [20140902 duanyy] <br>
  * - 增加app信息的输出
+ * 
+ * @version 1.2.8 [20140917 duanyy] <br>
+ * - Handler:handle和flush方法增加timestamp参数，以便时间同步
  */
 public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLogger {
 
@@ -87,7 +90,7 @@ public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLo
 	}
 
 	@Override
-	protected void onHandle(BizLogItem item) {
+	protected void onHandle(BizLogItem item,long t) {
 		if (logger == null){
 			synchronized (this){
 				host = log4jProperties.GetValue("host", "${server.host}:${server.port}");
@@ -143,7 +146,7 @@ public class Log4jBizLogger extends AbstractHandler<BizLogItem> implements BizLo
 	}
 
 	@Override
-	protected void onFlush() {
+	protected void onFlush(long t) {
 		//no buffer
 	}
 	
