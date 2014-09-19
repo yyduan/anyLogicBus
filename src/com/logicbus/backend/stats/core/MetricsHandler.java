@@ -22,6 +22,9 @@ import com.anysoft.util.resource.ResourceFactory;
  * 
  * @author duanyy
  * @since 1.2.8
+ * 
+ * @version 1.2.8.1 [20140919 duanyy]
+ * - getInstance拆分为getClientInstance和getServerInstance
  */
 public interface MetricsHandler extends Handler<Fragment>,MetricsCollector{
 	public static class TheFactory extends Factory<MetricsHandler>{
@@ -30,19 +33,29 @@ public interface MetricsHandler extends Handler<Fragment>,MetricsCollector{
 		 */
 		protected static final Logger logger = LogManager.getLogger(TheFactory.class);
 		
+		public static MetricsHandler getClientInstance(Properties p){
+			String master = p.GetValue("metrics.handler.client.master", 
+					"java:///com/logicbus/backend/stats/metrics.handler.client.xml#com.logicbus.backend.stats.MetricsHandler");
+			String secondary = p.GetValue("metrics.handler.client.master", 
+					"java:///com/logicbus/backend/stats/metrics.handler.client.xml#com.logicbus.backend.stats.MetricsHandler");
+			
+			return getInstance(master,secondary,p);
+		}
+		
+		public static MetricsHandler getServerInstance(Properties p){
+			String master = p.GetValue("metrics.handler.server.master", 
+					"java:///com/logicbus/backend/stats/metrics.handler.server.xml#com.logicbus.backend.stats.MetricsHandler");
+			String secondary = p.GetValue("metrics.client.master", 
+					"java:///com/logicbus/backend/stats/metrics.handler.server.xml#com.logicbus.backend.stats.MetricsHandler");
+			
+			return getInstance(master,secondary,p);
+		}
+		
 		/**
 		 * 根据环境变量中的配置来创建MetricsHandler
-		 * @param props
-		 * @return
 		 */
-		public static MetricsHandler getInstance(Properties props){
-			String master = props.GetValue("metrics.client.master", 
-					"java:///com/logicbus/backend/stats/metrics.client.xml#com.logicbus.backend.stats.MetricsHandler");
-			String secondary = props.GetValue("metrics.client.master", 
-					"java:///com/logicbus/backend/stats/metrics.client.xml#com.logicbus.backend.stats.MetricsHandler");
-			
+		protected static MetricsHandler getInstance(String master,String secondary,Properties props){			
 			ResourceFactory rf = Settings.getResourceFactory();
-			
 			InputStream in = null;
 			try {
 				in = rf.load(master,secondary, null);

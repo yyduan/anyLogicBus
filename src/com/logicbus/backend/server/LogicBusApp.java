@@ -48,6 +48,8 @@ import com.logicbus.backend.timer.TimerManager;
  * @version 1.2.8 [20140914 duanyy] <br>
  * - 增加指标收集体系
  * 
+ * @version 1.2.8.1 [20140919 duanyy] <br>
+ * - MetricsHandler:getInstance拆分为getClientInstance和getServerInstance
  */
 public class LogicBusApp implements WebApp {
 	/**
@@ -97,7 +99,7 @@ public class LogicBusApp implements WebApp {
 		//初始化MetricsHandler
 		// since 1.2.8
 		{
-			Handler<Fragment> handler = MetricsHandler.TheFactory.getInstance(settings);
+			Handler<Fragment> handler = MetricsHandler.TheFactory.getClientInstance(settings);
 			if (handler != null){
 				logger.info("MetricsHandler is initalized,module:" + handler.getClass().getName());
 				settings.registerObject("metricsHandler", handler);

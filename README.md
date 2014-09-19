@@ -133,3 +133,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
   	 + 增加核心服务:MetricsReport,用于报告Metrics处理统计信息;MetricsPause,用于暂停MetricsHandler的处理;MetricsResume,用于恢复MetricsHandler的处理(1.2.8)
   	 + 增加Selector机制(com.logicbus.selector)(1.2.8)
   	 + 淘汰BizLogger数据统计框架(1.2.8)
+  	 + 淘汰MetricsHandlerContext框架(1.2.8.1)
+  	 + MetricsHandler:getInstance拆分为getClientInstance和getServerInstance(1.2.8.1)
+  	 + Selector:增加getInstance，用于创建指定类型的实例(1.2.8.1)
+  	 + Selector:增加DateFormatter实现(1.2.8.1)

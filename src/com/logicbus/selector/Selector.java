@@ -22,6 +22,9 @@ import com.anysoft.util.XmlElementProperties;
  * 
  * @author duanyy
  * @since 1.2.8
+ * 
+ * @verion 1.2.8.1 [20140919 duanyy]
+ * - 增加getInstance，用于创建指定类型的实例.
  */
 abstract public class Selector implements XMLConfigurable {
 	
@@ -164,6 +167,21 @@ abstract public class Selector implements XMLConfigurable {
 	 */
 	public static Selector newInstance(Element e,Properties p){
 		return theFactory.newInstance(e, p,"selector");
+	}
+	
+	/**
+	 * 创建实例
+	 * @param e 
+	 * @param p
+	 * @param preferredClass 指定的类名
+	 * @return
+	 * 
+	 * @since 1.2.8.1
+	 */
+	public static Selector newInstance(Element e,Properties p,String preferredClass){
+		Selector instance = theFactory.newInstance(preferredClass);
+		instance.configure(e, p);
+		return instance;
 	}
 	
 	/**
