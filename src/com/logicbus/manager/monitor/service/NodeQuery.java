@@ -58,9 +58,9 @@ public class NodeQuery extends Servant {
 				for (ServantPool pool:pools){	
 					Element eService = doc.createElement("asset");
 					ServiceDescription sd = pool.getDescription();
-					sd.toXML(eService);
+					sd.report(eService);
 					ServantStat ss = pool.getStat();
-					ss.toXML(eService);
+					ss.report(eService);
 					eServices.appendChild(eService);
 				}
 				location.appendChild(eServices);

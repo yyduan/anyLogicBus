@@ -12,9 +12,10 @@ import java.util.Vector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.anysoft.util.Reportable;
 import com.logicbus.backend.RRA.RRAValue;
 
-public class Metric {
+public class Metric implements Reportable{
 	protected String id;
 	public String getID(){return id;}
 	protected Vector<RRA> rras = new Vector<RRA>();
@@ -47,36 +48,6 @@ public class Metric {
 	public void update(long timestamp,double value){
 		for (RRA rra:rras){
 			rra.update(timestamp, value);
-		}
-	}
-
-	public void toXML(Element metric) {
-		Document doc = metric.getOwnerDocument();
-		
-		metric.setAttribute("id", getID());
-		
-		RRA [] _rras = getRRAs();
-		if (_rras.length > 0){
-
-			for (RRA _rra:_rras){
-				Element eRRA = doc.createElement("rra");
-				_rra.toXML(eRRA);								
-				metric.appendChild(eRRA);
-			}
-		}
-	}	
-	
-	public void toJson(Map<String,Object> json){
-		json.put("id", getID());
-		RRA [] _rras = getRRAs();
-		if (_rras.length > 0){
-			List<Object> rras = new ArrayList<Object>(_rras.length);
-			for (RRA _rra:_rras){
-				Map<String,Object> rra = new HashMap<String,Object>();
-				_rra.toJson(rra);
-				rras.add(rra);
-			}
-			json.put("rras", rras);
 		}
 	}
 	
@@ -115,6 +86,42 @@ public class Metric {
 					System.out.println(rra);
 					System.out.println(new Date(v.timestamp) + "->" + v.value);
 				}
+			}
+		}
+	}
+
+	@Override
+	public void report(Element metric) {
+		if (metric != null){
+			Document doc = metric.getOwnerDocument();
+			
+			metric.setAttribute("id", getID());
+			
+			RRA [] _rras = getRRAs();
+			if (_rras.length > 0){
+	
+				for (RRA _rra:_rras){
+					Element eRRA = doc.createElement("rra");
+					_rra.report(eRRA);								
+					metric.appendChild(eRRA);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void report(Map<String, Object> json) {
+		if (json != null){
+			json.put("id", getID());
+			RRA [] _rras = getRRAs();
+			if (_rras.length > 0){
+				List<Object> rras = new ArrayList<Object>(_rras.length);
+				for (RRA _rra:_rras){
+					Map<String,Object> rra = new HashMap<String,Object>();
+					_rra.report(rra);
+					rras.add(rra);
+				}
+				json.put("rras", rras);
 			}
 		}
 	}

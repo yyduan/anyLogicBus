@@ -127,7 +127,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 + 增加核心服务Proxy,用于服务代理(1.2.7.2)
  	 + 修正bizlog日志中client的取值(1.2.7.2)
  
-  - 1.2.8 [20140912 duanyy]
+ - 1.2.8 [20140912 duanyy]
   	 + 增加监控指标收集体系(1.2.8)
   	 + JsonSerializer中Map参数化(1.2.8)
   	 + 增加核心服务:MetricsReport,用于报告Metrics处理统计信息;MetricsPause,用于暂停MetricsHandler的处理;MetricsResume,用于恢复MetricsHandler的处理(1.2.8)
@@ -137,3 +137,12 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
   	 + MetricsHandler:getInstance拆分为getClientInstance和getServerInstance(1.2.8.1)
   	 + Selector:增加getInstance，用于创建指定类型的实例(1.2.8.1)
   	 + Selector:增加DateFormatter实现(1.2.8.1)
+  	 + Selector:增加Now实现(1.2.8.2)
+  	 + AppProxyNormalizer:修正app取值中的/问题(1.2.8.2)
+  	 + AbstractAccessController:AccessStat变更可见性为public(1.2.8.2)
+  	 + IpAndServiceAccessController:修正配置变量的拼写错误(1.2.8.2)
+  	 + ServantStat:不再收集缓冲池的信息(1.2.8.2)
+  	 + ServantPool:扩展Reportable(1.2.8.2)
+  	 + 对线程池和访问控制器体系进行Reportable和MetricsReportable改造(1.2.8.2)
+  	 + 简化ServantStat模型(1.2.8.2)
+  	 + 淘汰dbcp相关实现，将在下一个版本重写(1.2.8.2)

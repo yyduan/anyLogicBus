@@ -1,7 +1,7 @@
 package com.logicbus.models.servant;
 
 import com.anysoft.util.Properties;
-
+import com.anysoft.util.Reportable;
 import com.anysoft.util.XmlSerializer;
 import com.anysoft.util.JsonSerializer;
 
@@ -25,8 +25,11 @@ import com.anysoft.util.JsonSerializer;
  * 
  * @version 1.2.5.4 [20140801 duanyy]<br>
  * - ServiceDescription变更为interface
+ * 
+ * @version 1.2.8.2 [20141015 duanyy]<br>
+ * - 实现Reportable
  */
-public interface ServiceDescription extends XmlSerializer,JsonSerializer{
+public interface ServiceDescription extends XmlSerializer,JsonSerializer,Reportable{
 	/**
 	 * 业务日志的类型
 	 * 

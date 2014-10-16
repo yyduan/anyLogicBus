@@ -10,8 +10,10 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.anysoft.util.Reportable;
 
-public class RRA {
+
+public class RRA implements Reportable{
 	//样本个数
 	protected int rows = 720;
 	public int getRows(){return rows;}
@@ -91,43 +93,47 @@ public class RRA {
 		}
 	}
 
-	public void toXML(Element eRRA) {
-		eRRA.setAttribute("step", String.valueOf(step));
-		eRRA.setAttribute("rows", String.valueOf(rows));
-		eRRA.setAttribute("cf", cf.toString());
-		
-		Document doc = eRRA.getOwnerDocument();
-		Iterator<RRAValue> iter = iterator();
-		while (iter.hasNext()){			
-			RRAValue v = iter.next();
+	public void report(Element eRRA) {
+		if (eRRA != null){
+			eRRA.setAttribute("step", String.valueOf(step));
+			eRRA.setAttribute("rows", String.valueOf(rows));
+			eRRA.setAttribute("cf", cf.toString());
 			
-			if (v != null){
-				Element eValue = doc.createElement("value");
-				eValue.setAttribute("t", String.valueOf(v.timestamp));
-				eValue.setAttribute("v", df.format(v.value));
-				eRRA.appendChild(eValue);
+			Document doc = eRRA.getOwnerDocument();
+			Iterator<RRAValue> iter = iterator();
+			while (iter.hasNext()){			
+				RRAValue v = iter.next();
+				
+				if (v != null){
+					Element eValue = doc.createElement("value");
+					eValue.setAttribute("t", String.valueOf(v.timestamp));
+					eValue.setAttribute("v", df.format(v.value));
+					eRRA.appendChild(eValue);
+				}
 			}
 		}
 	}	
 	
 
-	public void toJson(Map<String, Object> json) {
-		json.put("step", step);
-		json.put("rows", rows);
-		json.put("cf", cf.toString());
-		
-		List<Object> values = new ArrayList<Object>();
-		Iterator<RRAValue> iter = iterator();
-		while (iter.hasNext()){			
-			RRAValue v = iter.next();			
-			if (v != null){
-				Map<String,Object> value = new HashMap<String,Object>(2);
-				value.put("t", v.timestamp);
-				value.put("v", v.value);
-				values.add(value);
+	public void report(Map<String, Object> json) {
+		if (json != null){
+			json.put("step", step);
+			json.put("rows", rows);
+			json.put("cf", cf.toString());
+			
+			List<Object> values = new ArrayList<Object>();
+			Iterator<RRAValue> iter = iterator();
+			while (iter.hasNext()){			
+				RRAValue v = iter.next();			
+				if (v != null){
+					Map<String,Object> value = new HashMap<String,Object>(2);
+					value.put("t", v.timestamp);
+					value.put("v", v.value);
+					values.add(value);
+				}
 			}
+			json.put("values", values);
 		}
-		json.put("values", values);
 	}	
 	
 	public static class RRAValue {

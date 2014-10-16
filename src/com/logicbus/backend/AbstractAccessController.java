@@ -1,13 +1,22 @@
 package com.logicbus.backend;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.anysoft.util.Properties;
+import com.anysoft.util.PropertiesConstants;
+import com.logicbus.backend.stats.core.Dimensions;
+import com.logicbus.backend.stats.core.Fragment;
+import com.logicbus.backend.stats.core.Measures;
+import com.logicbus.backend.stats.core.MetricsCollector;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -27,6 +36,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @version 1.2.1 [20140613 duanyy] <br>
  * - 共享锁由synchronized改为ReentrantLock
+ * 
+ * @version 1.2.8.2 [20141011 duanyy] <br>
+ * - AccessStat变更可见性为public
+ * - 实现Reportable和MetricsReportable
  */
 abstract public class AbstractAccessController implements AccessController {
 	/**
@@ -38,9 +51,13 @@ abstract public class AbstractAccessController implements AccessController {
 	 * 锁
 	 */
 	protected ReentrantLock lock = new ReentrantLock();
-
+	/**
+	 * 指标ID
+	 */
+	protected String metricsId = "acm.stat";
+	
 	public AbstractAccessController(Properties props){
-		
+		metricsId = PropertiesConstants.getString(props, "acm.metrics.id", metricsId);
 	}
 	
 	@Override
@@ -101,25 +118,81 @@ abstract public class AbstractAccessController implements AccessController {
 			Context ctx,AccessStat stat);
 	
 	@Override
-	public void toXML(Element root) {
-		Document doc = root.getOwnerDocument();
-		
-		Enumeration<String> keys = acl.keys();
-		while (keys.hasMoreElements()){
-			String key = keys.nextElement();
-			AccessStat value = acl.get(key);
-			Element eAcl = doc.createElement("acl");
+	public void report(Element root) {
+		if (root != null){
+			Document doc = root.getOwnerDocument();
 			
-			eAcl.setAttribute("session", key);
-			eAcl.setAttribute("currentThread", String.valueOf(value.thread));
-			eAcl.setAttribute("timesTotal", String.valueOf(value.timesTotal));
-			eAcl.setAttribute("timesOneMin",String.valueOf(value.timesOneMin));
-			eAcl.setAttribute("waitCnt", String.valueOf(value.waitCnt));
+			Enumeration<String> keys = acl.keys();
+			while (keys.hasMoreElements()){
+				String key = keys.nextElement();
+				AccessStat value = acl.get(key);
+				Element eAcl = doc.createElement("acl");
+				
+				eAcl.setAttribute("session", key);
+				eAcl.setAttribute("currentThread", String.valueOf(value.thread));
+				eAcl.setAttribute("timesTotal", String.valueOf(value.timesTotal));
+				eAcl.setAttribute("timesOneMin",String.valueOf(value.timesOneMin));
+				eAcl.setAttribute("waitCnt", String.valueOf(value.waitCnt));
+				
+				root.appendChild(eAcl);
+			}
 			
-			root.appendChild(eAcl);
+			root.setAttribute("module", getClass().getName());
 		}
 	}
 
+	@Override
+	public void report(Map<String,Object> json) {
+		if (json != null){
+			List<Object> acls = new ArrayList<Object>();
+			
+			Enumeration<String> keys = acl.keys();
+			while (keys.hasMoreElements()){
+				String key = keys.nextElement();
+				AccessStat value = acl.get(key);
+				
+				Map<String,Object> mAcl = new HashMap<String,Object>();
+
+				mAcl.put("session", key);
+				mAcl.put("currentThread", String.valueOf(value.thread));
+				mAcl.put("timesTotal", String.valueOf(value.timesTotal));
+				mAcl.put("timesOneMin",String.valueOf(value.timesOneMin));
+				mAcl.put("waitCnt", String.valueOf(value.waitCnt));
+				
+				acls.add(mAcl);
+			}
+			json.put("module", getClass().getName());
+			json.put("acl", acls);
+		}
+	}
+	
+	public void report(MetricsCollector collector) {
+		if (collector != null){
+			Enumeration<String> keys = acl.keys();
+			while (keys.hasMoreElements()){
+				String key = keys.nextElement();
+				AccessStat value = acl.get(key);
+				
+				Fragment f = new Fragment(metricsId);
+				
+				Dimensions dims = f.getDimensions();
+				if (dims != null)
+					dims.lpush(key);
+				
+				Measures meas = f.getMeasures();
+				if (meas != null)
+					meas.lpush(new Object[]{
+							value.thread,
+							value.timesTotal,
+							value.timesOneMin,
+							value.waitCnt
+					});
+				
+				collector.metricsIncr(f);
+			}			
+		}
+	}
+	
 	/**
 	 * 访问统计
 	 * @author duanyy
@@ -129,24 +202,24 @@ abstract public class AbstractAccessController implements AccessController {
 		/**
 		 * 总调用次数
 		 */
-		protected long timesTotal = 0;
+		public long timesTotal = 0;
 		/**
 		 * 最近一分钟调用次数
 		 */
-		protected int timesOneMin = 0;
+		public int timesOneMin = 0;
 		/**
 		 * 当前接入进程个数
 		 */
-		protected int thread = 0;
+		public int thread = 0;
 		/**
 		 * 时间戳(用于定义最近一分钟)
 		 */
-		protected long timestamp = 0;
+		public long timestamp = 0;
 		
 		/**
 		 * 等待进程数
 		 * @since 1.2.1
 		 */
-		protected int waitCnt = 0;
+		public int waitCnt = 0;
 	}
 }

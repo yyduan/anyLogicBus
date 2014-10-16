@@ -23,7 +23,9 @@ import com.anysoft.util.XmlTools;
  * @author duanyy
  * 
  * @since 1.2.5.4
- *
+ * 
+ * @version 1.2.8.2 [20141015 duanyy]
+ * - 实现Reportable
  */
 public class DefaultServiceDescription implements ServiceDescription{
 	/**
@@ -527,6 +529,16 @@ public class DefaultServiceDescription implements ServiceDescription{
 			
 			json.put("arguments", arguList);
 		}
+	}
+
+	@Override
+	public void report(Element xml) {
+		toXML(xml);
+	}
+
+	@Override
+	public void report(Map<String, Object> json) {
+		toJson(json);
 	}
 
 }

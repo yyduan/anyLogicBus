@@ -96,7 +96,7 @@ public class MetricHolder {
 				Metric metric = getMetric(key);
 				if (metric != null){
 					Element eMetric = doc.createElement("metric");
-					metric.toXML(eMetric);
+					metric.report(eMetric);
 					eMetrics.appendChild(eMetric);
 				}
 			}

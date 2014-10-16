@@ -1,6 +1,8 @@
 package com.logicbus.backend;
 
 import com.anysoft.util.BaseException;
+import com.anysoft.util.Reportable;
+import com.logicbus.backend.stats.core.MetricsReportable;
 import com.logicbus.models.servant.ServiceDescription;
 
 
@@ -17,8 +19,12 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @version 1.2.6 [20140807 duanyy]
  * - 变更为interface
+ * 
+ * @version 1.2.8.2 [20141014 duanyy]
+ * - 扩展Reportable
+ * - 扩展MetricsReportable
  */
-public interface ServantPool extends AutoCloseable{
+public interface ServantPool extends AutoCloseable,Reportable,MetricsReportable{
 	public ServiceDescription getDescription();
 	public ServantStat getStat();
 	public void reload(ServiceDescription sd);

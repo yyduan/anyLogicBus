@@ -18,6 +18,9 @@ import com.logicbus.models.catalog.Path;
  * @author duanyy
  *
  * @since 1.2.7.2
+ *  
+ * @version 1.2.8.2 [20141010 duanyy]
+ * - 修正app取值中的/问题
  * 
  */
 public class AppProxyNormalizer implements Normalizer {
@@ -36,8 +39,9 @@ public class AppProxyNormalizer implements Normalizer {
 		String svc = null;
 		
 		if (path != null && path.length() > 0){
-			int pos = findPos(path);
-			app = path.substring(0,pos);
+			int start = findStart(path);
+			int pos = findPos(start,path);
+			app = path.substring(start,pos);
 			svc = path.substring(pos);
 		}
 	
@@ -54,11 +58,11 @@ public class AppProxyNormalizer implements Normalizer {
 		return new Path(proxyServiceId);
 	}
 
-	static private int findPos(String path){
+	static private int findPos(int start,String path){
 		int length = path.length();
 		int found = -1;
 		boolean inSlash = true;
-		for (int i = 0 ; i < length ; i ++){
+		for (int i = start ; i < length ; i ++){
 			if (inSlash){
 				if (path.charAt(i) != '/'){
 					inSlash = false;
@@ -76,4 +80,14 @@ public class AppProxyNormalizer implements Normalizer {
 		return found;
 	}
 
+	static private int findStart(String path){
+		int length = path.length();
+		int found = 0;
+		for ( ; found < length ; found++){
+			if (path.charAt(found) != '/'){
+				return found;
+			}
+		}
+		return found;
+	}
 }

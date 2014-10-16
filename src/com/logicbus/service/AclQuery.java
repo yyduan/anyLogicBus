@@ -1,14 +1,20 @@
 package com.logicbus.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.anysoft.util.Settings;
+import com.logicbus.backend.AbstractServant;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.Context;
-import com.logicbus.backend.Servant;
+import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
+import com.logicbus.backend.message.JsonMessage;
+import com.logicbus.models.servant.ServiceDescription;
 
 
 /**
@@ -32,12 +38,23 @@ import com.logicbus.backend.message.XMLMessage;
  * 
  * @author duanyy
  *
+ *
+ * @version 1.2.8.2 [20141015 duanyy]
+ * - 支持双协议:JSON和XML
  */
-public class AclQuery extends Servant {
+public class AclQuery extends AbstractServant {
+	@Override
+	protected void onDestroy() {
+
+	}
 
 	@Override
-	public int actionProcess(MessageDoc msgDoc, Context ctx) throws Exception {
-		
+	protected void onCreate(ServiceDescription sd) throws ServantException {
+
+	}
+
+	@Override
+	protected int onXml(MessageDoc msgDoc, Context ctx) throws Exception {
 		XMLMessage msg = (XMLMessage)msgDoc.asMessage(XMLMessage.class);
 		
 		Document doc = msg.getDocument();
@@ -48,9 +65,27 @@ public class AclQuery extends Servant {
 		if (ac != null){
 			Element acls = doc.createElement("acls");
 			
-			ac.toXML(acls);
+			ac.report(acls);
 			
 			root.appendChild(acls);
+		}
+		
+		return 0;
+	}
+
+	@Override
+	protected int onJson(MessageDoc msgDoc, Context ctx) throws Exception {
+		JsonMessage msg = (JsonMessage)msgDoc.asMessage(JsonMessage.class);
+		
+		Map<String,Object> root = msg.getRoot();
+		
+		Settings settings = Settings.get();
+		AccessController ac = (AccessController) settings.get("accessController");
+		if (ac != null){
+			Map<String,Object> acls = new HashMap<String,Object>();
+			ac.report(acls);
+			
+			root.put("acls", acls);
 		}
 		
 		return 0;

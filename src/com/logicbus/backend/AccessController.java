@@ -1,9 +1,9 @@
 package com.logicbus.backend;
 
-import org.w3c.dom.Element;
-
 import com.anysoft.util.BaseException;
 import com.anysoft.util.Factory;
+import com.anysoft.util.Reportable;
+import com.logicbus.backend.stats.core.MetricsReportable;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -25,8 +25,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.0.1 [20140402 duanyy] <br>
  * - 增加{@link #createSessionId(Path, ServiceDescription, Context) createSessionId}函数以避免多次计算SessionId <br>
  * 
+ * @version 1.2.8.2 [20141015 duanyy] <br>
+ * - 扩展Reportable,MetricsReportable
  */
-public interface AccessController {
+public interface AccessController extends Reportable,MetricsReportable{
 	
 	/**
 	 * 针对当前会话创建会话ID
@@ -61,12 +63,6 @@ public interface AccessController {
 	 * @return 无用处，仅仅追求对称美
 	 */
 	public int accessEnd(String sessionId,Path serviceId,ServiceDescription servant,Context ctx);
-	
-	/**
-	 * 输出信息到XML
-	 * @param root Element节点
-	 */
-	public void toXML(Element root);
 	
 	/**
 	 * AccessController的工厂类

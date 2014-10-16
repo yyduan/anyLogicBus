@@ -1,6 +1,5 @@
 package com.logicbus.backend;
 
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -11,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.anysoft.pool.QueuedPool;
+import com.anysoft.pool.QueuedPool2;
 import com.anysoft.util.BaseException;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.Properties;
@@ -22,7 +21,6 @@ import com.logicbus.backend.stats.core.Fragment;
 import com.logicbus.backend.stats.core.Measures;
 import com.logicbus.backend.stats.core.MetricsCollector;
 import com.logicbus.models.servant.ServiceDescription;
-
 
 /**
  * 基于队列的ServantPool
@@ -36,11 +34,10 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.2.6.3 [20140815 duanyy]
  * - 配合基础类库Pool修改
  * 
- * @version 1.2.8.2 [20141014 duanyy]
- * - ServantStat变更
- * - 实现Reportable和MetricsReportable
+ * @since 1.2.8.2
+ * 
  */
-public class QueuedServantPool extends QueuedPool<Servant> implements ServantPool{
+public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantPool{
 	/**
 	 * 服务描述
 	 */
@@ -50,12 +47,10 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 	 * 服务统计
 	 */
 	private ServantStat m_stat;
-	
 	/**
 	 * 指标ID
 	 */
 	protected String metricsId = "svc.pool";
-	
 	/**
 	 * 获取服务描述
 	 * @return ServiceDescription
@@ -107,17 +102,14 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 	 * 通过服务描述构造资源池
 	 * @param sd 服务描述
 	 */
-	public QueuedServantPool(ServiceDescription sd){
+	public QueuedServantPool2(ServiceDescription sd){
 		m_desc = sd;
-		
+
 		Properties props = m_desc.getProperties();
-		
 		m_stat = new ServantStat(props);
 
 		queueTimeout = PropertiesConstants.getInt(props, "servant.queueTimeout", 10);
-		
 		metricsId = PropertiesConstants.getString(props, "servant.metrics.id", metricsId);
-		
 		create(props);
 		
 		logger.info("Initialize the servant pool..");
@@ -278,5 +270,5 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 			
 			json.put("runtime", runtime);
 		}
-	}
+	}	
 }

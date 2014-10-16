@@ -23,6 +23,11 @@ import com.logicbus.models.servant.ServiceDescription;
  * 
  * @version 1.2.6 [20140807 duanyy] <br>
  * - ServantPool和ServantFactory插件化
+ * 
+ * @version 1.2.8.2 [20141014 duanyy] <br>
+ * - 修正异常处理
+ * - servant.pool缺省改为QueuedServantPool2
+ * 
  */
 public class QueuedServantFactory implements ServantFactory {
 	/**
@@ -47,13 +52,14 @@ public class QueuedServantFactory implements ServantFactory {
 		
 		String poolClass = PropertiesConstants.getString(props, 
 				"servant.pool", 
-				"com.logicbus.backend.QueuedServantPool");
+				"com.logicbus.backend.QueuedServantPool2");
 		
 		ClassLoader cl = getClassLoader();
 		try {
 			poolClazz = (Class<? extends ServantPool>)cl.loadClass(poolClass);
 		}catch (Throwable t){
-			poolClazz = ServantPool.class;
+			poolClazz = QueuedServantPool.class;
+			logger.error("Can not load servant pool class,using default:" + QueuedServantPool.class.getName(),t);
 		}
 	}
 	
@@ -90,6 +96,7 @@ public class QueuedServantFactory implements ServantFactory {
 				poolClazz.getConstructor(ServiceDescription.class);
 			return constructor.newInstance(sd);
 		}catch (Throwable t){
+			logger.error("Can not create servant pool instance,using default:",t);
 			return new QueuedServantPool(sd);
 		}
 	}

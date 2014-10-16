@@ -1,7 +1,11 @@
 package com.logicbus.backend.acm;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.w3c.dom.Document;
@@ -12,6 +16,10 @@ import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.Context;
+import com.logicbus.backend.stats.core.Dimensions;
+import com.logicbus.backend.stats.core.Fragment;
+import com.logicbus.backend.stats.core.Measures;
+import com.logicbus.backend.stats.core.MetricsCollector;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
@@ -27,6 +35,9 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.2.6.2 [20140814 duanyy]
  * - 优化缺省ACM模型的存储机制
  * 
+ * @version 1.2.8.2 [20141011 duanyy] <br>
+ * - AccessStat变更可见性为public
+ * - 实现Reportable和MetricsReportable
  */
 abstract public class ACMAccessController implements AccessController {
 	/**
@@ -60,6 +71,11 @@ abstract public class ACMAccessController implements AccessController {
 	
 	protected String defaultAcmId = "default";
 	
+	/**
+	 * 指标ID
+	 */
+	protected String metricsId = "acm.stat";
+	
 	protected AccessControlModel defaultAcm = null;
 	
 	public ACMAccessController(Properties props){
@@ -71,6 +87,7 @@ abstract public class ACMAccessController implements AccessController {
 			tokenHolder = new TokenHolder(props);
 		}
 		appField = props.GetValue("acm.appArguName", appField);		
+		metricsId = PropertiesConstants.getString(props, "acm.metrics.id", metricsId);
 	}
 	
 	public TokenHolder getTokenHolder(){
@@ -171,23 +188,79 @@ abstract public class ACMAccessController implements AccessController {
 	}
 
 	@Override
-	public void toXML(Element root) {
-		Document doc = root.getOwnerDocument();
-		
-		Enumeration<String> keys = acl.keys();
-		while (keys.hasMoreElements()){
-			String key = keys.nextElement();
-			AccessStat value = acl.get(key);
-			Element eAcl = doc.createElement("acl");
+	public void report(Element root) {
+		if (root != null){
+			Document doc = root.getOwnerDocument();
 			
-			eAcl.setAttribute("session", key);
-			eAcl.setAttribute("currentThread", String.valueOf(value.thread));
-			eAcl.setAttribute("timesTotal", String.valueOf(value.timesTotal));
-			eAcl.setAttribute("timesOneMin",String.valueOf(value.timesOneMin));
-			eAcl.setAttribute("waitCnt", String.valueOf(value.waitCnt));
+			Enumeration<String> keys = acl.keys();
+			while (keys.hasMoreElements()){
+				String key = keys.nextElement();
+				AccessStat value = acl.get(key);
+				Element eAcl = doc.createElement("acl");
+				
+				eAcl.setAttribute("session", key);
+				eAcl.setAttribute("currentThread", String.valueOf(value.thread));
+				eAcl.setAttribute("timesTotal", String.valueOf(value.timesTotal));
+				eAcl.setAttribute("timesOneMin",String.valueOf(value.timesOneMin));
+				eAcl.setAttribute("waitCnt", String.valueOf(value.waitCnt));
+				
+				root.appendChild(eAcl);
+			}
 			
-			root.appendChild(eAcl);
-		}	
+			root.setAttribute("module", getClass().getName());
+		}
+	}
+
+	@Override
+	public void report(Map<String,Object> json) {
+		if (json != null){
+			List<Object> acls = new ArrayList<Object>();
+			
+			Enumeration<String> keys = acl.keys();
+			while (keys.hasMoreElements()){
+				String key = keys.nextElement();
+				AccessStat value = acl.get(key);
+				
+				Map<String,Object> mAcl = new HashMap<String,Object>();
+
+				mAcl.put("session", key);
+				mAcl.put("currentThread", String.valueOf(value.thread));
+				mAcl.put("timesTotal", String.valueOf(value.timesTotal));
+				mAcl.put("timesOneMin",String.valueOf(value.timesOneMin));
+				mAcl.put("waitCnt", String.valueOf(value.waitCnt));
+				
+				acls.add(mAcl);
+			}
+			json.put("module", getClass().getName());
+			json.put("acl", acls);
+		}
+	}
+	
+	public void report(MetricsCollector collector) {
+		if (collector != null){
+			Enumeration<String> keys = acl.keys();
+			while (keys.hasMoreElements()){
+				String key = keys.nextElement();
+				AccessStat value = acl.get(key);
+				
+				Fragment f = new Fragment(metricsId);
+				
+				Dimensions dims = f.getDimensions();
+				if (dims != null)
+					dims.lpush(key);
+				
+				Measures meas = f.getMeasures();
+				if (meas != null)
+					meas.lpush(new Object[]{
+							value.thread,
+							value.timesTotal,
+							value.timesOneMin,
+							value.waitCnt
+					});
+				
+				collector.metricsIncr(f);
+			}			
+		}
 	}
 
 }
