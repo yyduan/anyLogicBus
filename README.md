@@ -146,3 +146,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
   	 + 对线程池和访问控制器体系进行Reportable和MetricsReportable改造(1.2.8.2)
   	 + 简化ServantStat模型(1.2.8.2)
   	 + 淘汰dbcp相关实现，将在下一个版本重写(1.2.8.2)
+  	 
+ - 1.2.9 [20141016 duanyy]
+ 	 + 增加基于JSON协议的REST远端调用框架(1.2.9)
+ 	 + 重写dbcp(1.2.9)

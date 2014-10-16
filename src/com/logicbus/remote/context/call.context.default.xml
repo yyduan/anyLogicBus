@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<source>
+	<context>
+		<call id = "hello" uri="http://192.168.131.134:8090/services/anypaas/Hello">
+			<request>
+				<query>
+					<json selector="Constants" selector-id="json" selector-value="true"/>	
+					<timestamp selector="Now" selector-id="t"/>
+				</query>
+				<data>
+					
+				</data>
+			</request>
+		</call>
+	</context>
+</source>
