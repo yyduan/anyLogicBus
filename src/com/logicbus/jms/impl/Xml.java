@@ -10,11 +10,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.anysoft.cache.ChangeAware;
 import com.anysoft.util.BaseException;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.Properties;
 import com.anysoft.util.Settings;
+import com.anysoft.util.Watcher;
 import com.anysoft.util.XmlElementProperties;
 import com.anysoft.util.XmlTools;
 import com.anysoft.util.resource.ResourceFactory;
@@ -25,7 +25,8 @@ import com.logicbus.jms.JmsModel;
  * 
  * @author duanyy
  * @since 1.2.6.1
- *
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - 淘汰ChangeAware模型，转为更为通用的Watcher模型
  */
 public class Xml implements JmsModelProvider {
 	/**
@@ -44,11 +45,11 @@ public class Xml implements JmsModelProvider {
 	}
 
 	@Override
-	public void addChangeListener(ChangeAware<JmsModel> listener) {
+	public void addWatcher(Watcher<JmsModel> listener) {
 	}
 
 	@Override
-	public void removeChangeListener(ChangeAware<JmsModel> listener) {
+	public void removeWatcher(Watcher<JmsModel> listener) {
 	}
 
 	@Override

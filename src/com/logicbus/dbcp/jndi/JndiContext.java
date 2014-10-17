@@ -1,8 +1,9 @@
 package com.logicbus.dbcp.jndi;
 
+import java.util.Map;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.w3c.dom.Element;
@@ -31,7 +32,7 @@ public class JndiContext implements com.anysoft.context.Context<ConnectionPool>{
 			DataSource ds = (DataSource) jndiCntx.lookup(id);
 			if (ds != null)
 				return new JndiConnectionPool(id, ds);
-		} catch (NamingException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -49,4 +50,17 @@ public class JndiContext implements com.anysoft.context.Context<ConnectionPool>{
 
 	}
 
+	@Override
+	public void report(Element xml){
+		if (xml != null){
+			xml.setAttribute("module", getClass().getName());
+		}
+	}
+	
+	@Override
+	public void report(Map<String,Object> json){
+		if (json != null){
+			json.put("module", getClass().getName());
+		}
+	}
 }

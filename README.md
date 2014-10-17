@@ -150,3 +150,9 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  - 1.2.9 [20141016 duanyy]
  	 + 增加基于JSON协议的REST远端调用框架(1.2.9)
  	 + 重写dbcp(1.2.9)
+ 	 + dbcp:增加ConnectionPool实现ModelledImpl(1.2.9.1)
+ 	 + remote:实现Reportable(1.2.9.1)
+ 	 + 软件包com.logicbus.manager被淘汰(1.2.9.1)
+ 	 + 软件包com.logicbus.selector整体迁出anyWebLoader项目(1.2.9.1)
+ 	 + ServantStat和ConnectionPoolStat采用Counter模型(1.2.9.1)
+	 + 淘汰ChangeAware模型，转为更为通用的Watcher模型(1.2.9.1)

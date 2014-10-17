@@ -22,9 +22,22 @@ import com.logicbus.dbcp.impl.InnerContext;
  * @author duanyy
  * 
  * @since 1.2.9
+ * 
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - 增加{@link #getPool(String)}
  */
 public class DbcpSource extends Source<ConnectionPool> {
 
+	/**
+	 * 通过ID来获取ConnectionPool
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public ConnectionPool getPool(String id){
+		return get(id);
+	}
+	
 	@Override
 	public Context<ConnectionPool> newInstance(Element e, Properties p,String attrName) {
 		return factory.newInstance(e, p, attrName, InnerContext.class.getName());
@@ -86,5 +99,11 @@ public class DbcpSource extends Source<ConnectionPool> {
 			IOTools.closeStream(in);
 		}
 		return null;
+	}
+	
+	public static void main(String[] args){
+		DbcpSource src = DbcpSource.get();
+		
+		System.out.println(src.getPool("Default"));
 	}
 }

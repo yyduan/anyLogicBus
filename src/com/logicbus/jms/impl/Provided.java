@@ -4,7 +4,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
-import com.anysoft.cache.ChangeAware;
 import com.anysoft.util.BaseException;
 import com.anysoft.util.Factory;
 import com.anysoft.util.Properties;
@@ -20,8 +19,10 @@ import com.logicbus.jms.JmsModelFactory;
  * 
  * @since 1.2.6.1
  *
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - 淘汰ChangeAware模型，转为更为通用的Watcher模型
  */
-public class Provided implements JmsModelFactory,ChangeAware<JmsModel> {
+public class Provided implements JmsModelFactory,Watcher<JmsModel> {
 	
 	/**
 	 * a logger of log4j
@@ -44,7 +45,7 @@ public class Provided implements JmsModelFactory,ChangeAware<JmsModel> {
 		try {
 			TheFactory factory = new TheFactory();
 			provider = factory.newInstance(_e, _properties, "provider");
-			provider.addChangeListener(this);
+			provider.addWatcher(this);
 		}catch (Exception ex){
 			logger.error("Can not create provider",ex);
 		}
@@ -72,6 +73,16 @@ public class Provided implements JmsModelFactory,ChangeAware<JmsModel> {
 	
 	public static class TheFactory extends Factory<JmsModelProvider>{
 		
+	}
+
+	@Override
+	public void added(String id, JmsModel _data) {
+		watcherHub.added(id, _data);
+	}
+
+	@Override
+	public void removed(String id, JmsModel _data) {
+		watcherHub.removed(id, _data);
 	}
 	
 }

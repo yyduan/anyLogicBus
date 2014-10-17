@@ -10,6 +10,6 @@
 	<classpathentry kind="lib" path="lib/json-smart-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jsonPath.jar"/>
 	<classpathentry kind="lib" path="lib/mariadb-java-client-1.1.7.jar"/>
-	<classpathentry kind="lib" path="lib/anyWebLoader-open-dev-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/anyWebLoader-open-dev-1.5.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

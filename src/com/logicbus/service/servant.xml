@@ -8,7 +8,11 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.ServiceDetailQuery">
-			
+			<properties>
+				<parameter id="jsonDefault" value="false"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>
 		    <arguments>
 		       	<argu id="service" isOption="false" getter="Default" parameters=""/> 
 		    </arguments>
@@ -22,7 +26,13 @@
 			visible="protected"
 			log = "brief" 
 			module="com.logicbus.service.GC"
-		/>
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>			
+		</service>
 		<service 
 			id="ServiceReload" 
 			module="com.logicbus.service.ServiceReload" 
@@ -30,7 +40,13 @@
 			note="重新装入服务缓冲池"
 			log = "brief"
 			visible="protected"
-		/>	
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>			
+		</service>	
 		<service 
 			id="ServicePause" 
 			module="com.logicbus.service.ServicePause" 
@@ -38,7 +54,13 @@
 			note="暂停服务"
 			log = "brief"
 			visible="protected"
-		/>	
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>			
+		</service>	
 		<service 
 			id="ServiceResume" 
 			module="com.logicbus.service.ServiceResume" 
@@ -46,7 +68,13 @@
 			note="恢复服务"
 			log = "brief"
 			visible="protected"
-		/>
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>			
+		</service>
 		<service 
 			id="ServiceQuery" 
 			name="ServiceQuery" 
@@ -54,7 +82,13 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.ServiceQuery"
-		/>
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>			
+		</service>		
 		<service 
 			id="AclQuery" 
 			name="AclQuery" 
@@ -62,7 +96,13 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.AclQuery"
-		/>
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>			
+		</service>
 		<service 
 			id="Proxy" 
 			name="Proxy" 
@@ -76,6 +116,9 @@
 					<parameter id="proxy.forwarded" value="false"/>
 					<parameter id="proxy.forwarded.header" value="${http.forwardedheader}"/>
 					<parameter id="proxy.scheme" value="http"/>
+					<parameter id="jsonDefault" value="true"/>
+					<parameter id="servant.maxActive" value="10"/>
+					<parameter id="servant.maxIdle" value="1"/>					
 				</properties>
 		</service>		
 		<service 
@@ -85,7 +128,13 @@
 			visible="public"
 			log = "brief"
 			module="com.logicbus.backend.acm.TokenDestroy"
-		/>
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>
+		</service>
 		<service 
 			id="BizLogReport" 
 			name="BizLogReport" 
@@ -93,7 +142,13 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.BizLogReport"
-		/>		
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>		
 		<service 
 			id="BizLoggerPause" 
 			name="BizLoggerPause" 
@@ -101,7 +156,13 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.BizLoggerPause"
-		/>		
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>		
 		<service 
 			id="BizLoggerResume" 
 			name="BizLoggerResume" 
@@ -109,7 +170,13 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.BizLoggerResume"
-		/>	
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>	
 		<service 
 			id="MetricsReport" 
 			name="MetricsReport" 
@@ -117,7 +184,13 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.MetricsReport"
-		/>		
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>		
 		<service 
 			id="MetricsPause" 
 			name="MetricsPause" 
@@ -125,7 +198,13 @@
 			visible="public"
 			log = "brief" 
 			module="com.logicbus.service.MetricsPause"
-		/>		
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>		
 		<service 
 			id="MetricsResume" 
 			name="MetricsResume" 
@@ -133,7 +212,13 @@
 			visible="public"
 			log = "brief" 
 			module="com.logicbus.service.BizLoggerResume"
-		/>							
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>							
 		<service 
 			id="EnvQuery" 
 			name="EnvQuery" 
@@ -141,73 +226,55 @@
 			visible="public"
 			log = "none" 
 			module="com.logicbus.service.EnvQuery"
-		/>				
-		<catalog name="manager">
-			<service 
-				id="AssetQuery" 
-				name="AssetQuery" 
-				note="查询服务信息"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.manager.monitor.service.AssetQuery"
-			/>
-			<service 
-				id="DataSourceQuery" 
-				name="DataSourceQuery" 
-				note="查询数据源信息"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.service.DataSourceQuery"
-			/>			
-			<service 
-				id="CellQuery" 
-				name="CellQuery" 
-				note="查询节点信息"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.manager.monitor.service.CellQuery"
-			/>	
-			<service 
-				id="GetCatalogServices" 
-				name="GetCatalogServices" 
-				note="获取指定路径下的服务列表"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.manager.metadata.service.GetCatalogServices"
-			/>		
-			<service 
-				id="GetServantCatalog" 
-				name="GetServantCatalog" 
-				note="获取当前的服务目录"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.manager.metadata.service.GetServantCatalog"
-			/>	
-			<service 
-				id="GetServiceDesc" 
-				name="GetServiceDesc" 
-				note="获取指定服务的服务描述"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.manager.metadata.service.GetServiceDesc"
-			/>		
-			<service 
-				id="NodeQuery" 
-				name="NodeQuery" 
-				note="查询节点信息"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.manager.monitor.service.NodeQuery"
-			/>		
-			<service 
-				id="SettingsQuery" 
-				name="SettingsQuery" 
-				note="查询节点的环境变量"
-				visible="public"
-				log = "none" 
-				module="com.logicbus.manager.monitor.service.NodeSettingsQuery"
-			/>											
-		</catalog>
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>	
+		<service 
+			id="DataSourceQuery" 
+			name="DataSourceQuery" 
+			note="查询数据源信息"
+			visible="public"
+			log = "none" 
+			module="com.logicbus.dbcp.service.DataSourceQuery"
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>	
+		<service 
+			id="RemoteCallReport" 
+			name="RemoteCallReport" 
+			note="远程调用报告"
+			visible="public"
+			log = "none" 
+			module="com.logicbus.remote.service.RemoteCallReport"
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>		
+		<service 
+			id="SettingsQuery" 
+			name="SettingsQuery" 
+			note="查询节点的环境变量"
+			visible="public"
+			log = "none" 
+			module="com.logicbus.service.SettingsQuery"
+		>
+			<properties>
+				<parameter id="jsonDefault" value="true"/>
+				<parameter id="servant.maxActive" value="10"/>
+				<parameter id="servant.maxIdle" value="1"/>
+			</properties>		
+		</service>							
 	</catalog>
 	<catalog name="demo">
 	    <catalog name="together">

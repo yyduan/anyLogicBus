@@ -8,6 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.anysoft.pool.QueuedPool2;
+import com.anysoft.util.Counter;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
 import com.logicbus.backend.stats.core.MetricsCollector;
@@ -19,10 +20,15 @@ import com.logicbus.dbcp.util.ConnectionPoolStat;
  * @author duanyy
  * 
  * @since 1.2.9
- *
+ * 
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - ConnectionPool有更新
+ * - 实现Reportable接口
+ * - ConnectionPoolStat模型更新
+ * 
  */
 abstract public class AbstractConnectionPool extends QueuedPool2<Connection> implements ConnectionPool{
-	protected ConnectionPoolStat stat = null;
+	protected Counter stat = null;
 	
 	@Override
 	public void create(Properties props){
@@ -31,9 +37,19 @@ abstract public class AbstractConnectionPool extends QueuedPool2<Connection> imp
 		enableStat = PropertiesConstants.getBoolean(props, "dbcp.stat.enable", enableStat);
 		
 		if (enableStat){
-			stat = new ConnectionPoolStat(props);
+			stat = createCounter(props);
 		}else{
 			stat = null;
+		}
+	}
+	
+	protected Counter createCounter(Properties p){
+		String module = PropertiesConstants.getString(p,"dbcp.stat.module", ConnectionPoolStat.class.getName());
+		try {
+			return Counter.TheFactory.getCounter(module, p);
+		}catch (Exception ex){
+			logger.warn("Can not create dbcp counter:" + module + ",default counter is instead.");
+			return new ConnectionPoolStat(p);
 		}
 	}
 	
@@ -86,16 +102,31 @@ abstract public class AbstractConnectionPool extends QueuedPool2<Connection> imp
 		long start = System.currentTimeMillis();
 		Connection conn = null;
 		try {
-			conn = borrowObject(0,
-				timeout > getMaxWait() ? getMaxWait() : timeout);			
+			int _timeout = timeout > getMaxWait() ? getMaxWait() : timeout;
+			conn = borrowObject(0,_timeout);			
 		}finally{
 			if (stat != null){
-				stat.visited(System.currentTimeMillis() - start, conn == null);
+				stat.count(System.currentTimeMillis() - start, conn == null);
 			}
 		}
 		return conn;
 	}
 
+	@Override
+	public Connection getConnection(int timeout) {
+		return getConnection(timeout,false);
+	}
+
+	@Override
+	public Connection getConnection(boolean enableRWS) {
+		return getConnection(getMaxWait(),enableRWS);
+	}
+
+	@Override
+	public Connection getConnection() {
+		return getConnection(getMaxWait(),false);
+	}
+	
 	@Override
 	public void recycle(Connection conn) {
 		if (conn != null)

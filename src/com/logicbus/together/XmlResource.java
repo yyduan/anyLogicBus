@@ -10,11 +10,11 @@ import org.w3c.dom.Element;
 
 import com.anysoft.cache.Cacheable;
 import com.anysoft.cache.CacheManager;
-import com.anysoft.cache.ChangeAware;
 import com.anysoft.cache.Provider;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.JsonTools;
 import com.anysoft.util.Settings;
+import com.anysoft.util.Watcher;
 import com.anysoft.util.XmlTools;
 import com.anysoft.util.resource.ResourceFactory;
 
@@ -32,6 +32,9 @@ import com.anysoft.util.resource.ResourceFactory;
  * 
  * @version 1.2.8 [20140912 duanyy]
  * - JsonSerializer中Map参数化
+ * 
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - 淘汰ChangeAware模型，转为更为通用的Watcher模型
  */
 public class XmlResource implements Cacheable{
 	
@@ -126,12 +129,12 @@ public class XmlResource implements Cacheable{
 		}
 
 		@Override
-		public void addChangeListener(ChangeAware<XmlResource> listener) {
+		public void addWatcher(Watcher<XmlResource> listener) {
 			// do nothing
 		}
 		
 		@Override
-		public void removeChangeListener(ChangeAware<XmlResource> listener) {
+		public void removeWatcher(Watcher<XmlResource> listener) {
 			// do nothing
 		}
 

@@ -23,7 +23,9 @@ import com.logicbus.dbcp.util.ConnectionPoolStat;
  * @author duanyy
  * 
  * @since 1.2.9
- *
+ * 
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - ConnectionPoolStat模型更新
  */
 public class JndiConnectionPool implements ConnectionPool {
 	protected static final Logger logger = LogManager.getLogger(JndiConnectionPool.class);
@@ -46,13 +48,28 @@ public class JndiConnectionPool implements ConnectionPool {
 				logger.error("Error when getting jdbc connection from datasource:" + name,e);
 			}finally{
 				if (stat != null){
-					stat.visited(System.currentTimeMillis() - start, conn == null);
+					stat.count(System.currentTimeMillis() - start, conn == null);
 				}
 			}
 		}
 		return conn;
 	}
 
+	@Override
+	public Connection getConnection(int timeout) {
+		return getConnection(3000,false);
+	}
+
+	@Override
+	public Connection getConnection(boolean enableRWS) {
+		return getConnection(3000,enableRWS);
+	}
+
+	@Override
+	public Connection getConnection() {
+		return getConnection(3000,false);
+	}
+	
 	@Override
 	public void recycle(Connection conn) {
 		SQLTools.close(conn);
@@ -111,4 +128,6 @@ public class JndiConnectionPool implements ConnectionPool {
 	@Override
 	public void close() throws Exception {
 	}
+
+
 }

@@ -1,10 +1,17 @@
 package com.logicbus.remote.impl.http;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.anysoft.selector.FieldList;
+import com.anysoft.selector.Selector;
 import com.anysoft.util.BaseException;
+import com.anysoft.util.Counter;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.XmlElementProperties;
@@ -17,8 +24,8 @@ import com.logicbus.remote.core.Call;
 import com.logicbus.remote.core.CallException;
 import com.logicbus.remote.core.Parameters;
 import com.logicbus.remote.core.Result;
-import com.logicbus.selector.FieldList;
-import com.logicbus.selector.Selector;
+import com.logicbus.remote.util.CallStat;
+
 
 /**
  * 基于Http请求的实现
@@ -26,9 +33,14 @@ import com.logicbus.selector.Selector;
  * @author duanyy
  *
  * @since 1.2.9
+ * 
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - 实现Reportable接口
+ * - 增加Counter模型
  */
 public class HttpCall implements Call {
-
+	protected static Logger logger = LogManager.getLogger(HttpCall.class);
+	
 	@Override
 	public void close() throws Exception {
 		// nothing to do
@@ -56,6 +68,8 @@ public class HttpCall implements Call {
 		}
 		
 		client = new HttpClient(p);
+		
+		stat = createCounter(p);
 	}
 
 	@Override
@@ -105,9 +119,16 @@ public class HttpCall implements Call {
 			}
 		}
 		
+		long start = System.currentTimeMillis();
 		try {	
 			client.invoke(uri, p, buffer,buffer);
+			if (stat != null){
+				stat.count(System.currentTimeMillis() - start, true);
+			}
 		} catch (ClientException e) {
+			if (stat != null){
+				stat.count(System.currentTimeMillis() - start, false);
+			}
 			throw new CallException(e.getCode(),e.getMessage(),e);
 		}
 		return new HttpResult(buffer);
@@ -130,7 +151,59 @@ public class HttpCall implements Call {
 	 */
 	protected HttpClient client = null;
 	
-	public static void main(String [] args){
-		
+	/**
+	 * 统计模型
+	 */
+	protected Counter stat = null;
+
+	protected Counter createCounter(Properties p){
+		String module = PropertiesConstants.getString(p,"call.stat.module", CallStat.class.getName());
+		try {
+			return Counter.TheFactory.getCounter(module, p);
+		}catch (Exception ex){
+			logger.warn("Can not create call counter:" + module + ",default counter is instead.");
+			return new CallStat(p);
+		}
+	}
+	
+	@Override
+	public void report(Element xml) {
+		if (xml != null){
+			xml.setAttribute("module", getClass().getName());
+			
+			Document doc = xml.getOwnerDocument();
+			
+			{
+				Element _runtime = doc.createElement("runtime");
+				
+				if (stat != null)
+				{
+					Element _stat = doc.createElement("stat");
+					stat.report(_stat);
+					_runtime.appendChild(_stat);
+				}
+				
+				xml.appendChild(_runtime);
+			}
+		}
+	}
+
+	@Override
+	public void report(Map<String, Object> json) {
+		if (json != null){
+			json.put("module", getClass().getName());
+			
+			{
+				Map<String,Object> _runtime = new HashMap<String,Object>();
+				
+				if (stat != null){
+					Map<String,Object> _stat = new HashMap<String,Object>();
+					stat.report(_stat);
+					_runtime.put("stat", _stat);
+				}
+				
+				json.put("runtime", _runtime);
+			}
+		}
 	}
 }

@@ -23,10 +23,12 @@ import com.logicbus.models.servant.ServiceDescription;
  * @version 1.2.8.2 [20141014 duanyy]
  * - 扩展Reportable
  * - 扩展MetricsReportable
+ * 
+ * @version 1.2.9.1 [201e41017 duanyy]
+ * - 减少{@link #getStat()}方法
  */
 public interface ServantPool extends AutoCloseable,Reportable,MetricsReportable{
 	public ServiceDescription getDescription();
-	public ServantStat getStat();
 	public void reload(ServiceDescription sd);
 		
 	public void pause();

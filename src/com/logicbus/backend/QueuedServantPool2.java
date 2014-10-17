@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 
 import com.anysoft.pool.QueuedPool2;
 import com.anysoft.util.BaseException;
+import com.anysoft.util.Counter;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
@@ -46,11 +47,17 @@ public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantP
 	/**
 	 * 服务统计
 	 */
-	private ServantStat m_stat;
+	private Counter m_stat;
 	/**
 	 * 指标ID
 	 */
 	protected String metricsId = "svc.pool";
+	
+	/**
+	 * 状态
+	 */
+	protected String status = "running";
+	
 	/**
 	 * 获取服务描述
 	 * @return ServiceDescription
@@ -61,26 +68,26 @@ public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantP
 	 * 获取服务统计
 	 * @return
 	 */
-	public ServantStat getStat(){return m_stat;}
+	public Counter getStat(){return m_stat;}
 	
 	/**
 	 * 设置资源池为暂停
 	 */
 	public void pause(){
-		m_stat.status = "pause";
+		status = "pause";
 	}
 	/**
 	 * 恢复资源池为运行
 	 */
 	public void resume(){
-		m_stat.status = "running";
+		status = "running";
 	}
 	/**
 	 * 判断资源池是否运行状态
 	 * @return 
 	 */
 	public boolean isRunning(){
-		return m_stat.status.equals("running");
+		return status.equals("running");
 	}
 	
 	@Override
@@ -106,7 +113,7 @@ public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantP
 		m_desc = sd;
 
 		Properties props = m_desc.getProperties();
-		m_stat = new ServantStat(props);
+		m_stat = createCounter(props);
 
 		queueTimeout = PropertiesConstants.getInt(props, "servant.queueTimeout", 10);
 		metricsId = PropertiesConstants.getString(props, "servant.metrics.id", metricsId);
@@ -119,6 +126,16 @@ public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantP
 		logger.info("MaxActive:" + getMaxActive());
 		logger.info("MaxIdle:" + getMaxIdle());
 	}	
+	
+	protected Counter createCounter(Properties p){
+		String module = PropertiesConstants.getString(p,"servant.stat.module", ServantStat.class.getName());
+		try {
+			return Counter.TheFactory.getCounter(module, p);
+		}catch (Exception ex){
+			logger.warn("Can not create servant counter:" + module + ",default counter is instead.");
+			return new ServantStat(p);
+		}
+	}
 	
 	/**
 	 * 重新装入服务资源池
@@ -140,7 +157,7 @@ public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantP
 	public void visited(long duration,String code){
 		lockStat.lock();
 		try{
-			m_stat.visited(duration,code);
+			m_stat.count(duration,code.equals("core.ok"));
 		}finally{
 			lockStat.unlock();
 		}
@@ -242,6 +259,7 @@ public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantP
 			Document doc = xml.getOwnerDocument();
 			
 			Element runtime = doc.createElement("runtime");
+			runtime.setAttribute("status", status);
 			
 			Element stat = doc.createElement("stat");
 			m_stat.report(stat);
@@ -259,7 +277,7 @@ public class QueuedServantPool2 extends QueuedPool2<Servant> implements ServantP
 	public void report(Map<String,Object> json){
 		if (json != null){
 			Map<String,Object> runtime = new HashMap<String,Object>();
-			
+			runtime.put("status", status);
 			Map<String,Object> stat = new HashMap<String,Object>();
 			m_stat.report(stat);
 			runtime.put("stat", stat);

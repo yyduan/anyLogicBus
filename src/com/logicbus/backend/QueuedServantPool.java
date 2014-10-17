@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 
 import com.anysoft.pool.QueuedPool;
 import com.anysoft.util.BaseException;
+import com.anysoft.util.Counter;
 import com.anysoft.util.IOTools;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
@@ -31,14 +32,18 @@ import com.logicbus.models.servant.ServiceDescription;
  * @since 1.2.4
  * 
  * @version 1.2.6 [20140807 duanyy]
- * - 实现ServantPool接口
+ *  - 实现ServantPool接口
  * 
  * @version 1.2.6.3 [20140815 duanyy]
- * - 配合基础类库Pool修改
+ *  - 配合基础类库Pool修改
  * 
  * @version 1.2.8.2 [20141014 duanyy]
- * - ServantStat变更
- * - 实现Reportable和MetricsReportable
+ *  - ServantStat变更
+ *  - 实现Reportable和MetricsReportable
+ * 
+ * @version 1.2.9.2 [20141017 duanyy]
+ *  - 修改ServantStat模型
+ *  
  */
 public class QueuedServantPool extends QueuedPool<Servant> implements ServantPool{
 	/**
@@ -49,12 +54,17 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 	/**
 	 * 服务统计
 	 */
-	private ServantStat m_stat;
+	private Counter m_stat;
 	
 	/**
 	 * 指标ID
 	 */
 	protected String metricsId = "svc.pool";
+	
+	/**
+	 * 运行状态
+	 */
+	protected String status = "running";
 	
 	/**
 	 * 获取服务描述
@@ -66,26 +76,26 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 	 * 获取服务统计
 	 * @return
 	 */
-	public ServantStat getStat(){return m_stat;}
+	public Counter getStat(){return m_stat;}
 	
 	/**
 	 * 设置资源池为暂停
 	 */
 	public void pause(){
-		m_stat.status = "pause";
+		status = "pause";
 	}
 	/**
 	 * 恢复资源池为运行
 	 */
 	public void resume(){
-		m_stat.status = "running";
+		status = "running";
 	}
 	/**
 	 * 判断资源池是否运行状态
 	 * @return 
 	 */
 	public boolean isRunning(){
-		return m_stat.status.equals("running");
+		return status.equals("running");
 	}
 	
 	@Override
@@ -112,7 +122,7 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 		
 		Properties props = m_desc.getProperties();
 		
-		m_stat = new ServantStat(props);
+		m_stat = createCounter(props);
 
 		queueTimeout = PropertiesConstants.getInt(props, "servant.queueTimeout", 10);
 		
@@ -127,6 +137,16 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 		logger.info("MaxActive:" + getMaxActive());
 		logger.info("MaxIdle:" + getMaxIdle());
 	}	
+	
+	protected Counter createCounter(Properties p){
+		String module = PropertiesConstants.getString(p,"servant.stat.module", ServantStat.class.getName());
+		try {
+			return Counter.TheFactory.getCounter(module, p);
+		}catch (Exception ex){
+			logger.warn("Can not create servant counter:" + module + ",default counter is instead.");
+			return new ServantStat(p);
+		}
+	}
 	
 	/**
 	 * 重新装入服务资源池
@@ -148,7 +168,7 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 	public void visited(long duration,String code){
 		lockStat.lock();
 		try{
-			m_stat.visited(duration,code);
+			m_stat.count(duration,code.equals("core.ok"));
 		}finally{
 			lockStat.unlock();
 		}
@@ -251,6 +271,8 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 			
 			Element runtime = doc.createElement("runtime");
 			
+			runtime.setAttribute("status", status);
+			
 			Element stat = doc.createElement("stat");
 			m_stat.report(stat);
 			runtime.appendChild(stat);
@@ -267,6 +289,7 @@ public class QueuedServantPool extends QueuedPool<Servant> implements ServantPoo
 	public void report(Map<String,Object> json){
 		if (json != null){
 			Map<String,Object> runtime = new HashMap<String,Object>();
+			runtime.put("status", status);
 			
 			Map<String,Object> stat = new HashMap<String,Object>();
 			m_stat.report(stat);

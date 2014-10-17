@@ -1,5 +1,6 @@
 package com.logicbus.remote.core;
 
+import com.anysoft.util.Reportable;
 import com.anysoft.util.XMLConfigurable;
 
 /**
@@ -10,8 +11,11 @@ import com.anysoft.util.XMLConfigurable;
  * 
  * @since 1.2.9
  * 
+ * @version 1.2.9.1 [20141017 duanyy]
+ * - 实现Reportable接口
+ * 
  */
-public interface Call extends AutoCloseable,XMLConfigurable{
+public interface Call extends AutoCloseable,XMLConfigurable,Reportable{
 	
 	/**
 	 * 创建参数实例
