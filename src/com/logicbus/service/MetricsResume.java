@@ -13,7 +13,7 @@ import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.JsonMessage;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.XMLMessage;
-import com.logicbus.backend.stats.core.MetricsHandler;
+import com.logicbus.backend.metrics.core.MetricsHandler;
 import com.logicbus.models.servant.ServiceDescription;
 
 public class MetricsResume extends AbstractServant{

@@ -4,11 +4,11 @@ import java.util.Map;
 
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
-import com.logicbus.client.Client;
-import com.logicbus.client.ClientException;
-import com.logicbus.client.HttpClient;
-import com.logicbus.client.JsonBuffer;
-import com.logicbus.client.Parameter;
+import com.logicbus.remote.client.Client;
+import com.logicbus.remote.client.ClientException;
+import com.logicbus.remote.client.HttpClient;
+import com.logicbus.remote.client.JsonBuffer;
+import com.logicbus.remote.client.Parameter;
 
 /**
  * TokenCenter连接器

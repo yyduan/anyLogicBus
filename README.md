@@ -156,3 +156,6 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
  	 + 软件包com.logicbus.selector整体迁出anyWebLoader项目(1.2.9.1)
  	 + ServantStat和ConnectionPoolStat采用Counter模型(1.2.9.1)
 	 + 淘汰ChangeAware模型，转为更为通用的Watcher模型(1.2.9.1)
+	 + 软件包com.logicbus.backend.stats调整到com.logicbus.backend.metrics(1.2.9.2)
+	 + 软件包com.logicbus.client调整到com.logicbus.remote.client(1.2.9.2)
+	 

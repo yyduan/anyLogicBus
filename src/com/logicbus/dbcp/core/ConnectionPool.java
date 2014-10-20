@@ -3,7 +3,7 @@ package com.logicbus.dbcp.core;
 import java.sql.Connection;
 
 import com.anysoft.util.Reportable;
-import com.logicbus.backend.stats.core.MetricsReportable;
+import com.logicbus.backend.metrics.core.MetricsReportable;
 
 
 /**

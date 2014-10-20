@@ -1,8 +1,8 @@
-package com.logicbus.backend.stats.handler;
+package com.logicbus.backend.metrics.handler;
 
 import com.anysoft.stream.DispatchHandler;
-import com.logicbus.backend.stats.core.Fragment;
-import com.logicbus.backend.stats.core.MetricsHandler;
+import com.logicbus.backend.metrics.core.Fragment;
+import com.logicbus.backend.metrics.core.MetricsHandler;
 
 /**
  * 分发处理器

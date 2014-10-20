@@ -3,7 +3,7 @@ package com.logicbus.backend;
 import com.anysoft.util.BaseException;
 import com.anysoft.util.Factory;
 import com.anysoft.util.Reportable;
-import com.logicbus.backend.stats.core.MetricsReportable;
+import com.logicbus.backend.metrics.core.MetricsReportable;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 

@@ -1,12 +1,12 @@
-package com.logicbus.backend.stats.handler;
+package com.logicbus.backend.metrics.handler;
 
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.anysoft.stream.Handler;
-import com.logicbus.backend.stats.core.Fragment;
-import com.logicbus.backend.stats.core.Slide;
+import com.logicbus.backend.metrics.core.Fragment;
+import com.logicbus.backend.metrics.core.Slide;
 
 /**
  * 累加器

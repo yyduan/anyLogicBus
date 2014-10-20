@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.w3c.dom.Element;
 
-import com.logicbus.backend.stats.core.MetricsCollector;
+import com.logicbus.backend.metrics.core.MetricsCollector;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 

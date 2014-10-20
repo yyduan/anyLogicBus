@@ -1,4 +1,4 @@
-package com.logicbus.client;
+package com.logicbus.remote.client;
 
 /**
  * 服务器响应
@@ -6,7 +6,7 @@ package com.logicbus.client;
  * @since 1.0.4
  * 
  * @version 1.0.7 [20140418 duanyy]<br>
- * - 增加{@link com.logicbus.client.Response#getResponseAttributeNames() getResponseAttributeNames()}
+ * - 增加{@link com.logicbus.remote.client.Response#getResponseAttributeNames() getResponseAttributeNames()}
  * 
  */
 public interface Response {

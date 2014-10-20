@@ -1,4 +1,4 @@
-package com.logicbus.backend.stats.core;
+package com.logicbus.backend.metrics.core;
 
 
 /**

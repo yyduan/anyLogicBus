@@ -1,11 +1,11 @@
-package com.logicbus.backend.stats.handler;
+package com.logicbus.backend.metrics.handler;
 
 import org.w3c.dom.Element;
 
 import com.anysoft.stream.AbstractHandler;
 import com.anysoft.util.Properties;
-import com.logicbus.backend.stats.core.Fragment;
-import com.logicbus.backend.stats.core.MetricsHandler;
+import com.logicbus.backend.metrics.core.Fragment;
+import com.logicbus.backend.metrics.core.MetricsHandler;
 
 /**
  * 缺省的处理器

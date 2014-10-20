@@ -1,4 +1,4 @@
-package com.logicbus.client;
+package com.logicbus.remote.client;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -14,7 +14,7 @@ import com.anysoft.util.DefaultProperties;
  * @since 1.2.3
  * 
  * @version 1.2.4.2 [20140709 duanyy]
- * - encoding成为{@link com.logicbus.client.Parameter Parameter}的方法.
+ * - encoding成为{@link com.logicbus.remote.client.Parameter Parameter}的方法.
  */
 public class HttpParameter extends DefaultProperties implements Parameter{
 	/**

@@ -7,10 +7,10 @@ import com.logicbus.backend.Servant;
 import com.logicbus.backend.ServantException;
 import com.logicbus.backend.message.MessageDoc;
 import com.logicbus.backend.message.RawMessage;
-import com.logicbus.client.HttpClient;
-import com.logicbus.client.Request;
-import com.logicbus.client.Response;
 import com.logicbus.models.servant.ServiceDescription;
+import com.logicbus.remote.client.HttpClient;
+import com.logicbus.remote.client.Request;
+import com.logicbus.remote.client.Response;
 
 /**
  * 代理服务

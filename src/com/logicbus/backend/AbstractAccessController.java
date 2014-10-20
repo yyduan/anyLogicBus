@@ -13,10 +13,10 @@ import org.w3c.dom.Element;
 
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
-import com.logicbus.backend.stats.core.Dimensions;
-import com.logicbus.backend.stats.core.Fragment;
-import com.logicbus.backend.stats.core.Measures;
-import com.logicbus.backend.stats.core.MetricsCollector;
+import com.logicbus.backend.metrics.core.Dimensions;
+import com.logicbus.backend.metrics.core.Fragment;
+import com.logicbus.backend.metrics.core.Measures;
+import com.logicbus.backend.metrics.core.MetricsCollector;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 

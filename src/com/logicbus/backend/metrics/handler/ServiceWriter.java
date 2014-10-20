@@ -1,4 +1,4 @@
-package com.logicbus.backend.stats.handler;
+package com.logicbus.backend.metrics.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,12 +11,12 @@ import org.w3c.dom.Element;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
-import com.logicbus.backend.stats.core.Dimensions;
-import com.logicbus.backend.stats.core.Fragment;
-import com.logicbus.client.ClientException;
-import com.logicbus.client.HttpClient;
-import com.logicbus.client.JsonBuffer;
-import com.logicbus.client.Parameter;
+import com.logicbus.backend.metrics.core.Dimensions;
+import com.logicbus.backend.metrics.core.Fragment;
+import com.logicbus.remote.client.ClientException;
+import com.logicbus.remote.client.HttpClient;
+import com.logicbus.remote.client.JsonBuffer;
+import com.logicbus.remote.client.Parameter;
 
 /**
  * 服务调用输出

@@ -11,7 +11,7 @@ import com.anysoft.pool.QueuedPool2;
 import com.anysoft.util.Counter;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
-import com.logicbus.backend.stats.core.MetricsCollector;
+import com.logicbus.backend.metrics.core.MetricsCollector;
 import com.logicbus.dbcp.core.ConnectionPool;
 import com.logicbus.dbcp.util.ConnectionPoolStat;
 

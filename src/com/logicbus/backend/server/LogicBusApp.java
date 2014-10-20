@@ -21,8 +21,8 @@ import com.logicbus.backend.IpAndServiceAccessController;
 import com.logicbus.backend.QueuedServantFactory;
 import com.logicbus.backend.ServantFactory;
 import com.logicbus.backend.bizlog.BizLogger;
-import com.logicbus.backend.stats.core.Fragment;
-import com.logicbus.backend.stats.core.MetricsHandler;
+import com.logicbus.backend.metrics.core.Fragment;
+import com.logicbus.backend.metrics.core.MetricsHandler;
 import com.logicbus.backend.timer.TimerManager;
 
 

@@ -1,4 +1,4 @@
-package com.logicbus.client;
+package com.logicbus.remote.client;
 
 
 /**

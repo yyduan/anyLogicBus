@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.anysoft.util.JsonSerializer;
 import com.anysoft.util.JsonTools;
-import com.logicbus.client.JsonBuffer;
+import com.logicbus.remote.client.JsonBuffer;
 import com.logicbus.remote.core.Builder;
 import com.logicbus.remote.core.Result;
 

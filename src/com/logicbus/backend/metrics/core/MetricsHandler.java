@@ -1,4 +1,4 @@
-package com.logicbus.backend.stats.core;
+package com.logicbus.backend.metrics.core;
 
 import java.io.InputStream;
 
@@ -35,18 +35,18 @@ public interface MetricsHandler extends Handler<Fragment>,MetricsCollector{
 		
 		public static MetricsHandler getClientInstance(Properties p){
 			String master = p.GetValue("metrics.handler.client.master", 
-					"java:///com/logicbus/backend/stats/metrics.handler.client.xml#com.logicbus.backend.stats.MetricsHandler");
+					"java:///com/logicbus/backend/metrics/core/metrics.handler.client.xml#com.logicbus.backend.metrics.core.MetricsHandler");
 			String secondary = p.GetValue("metrics.handler.client.master", 
-					"java:///com/logicbus/backend/stats/metrics.handler.client.xml#com.logicbus.backend.stats.MetricsHandler");
+					"java:///com/logicbus/backend/metrics/core/metrics.handler.client.xml#com.logicbus.backend.metrics.core.MetricsHandler");
 			
 			return getInstance(master,secondary,p);
 		}
 		
 		public static MetricsHandler getServerInstance(Properties p){
 			String master = p.GetValue("metrics.handler.server.master", 
-					"java:///com/logicbus/backend/stats/metrics.handler.server.xml#com.logicbus.backend.stats.MetricsHandler");
-			String secondary = p.GetValue("metrics.client.master", 
-					"java:///com/logicbus/backend/stats/metrics.handler.server.xml#com.logicbus.backend.stats.MetricsHandler");
+					"java:///com/logicbus/backend/metrics/core/metrics.handler.server.xml#com.logicbus.backend.metrics.core.MetricsHandler");
+			String secondary = p.GetValue("metrics.handler.client.master", 
+					"java:///com/logicbus/backend/metrics/core/metrics.handler.server.xml#com.logicbus.backend.metrics.core.MetricsHandler");
 			
 			return getInstance(master,secondary,p);
 		}

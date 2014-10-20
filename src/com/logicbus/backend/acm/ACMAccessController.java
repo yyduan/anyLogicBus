@@ -16,10 +16,10 @@ import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.logicbus.backend.AccessController;
 import com.logicbus.backend.Context;
-import com.logicbus.backend.stats.core.Dimensions;
-import com.logicbus.backend.stats.core.Fragment;
-import com.logicbus.backend.stats.core.Measures;
-import com.logicbus.backend.stats.core.MetricsCollector;
+import com.logicbus.backend.metrics.core.Dimensions;
+import com.logicbus.backend.metrics.core.Fragment;
+import com.logicbus.backend.metrics.core.Measures;
+import com.logicbus.backend.metrics.core.MetricsCollector;
 import com.logicbus.models.catalog.Path;
 import com.logicbus.models.servant.ServiceDescription;
 
