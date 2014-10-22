@@ -1,35 +1,44 @@
-package com.logicbus.remote.impl.http;
+package com.logicbus.remote.impl.simulate;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.anysoft.util.JsonTools;
 import com.jayway.jsonpath.JsonPath;
-import com.logicbus.remote.client.JsonBuffer;
+import com.jayway.jsonpath.spi.JsonProvider;
+import com.jayway.jsonpath.spi.JsonProviderFactory;
 import com.logicbus.remote.core.AbstractResult;
 
 /**
- * 服务请求结果
+ * 模拟的结果实现
  * 
  * @author duanyy
+ * 
+ * @version 1.2.9.3
  *
- * @since 1.2.9
- * 
- * @version 1.2.9.3 [20141021 duanyy]
- * - 从AbstractResult进行扩展
- * 
  */
-public class HttpResult extends AbstractResult {
-	protected JsonBuffer buffer = null;
+public class SimulatedResult extends AbstractResult {
+	protected Map<String,Object> root = null;
 	protected Map<String,String> idPaths;
-	protected HttpResult(JsonBuffer _buf, Map<String, String> _idPaths){
-		buffer = _buf;
+	
+	@SuppressWarnings("unchecked")
+	protected SimulatedResult(String data, Map<String, String> _idPaths){
 		idPaths = _idPaths;
+		
+		if (data != null && data.length() > 0){
+			JsonProvider provider = JsonProviderFactory.createProvider();
+			Object rootObj = provider.parse(data);
+			if (rootObj instanceof Map){
+				root = (Map<String,Object>)rootObj;
+			}
+		}
+		if (root == null){
+			root = new HashMap<String,Object>();
+		}
 	}
 	
 	@Override
 	public Object getData(String id){
-		Map<String,Object> root = buffer.getRoot();
-		
 		if (idPaths == null){
 			return root.get(id);
 		}
@@ -43,7 +52,7 @@ public class HttpResult extends AbstractResult {
 	}
 	
 	public Map<String, Object> getRoot() {
-		return buffer.getRoot();
+		return root;
 	}
 	
 	@Override

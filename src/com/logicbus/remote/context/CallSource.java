@@ -13,10 +13,7 @@ import com.anysoft.util.Properties;
 import com.anysoft.util.Settings;
 import com.anysoft.util.XmlTools;
 import com.anysoft.util.resource.ResourceFactory;
-import com.logicbus.remote.core.BuilderFactory;
 import com.logicbus.remote.core.Call;
-import com.logicbus.remote.core.Parameters;
-import com.logicbus.remote.core.Result;
 
 
 /**
@@ -25,6 +22,8 @@ import com.logicbus.remote.core.Result;
  *
  * @since 1.2.9
  * 
+ * @version 1.2.9.3 [20141022 duanyy]
+ * - 增加{@link #getCall(String)}
  */
 public class CallSource extends Source<Call> {
 
@@ -35,6 +34,20 @@ public class CallSource extends Source<Call> {
 
 	protected String getContextName(){
 		return "context";
+	}
+	
+	/**
+	 * 直接获取Call对象
+	 * 
+	 * @param id
+	 * @return
+	 * 
+	 * @since 1.2.9.3
+	 * 
+	 */
+	public static Call getCall(String id){
+		CallSource src = CallSource.get();
+		return src.get(id);
 	}
 	
 	public static class TheFactory extends Factory<Context<Call>>{
@@ -90,16 +103,5 @@ public class CallSource extends Source<Call> {
 		}
 		return null;
 	}
-	
-	public static void main(String[] args){
-		CallSource source = CallSource.get();
-		
-		Call call = source.get("hello");
 
-		Parameters paras = call.createParameter();
-		
-		Result result = call.execute(paras);
-		System.out.println(result.getDuration());
-		System.out.println(result.getData("welcome", BuilderFactory.STRING));
-	}
 }

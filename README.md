@@ -158,4 +158,7 @@ anyLogicBus是一个高效的,可扩展的,轻量级服务框架,具有下列特
 	 + 淘汰ChangeAware模型，转为更为通用的Watcher模型(1.2.9.1)
 	 + 软件包com.logicbus.backend.stats调整到com.logicbus.backend.metrics(1.2.9.2)
 	 + 软件包com.logicbus.client调整到com.logicbus.remote.client(1.2.9.2)
-	 
+	 + remote:改造HttpCall，支持loadbalance(1.2.9.3)
+	 + remote:改造Result,支持通过JsonPath提取对象(1.2.9.3)
+	 + remote:增加simulate实现，用于模拟调用数据(1.2.9.3)
+	 + dbcp:增加对读写分离的支持(1.2.9.3)

@@ -2,11 +2,17 @@ package com.logicbus.dbcp.impl;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.anysoft.cache.Cacheable;
 import com.anysoft.util.Confirmer;
@@ -14,6 +20,7 @@ import com.anysoft.util.JsonTools;
 import com.anysoft.util.PropertiesConstants;
 import com.anysoft.util.Settings;
 import com.anysoft.util.XmlElementProperties;
+import com.anysoft.util.XmlTools;
 
 /**
  * 连接模型
@@ -140,6 +147,10 @@ public class ConnectionModel implements Cacheable{
 	 */
 	protected Confirmer confirmer = null;
 
+	protected List<ReadOnlySource> readonlys = null; 
+	
+	public List<ReadOnlySource> getReadOnlySources(){return readonlys;}
+	
 	public void report(Element e){
 		e.setAttribute("name", name);
 		e.setAttribute("driver", driver);
@@ -150,6 +161,21 @@ public class ConnectionModel implements Cacheable{
 		e.setAttribute("maxWait", String.valueOf(maxWait));
 		e.setAttribute("callbackId", callbackId);
 		e.setAttribute("callback", callback);
+		
+		//readonlys
+		if (readonlys != null && readonlys.size() > 0){
+			Document doc = e.getOwnerDocument();
+			
+			Element _readonlys = doc.createElement("ross");
+			
+			for (ReadOnlySource s:readonlys){
+				Element _s = doc.createElement("ros");
+				s.report(_s);
+				_readonlys.appendChild(_s);
+			}
+			
+			e.appendChild(_readonlys);
+		}
 	}
 	
 	public void report(Map<String,Object> json){
@@ -162,20 +188,25 @@ public class ConnectionModel implements Cacheable{
 		JsonTools.setInt(json, "maxWait", maxWait);
 		JsonTools.setString(json, "callbackId", callbackId);
 		JsonTools.setString(json, "callback", callback);
+		
+		//readonlys
+		if (readonlys != null && readonlys.size() > 0){
+			List<Object> _readonlys = new ArrayList<Object>(readonlys.size());
+			
+			for (ReadOnlySource s:readonlys){
+				Map<String,Object> _s = new HashMap<String,Object>();
+				s.report(_s);
+				_readonlys.add(_s);
+			}
+			
+			json.put("ross", _readonlys);
+		}
 	}	
 	
 	@Override
 	public void toXML(Element e) {
-		e.setAttribute("name", name);
-		e.setAttribute("driver", driver);
-		e.setAttribute("url", url);
-		e.setAttribute("username", username);
+		report(e);
 		e.setAttribute("password", password);
-		e.setAttribute("maxActive", String.valueOf(maxActive));
-		e.setAttribute("maxIdle", String.valueOf(maxIdle));
-		e.setAttribute("maxWait", String.valueOf(maxWait));
-		e.setAttribute("callbackId", callbackId);
-		e.setAttribute("callback", callback);
 	}
 
 	@Override
@@ -192,20 +223,28 @@ public class ConnectionModel implements Cacheable{
 		maxWait = PropertiesConstants.getInt(props, "maxWait",5000);
 		callbackId = PropertiesConstants.getString(props, "callbackId", "");
 		callback = PropertiesConstants.getString(props, "callback", "");
+		
+		NodeList _readonlys = XmlTools.getNodeListByPath(e, "ross/ros");
+		if (_readonlys != null && _readonlys.getLength() > 0){
+			readonlys = new ArrayList<ReadOnlySource>(_readonlys.getLength());
+			
+			for (int i = 0; i < _readonlys.getLength() ; i ++){
+				Node n = _readonlys.item(i);
+				if (n.getNodeType() != Node.ELEMENT_NODE){
+					continue;
+				}
+				Element _e = (Element)n;
+				ReadOnlySource ros = new ReadOnlySource(props);
+				ros.fromXML(_e);
+				readonlys.add(ros);
+			}
+		}
 	}
 
 	@Override
 	public void toJson(Map<String,Object> json) {
-		JsonTools.setString(json, "name",name);
-		JsonTools.setString(json, "driver",driver);
-		JsonTools.setString(json, "url",url);
-		JsonTools.setString(json, "username", username);
+		report(json);
 		JsonTools.setString(json, "password",password);
-		JsonTools.setInt(json, "maxActive", maxActive);
-		JsonTools.setInt(json, "maxIdle", maxIdle);
-		JsonTools.setInt(json, "maxWait", maxWait);
-		JsonTools.setString(json, "callbackId", callbackId);
-		JsonTools.setString(json, "callback", callback);
 	}
 
 	@Override
@@ -220,6 +259,22 @@ public class ConnectionModel implements Cacheable{
 		maxWait = JsonTools.getInt(json, "maxWait",5000);
 		callbackId = JsonTools.getString(json, "callbackId", callbackId);
 		callback = JsonTools.getString(json, "callback", callback);
+		
+		Object _readonlys = json.get("ross");
+		if (_readonlys != null && _readonlys instanceof List){
+			@SuppressWarnings("unchecked")
+			List<Object> _ross = (List<Object>)_readonlys;
+			
+			for (Object _o:_ross){
+				if (_o instanceof Map){
+					@SuppressWarnings("unchecked")
+					Map<String,Object> _ros = (Map<String,Object>)_o;
+					ReadOnlySource ros = new ReadOnlySource(Settings.get());
+					ros.fromJson(_ros);
+					readonlys.add(ros);
+				}
+			}
+		}
 	}
 
 	@Override

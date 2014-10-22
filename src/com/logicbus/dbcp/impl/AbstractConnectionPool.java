@@ -2,18 +2,24 @@ package com.logicbus.dbcp.impl;
 
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.anysoft.loadbalance.LoadBalance;
+import com.anysoft.loadbalance.LoadBalanceFactory;
 import com.anysoft.pool.QueuedPool2;
 import com.anysoft.util.Counter;
+import com.anysoft.util.KeyGen;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
 import com.logicbus.backend.metrics.core.MetricsCollector;
+import com.logicbus.dbcp.context.DbcpSource;
 import com.logicbus.dbcp.core.ConnectionPool;
 import com.logicbus.dbcp.util.ConnectionPoolStat;
+
 
 /**
  * ConnectionPool 虚基类
@@ -26,9 +32,12 @@ import com.logicbus.dbcp.util.ConnectionPoolStat;
  * - 实现Reportable接口
  * - ConnectionPoolStat模型更新
  * 
+ * @version 1.2.9.3 [20141022 duanyy]
+ * - 增加对读写分离的支持
  */
 abstract public class AbstractConnectionPool extends QueuedPool2<Connection> implements ConnectionPool{
 	protected Counter stat = null;
+	protected LoadBalance<ReadOnlySource> loadBalance = null;
 	
 	@Override
 	public void create(Properties props){
@@ -40,6 +49,15 @@ abstract public class AbstractConnectionPool extends QueuedPool2<Connection> imp
 			stat = createCounter(props);
 		}else{
 			stat = null;
+		}
+		
+		//loadbalance
+		{
+			String lbModule = props.GetValue("loadbalance.module", "Rand");
+			
+			LoadBalanceFactory<ReadOnlySource> f = new LoadBalanceFactory<ReadOnlySource>();
+			
+			loadBalance = f.newInstance(lbModule, props);
 		}
 	}
 	
@@ -99,18 +117,58 @@ abstract public class AbstractConnectionPool extends QueuedPool2<Connection> imp
 
 	@Override
 	public Connection getConnection(int timeout, boolean enableRWS) {
-		long start = System.currentTimeMillis();
 		Connection conn = null;
-		try {
-			int _timeout = timeout > getMaxWait() ? getMaxWait() : timeout;
-			conn = borrowObject(0,_timeout);			
-		}finally{
-			if (stat != null){
-				stat.count(System.currentTimeMillis() - start, conn == null);
+		if (enableRWS){
+			conn = selectReadSource(timeout);
+		}
+		
+		if (conn == null){
+			long start = System.currentTimeMillis();
+			try {
+				int _timeout = timeout > getMaxWait() ? getMaxWait() : timeout;
+				conn = borrowObject(0,_timeout);			
+			}finally{
+				if (stat != null){
+					stat.count(System.currentTimeMillis() - start, conn == null);
+				}
 			}
 		}
 		return conn;
 	}
+	
+	/**
+	 * 尝试选择只读数据源
+	 * 
+	 * @return
+	 */
+	protected Connection selectReadSource(int timeout){
+		Connection found = null;
+		
+		List<ReadOnlySource> ross = getReadOnlySources();
+		if (ross != null && ross.size() > 0 && loadBalance != null){
+			long start = System.currentTimeMillis();
+			boolean error = false;
+			ReadOnlySource dest = null;
+			try {	
+				dest = loadBalance.select(KeyGen.getKey(), null, ross);
+				
+				ConnectionPool pool = DbcpSource.getPool(dest.getId());
+				if (pool != null){
+					found = pool.getConnection(timeout);
+				}
+			} catch (Exception e) {
+				error = true;
+			}finally{
+				long _duration = System.currentTimeMillis() - start;
+				if (dest != null){
+					dest.count(_duration, error);
+				}
+			}
+		}
+		return found;
+	}
+	
+	abstract protected List<ReadOnlySource> getReadOnlySources();
 
 	@Override
 	public Connection getConnection(int timeout) {

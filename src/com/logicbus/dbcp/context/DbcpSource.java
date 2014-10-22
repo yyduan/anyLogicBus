@@ -25,6 +25,9 @@ import com.logicbus.dbcp.impl.InnerContext;
  * 
  * @version 1.2.9.1 [20141017 duanyy]
  * - 增加{@link #getPool(String)}
+ * 
+ * @version 1.2.9.3 [20141122 duanyy]
+ * - getPool变更为static
  */
 public class DbcpSource extends Source<ConnectionPool> {
 
@@ -34,8 +37,8 @@ public class DbcpSource extends Source<ConnectionPool> {
 	 * @param id
 	 * @return
 	 */
-	public ConnectionPool getPool(String id){
-		return get(id);
+	public static ConnectionPool getPool(String id){
+		return DbcpSource.get().get(id);
 	}
 	
 	@Override
@@ -99,11 +102,5 @@ public class DbcpSource extends Source<ConnectionPool> {
 			IOTools.closeStream(in);
 		}
 		return null;
-	}
-	
-	public static void main(String[] args){
-		DbcpSource src = DbcpSource.get();
-		
-		System.out.println(src.getPool("Default"));
 	}
 }

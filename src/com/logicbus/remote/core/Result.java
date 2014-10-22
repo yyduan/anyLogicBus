@@ -8,6 +8,9 @@ import com.anysoft.util.JsonSerializer;
  * @author duanyy
  *
  * @since 1.2.9
+ * 
+ * @version 1.2.9.3 [20141021 duanyy]
+ * - 可通过JsonPath来获取对象
  */
 public interface Result {
 	/**
@@ -63,5 +66,5 @@ public interface Result {
 	 * @param builder
 	 * @return
 	 */
-	public <data> data getData(String id,Builder<data> builder);
+	public <data> data getData(String id,Builder<data> builder);	
 }

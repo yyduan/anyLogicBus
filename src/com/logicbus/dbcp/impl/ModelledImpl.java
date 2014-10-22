@@ -2,6 +2,7 @@ package com.logicbus.dbcp.impl;
 
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -77,4 +78,10 @@ public class ModelledImpl extends AbstractConnectionPool{
 	}
 	
 	protected ConnectionModel model;
+
+	@Override
+	protected List<ReadOnlySource> getReadOnlySources() {
+		return model.getReadOnlySources();
+	}
+
 }

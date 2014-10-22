@@ -2,6 +2,7 @@ package com.logicbus.dbcp.impl;
 
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -16,7 +17,9 @@ import com.anysoft.util.XmlElementProperties;
  * 可通过XML配置的缓冲池实现
  * 
  * @author duanyy
- *
+ * @version 1.2.9.3 [20141122 duanyy]
+ * - 增加对读写分离的支持
+ * 
  */
 public class XMLConfigurableImpl extends AbstractConnectionPool implements XMLConfigurable{
 
@@ -77,4 +80,11 @@ public class XMLConfigurableImpl extends AbstractConnectionPool implements XMLCo
 	}
 	
 	protected ConnectionModel model;
+
+	@Override
+	protected List<ReadOnlySource> getReadOnlySources() {
+		return model.getReadOnlySources();
+	}
+
+
 }

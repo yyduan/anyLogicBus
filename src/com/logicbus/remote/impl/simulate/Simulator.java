@@ -1,5 +1,9 @@
-package com.logicbus.remote.impl.http;
+package com.logicbus.remote.impl.simulate;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,43 +18,32 @@ import org.w3c.dom.NodeList;
 
 import com.anysoft.loadbalance.LoadBalance;
 import com.anysoft.loadbalance.LoadBalanceFactory;
-import com.anysoft.selector.FieldList;
-import com.anysoft.selector.Selector;
 import com.anysoft.util.BaseException;
 import com.anysoft.util.Counter;
+import com.anysoft.util.IOTools;
 import com.anysoft.util.Properties;
 import com.anysoft.util.PropertiesConstants;
+import com.anysoft.util.Settings;
 import com.anysoft.util.XmlElementProperties;
 import com.anysoft.util.XmlTools;
-import com.logicbus.remote.client.ClientException;
-import com.logicbus.remote.client.HttpClient;
-import com.logicbus.remote.client.JsonBuffer;
-import com.logicbus.remote.client.Parameter;
+import com.anysoft.util.resource.ResourceFactory;
 import com.logicbus.remote.core.Call;
 import com.logicbus.remote.core.CallException;
+import com.logicbus.remote.core.DefaultParameters;
 import com.logicbus.remote.core.Parameters;
 import com.logicbus.remote.core.Result;
 import com.logicbus.remote.util.CallStat;
 
 
 /**
- * 基于Http请求的实现
+ * 远程调用模拟器
  * 
  * @author duanyy
  *
- * @since 1.2.9
- * 
- * @version 1.2.9.1 [20141017 duanyy]
- * - 实现Reportable接口
- * - 增加Counter模型
- * 
- * @version 1.2.9.3 [20141021 duanyy]
- * - 增加负载均衡机制，支持多个URI
- * - 增加结果数据的ID和Path映射
- * 
+ * @since 1.2.9.3
  */
-public class HttpCall implements Call {
-	protected static Logger logger = LogManager.getLogger(HttpCall.class);
+public class Simulator implements Call {
+	protected static Logger logger = LogManager.getLogger(Simulator.class);
 	
 	@Override
 	public void close() throws Exception {
@@ -74,26 +67,13 @@ public class HttpCall implements Call {
 				
 				Element e = (Element)n;
 				
-				HttpDestination dest = new HttpDestination();
+				SimulatedCase dest = new SimulatedCase();
 				dest.configure(e, p);
 				
 				destinations.add(dest);
 			}
 		}
-		
-		//queryParameters
-		Element qp = XmlTools.getFirstElementByPath(_e, "request/query");
-		if (qp != null){
-			queryParameters = new FieldList();
-			queryParameters.configure(qp, p);
-		}
-		
-		//argument data
-		Element ad = XmlTools.getFirstElementByPath(_e, "request/data");
-		if (ad != null){
-			arguments = new FieldList();
-			arguments.configure(ad, p);
-		}
+
 		//idpaths
 		NodeList ips = XmlTools.getNodeListByPath(_e, "response/data/field");
 		if (ips != null)
@@ -120,76 +100,54 @@ public class HttpCall implements Call {
 		{
 			String lbModule = p.GetValue("loadbalance.module", "Rand");
 			
-			LoadBalanceFactory<HttpDestination> f = new LoadBalanceFactory<HttpDestination>();
+			LoadBalanceFactory<SimulatedCase> f = new LoadBalanceFactory<SimulatedCase>();
 			
 			loadBalance = f.newInstance(lbModule, p);
 		}
 
-		
-		client = new HttpClient(p);
-		
 		stat = createCounter(p);
 	}
 
 	@Override
 	public Parameters createParameter() {
-		return new HttpParameters();
+		return new DefaultParameters();
 	}
 
+	private StringBuffer loadFromInputStream(StringBuffer buf,InputStream in){
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		String line = null;
+		try {
+            while ((line = reader.readLine()) != null) {
+            	buf.append(line);
+            	buf.append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+        	IOTools.closeStream(in,reader);
+        }
+		return buf;
+	}
+	
 	@Override
 	public Result execute(Parameters paras) throws CallException {
-		Parameter p = null;
-		
-		if (paras != null && queryParameters != null){
-			Selector[] fields = queryParameters.getFields();
-			if (fields != null && fields.length > 0){
-				p = client.createParameter();
-				
-				for (Selector s:fields){
-					if (!s.isOk()){
-						continue;
-					}
-					String id = s.getId();
-					String value = s.select(paras);
-
-					p.param(id, value);
-				}
-			}
-		}
-		
-		JsonBuffer buffer = new JsonBuffer();
-		
-		if (paras != null && arguments != null){
-			Selector[] fields = arguments.getFields();
-			if (fields != null && fields.length > 0){
-				Map<String,Object> root = buffer.getRoot();
-				
-				for (Selector s:fields){
-					if (!s.isOk()){
-						continue;
-					}
-					String id = s.getId();
-					
-					Object data = paras.getData(id);
-					if (data != null){
-						root.put(id, data);
-					}
-				}
-			}
-		}
-		
 		long start = System.currentTimeMillis();
 		boolean error = false;
-		HttpDestination dest = null;
+		SimulatedCase dest = null;
 		try {	
-			dest = loadBalance.select(paras.toString(), buffer, destinations);
+			dest = loadBalance.select(paras.toString(), (DefaultParameters)paras, destinations);
 			if (dest == null){
 				throw new CallException("core.nodests","Can not find a valid destination to call.");
 			}
-			client.invoke(dest.getURI(), p, buffer,buffer);
-		} catch (ClientException e) {
+			
+			ResourceFactory rf = Settings.getResourceFactory();
+			InputStream in = rf.load(dest.getURI(), null);
+			StringBuffer buffer = new StringBuffer();
+			loadFromInputStream(buffer,in);
+			return new SimulatedResult(buffer.toString(),idPaths);
+		} catch (Exception e) {
 			error = true;
-			throw new CallException(e.getCode(),e.getMessage(),e);
+			throw new CallException("call.simulator",e.getMessage(),e);
 		}finally{
 			long _duration = System.currentTimeMillis() - start;
 			if (stat != null){
@@ -199,34 +157,19 @@ public class HttpCall implements Call {
 				dest.count(_duration, error);
 			}
 		}
-		return new HttpResult(buffer,idPaths);
+		
 	}
 
-	/**
-	 * URL中的参数
-	 */
-	private FieldList queryParameters = null;
-
-	/**
-	 * Http entity中的数据
-	 */
-	private FieldList arguments = null;
-	
-	/**
-	 * Http Client
-	 */
-	protected HttpClient client = null;
-	
 	/**
 	 * 统计模型
 	 */
 	protected Counter stat = null;
 	
-	protected List<HttpDestination> destinations = new ArrayList<HttpDestination>();
+	protected List<SimulatedCase> destinations = new ArrayList<SimulatedCase>();
 
 	protected Map<String,String> idPaths = new HashMap<String,String>();
 	
-	protected LoadBalance<HttpDestination> loadBalance = null;
+	protected LoadBalance<SimulatedCase> loadBalance = null;
 	
 	protected Counter createCounter(Properties p){
 		String module = PropertiesConstants.getString(p,"call.stat.module", CallStat.class.getName());
